@@ -7,7 +7,7 @@ export const ReverseIndex_SK = tb.Primary_PK;
 export interface SingleTableDesign {
   /**
    * Create reverse GSI named 'ReverseIndex' and SK as partition key and PK as sort key
-   * 
+   *
    * @default false
    */
   reverseGSI?: boolean;
@@ -26,7 +26,7 @@ export interface SingleTableDesign {
     [name: string]: {
       partitionKey: string;
       sortKey?: string;
-    }
+    };
   };
 
   /**
@@ -35,6 +35,6 @@ export interface SingleTableDesign {
   localIndexes?: {
     [name: string]: {
       sortKey: string;
-    }
+    };
   };
 }

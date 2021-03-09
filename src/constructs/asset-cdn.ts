@@ -1,9 +1,9 @@
-import * as cdk from '@aws-cdk/core';
 import * as certificatemanager from '@aws-cdk/aws-certificatemanager';
 import * as cloudfront from '@aws-cdk/aws-cloudfront';
 import * as route53 from '@aws-cdk/aws-route53';
 import * as route53Targets from '@aws-cdk/aws-route53-targets';
 import * as s3 from '@aws-cdk/aws-s3';
+import * as cdk from '@aws-cdk/core';
 
 export interface AssetCdnProps {
   domainName: string;

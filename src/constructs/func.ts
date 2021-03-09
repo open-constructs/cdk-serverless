@@ -13,7 +13,6 @@ export interface LambdaFunctionProps {
   table?: dynamodb.ITable;
   tableWrites?: boolean;
   userPool?: cognito.IUserPool;
-  domainName: string;
   assetBucket?: s3.Bucket;
   assetDomainName?: string;
   includeSDK?: boolean;
@@ -34,7 +33,6 @@ export class LambdaFunction extends WatchableNodejsFunction {
       },
       environment: {
         STAGE: props.stageName,
-        DOMAIN_NAME: props.domainName,
         ...props.table && {
           TABLE: props.table.tableName,
         },

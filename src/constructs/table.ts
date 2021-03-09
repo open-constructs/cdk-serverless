@@ -1,6 +1,6 @@
-import * as cdk from '@aws-cdk/core';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as kms from '@aws-cdk/aws-kms';
+import * as cdk from '@aws-cdk/core';
 import * as tb from '@taimos/lambda-toolbox/lib/dynamodb';
 import * as tableTypes from '../types/table';
 

@@ -67,6 +67,22 @@
     "@aws-cdk/core" "1.91.0"
     constructs "^3.2.0"
 
+"@aws-cdk/aws-appsync@1.91.0":
+  version "1.91.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-appsync/-/aws-appsync-1.91.0.tgz#9b7027f0ed0a1caf74ff35aed6047ce47f5dfe80"
+  integrity sha512-onaP6aa8J6jF6sU3wGO1Nt2tapCaG+xPaTXVOaZWiaaf3TzKay6jKpBjkezTazuMkyHNrxgBvMarIFfHKQGBlQ==
+  dependencies:
+    "@aws-cdk/aws-cognito" "1.91.0"
+    "@aws-cdk/aws-dynamodb" "1.91.0"
+    "@aws-cdk/aws-ec2" "1.91.0"
+    "@aws-cdk/aws-iam" "1.91.0"
+    "@aws-cdk/aws-lambda" "1.91.0"
+    "@aws-cdk/aws-rds" "1.91.0"
+    "@aws-cdk/aws-s3-assets" "1.91.0"
+    "@aws-cdk/aws-secretsmanager" "1.91.0"
+    "@aws-cdk/core" "1.91.0"
+    constructs "^3.2.0"
+
 "@aws-cdk/aws-autoscaling-common@1.91.0":
   version "1.91.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-autoscaling-common/-/aws-autoscaling-common-1.91.0.tgz#8a1824e4e7dfca6663c117f6f497101b4e251150"
@@ -313,6 +329,22 @@
     "@aws-cdk/core" "1.91.0"
     constructs "^3.2.0"
 
+"@aws-cdk/aws-rds@1.91.0":
+  version "1.91.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-rds/-/aws-rds-1.91.0.tgz#9c78cf2ca2c4baee893956aa87bb12768b434aec"
+  integrity sha512-LtWd1v0hsiNX+btv9QJVMbjGuZKvnambuVuH26QY8I1ktgWHzwsCvdLtTEfOSIJagLxIaMH0Ho3JwzK7KHbq7A==
+  dependencies:
+    "@aws-cdk/aws-cloudwatch" "1.91.0"
+    "@aws-cdk/aws-ec2" "1.91.0"
+    "@aws-cdk/aws-events" "1.91.0"
+    "@aws-cdk/aws-iam" "1.91.0"
+    "@aws-cdk/aws-kms" "1.91.0"
+    "@aws-cdk/aws-logs" "1.91.0"
+    "@aws-cdk/aws-s3" "1.91.0"
+    "@aws-cdk/aws-secretsmanager" "1.91.0"
+    "@aws-cdk/core" "1.91.0"
+    constructs "^3.2.0"
+
 "@aws-cdk/aws-route53-targets@1.91.0":
   version "1.91.0"
   resolved "https://registry.yarnpkg.com/@aws-cdk/aws-route53-targets/-/aws-route53-targets-1.91.0.tgz#8cb1c61f574c4ca86ac806e9dabe7e121d31dadd"
@@ -366,6 +398,28 @@
     "@aws-cdk/aws-events" "1.91.0"
     "@aws-cdk/aws-iam" "1.91.0"
     "@aws-cdk/aws-kms" "1.91.0"
+    "@aws-cdk/core" "1.91.0"
+    "@aws-cdk/cx-api" "1.91.0"
+    constructs "^3.2.0"
+
+"@aws-cdk/aws-sam@1.91.0":
+  version "1.91.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-sam/-/aws-sam-1.91.0.tgz#e42b6d8161c2025d8f5d83d8ccf05920e230accb"
+  integrity sha512-QKBpnbuQJOFPHdcA8JKjKgZ7w9q6RLNGsklbjmN1XnkCjvguiD/BcFwU+u6PKVNqm1m/hAPIBwguDOuP2d0u8g==
+  dependencies:
+    "@aws-cdk/core" "1.91.0"
+    constructs "^3.2.0"
+
+"@aws-cdk/aws-secretsmanager@1.91.0":
+  version "1.91.0"
+  resolved "https://registry.yarnpkg.com/@aws-cdk/aws-secretsmanager/-/aws-secretsmanager-1.91.0.tgz#0fa9f4bb499841d22a4fd7288babe46d7e9663fd"
+  integrity sha512-fJ/nSBFt92D1paP7i1tQ2oiW+47zddAvpoI8y7TWwD059VcanP5HflAA3MxIDX/iSOADwKXoj92MNoXjj2YKEA==
+  dependencies:
+    "@aws-cdk/aws-ec2" "1.91.0"
+    "@aws-cdk/aws-iam" "1.91.0"
+    "@aws-cdk/aws-kms" "1.91.0"
+    "@aws-cdk/aws-lambda" "1.91.0"
+    "@aws-cdk/aws-sam" "1.91.0"
     "@aws-cdk/core" "1.91.0"
     "@aws-cdk/cx-api" "1.91.0"
     constructs "^3.2.0"
@@ -1135,7 +1189,7 @@
     jest-diff "^26.0.0"
     pretty-format "^26.0.0"
 
-"@types/js-yaml@*":
+"@types/js-yaml@^4.0.0":
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/@types/js-yaml/-/js-yaml-4.0.0.tgz#d1a11688112091f2c711674df3a65ea2f47b5dfb"
   integrity sha512-4vlpCM5KPCL5CfGmTbpjwVKbISRYhduEJvvUWsH5EB7QInhEj94XPZ3ts/9FPiLZFqYO0xoW4ZL8z2AabTGgJA==
@@ -2568,6 +2622,11 @@ es-to-primitive@^1.2.1:
     is-callable "^1.1.4"
     is-date-object "^1.0.1"
     is-symbol "^1.0.2"
+
+esbuild@^0.8.57:
+  version "0.8.57"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.57.tgz#a42d02bc2b57c70bcd0ef897fe244766bb6dd926"
+  integrity sha512-j02SFrUwFTRUqiY0Kjplwjm1psuzO1d6AjaXKuOR9hrY0HuPsT6sV42B6myW34h1q4CRy+Y3g4RU/cGJeI/nNA==
 
 escalade@^3.1.1:
   version "3.1.1"
@@ -4203,6 +4262,13 @@ js-tokens@^4.0.0:
   resolved "https://registry.yarnpkg.com/js-tokens/-/js-tokens-4.0.0.tgz#19203fb59991df98e3a287050d4647cdeaf32499"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
+js-yaml@*, js-yaml@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.0.0.tgz#f426bc0ff4b4051926cd588c71113183409a121f"
+  integrity sha512-pqon0s+4ScYUvX30wxQi3PogGFAlUyH0awepWvwkj4jD4v+ova3RiYw8bmA6x2rDrEaj8i/oWKoRxpVNW+Re8Q==
+  dependencies:
+    argparse "^2.0.1"
+
 js-yaml@3.14.0:
   version "3.14.0"
   resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-3.14.0.tgz#a7a34170f26a21bb162424d8adacb4113a69e482"
@@ -4218,13 +4284,6 @@ js-yaml@^3.13.1:
   dependencies:
     argparse "^1.0.7"
     esprima "^4.0.0"
-
-js-yaml@^4.0.0:
-  version "4.0.0"
-  resolved "https://registry.yarnpkg.com/js-yaml/-/js-yaml-4.0.0.tgz#f426bc0ff4b4051926cd588c71113183409a121f"
-  integrity sha512-pqon0s+4ScYUvX30wxQi3PogGFAlUyH0awepWvwkj4jD4v+ova3RiYw8bmA6x2rDrEaj8i/oWKoRxpVNW+Re8Q==
-  dependencies:
-    argparse "^2.0.1"
 
 jsbn@~0.1.0:
   version "0.1.1"
@@ -5018,7 +5077,7 @@ onetime@^5.1.0, onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
-openapi-typescript@^3.0.4:
+openapi-typescript@*:
   version "3.0.4"
   resolved "https://registry.yarnpkg.com/openapi-typescript/-/openapi-typescript-3.0.4.tgz#3b0238eb980d02b8952e902876b044c68d13ef94"
   integrity sha512-SMnd+oOkUiQrMf9F7dBVZ4iwJxXriMA8puAwOHDJE10SlNibILhNVEC7Nrebm1Oj3RuCqx7HaALjQ2yDQtRu0g==

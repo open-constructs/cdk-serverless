@@ -1,17 +1,18 @@
-import * as cdk from '@aws-cdk/core';
+import * as fs from 'fs';
 import * as apiGW from '@aws-cdk/aws-apigatewayv2';
 import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations';
 import * as acm from '@aws-cdk/aws-certificatemanager';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as route53 from '@aws-cdk/aws-route53';
 import * as route53Target from '@aws-cdk/aws-route53-targets';
-import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
-import { Authentication, AuthenticationProps } from './auth';
-import { AssetCdn, AssetCdnProps } from './asset-cdn';
+import * as cdk from '@aws-cdk/core';
 import * as yaml from 'js-yaml';
-import * as fs from 'fs';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript/dist-types/types';
+import { AssetCdn, AssetCdnProps } from './asset-cdn';
+import { Authentication, AuthenticationProps } from './auth';
 import { LambdaFunction } from './func';
+import { Monitoring } from './monitoring';
+import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
 
 export interface HttpApiProps {
   apiName: string;
@@ -19,15 +20,20 @@ export interface HttpApiProps {
   domainName: string;
   /**
    * Hostname of the API
-   * 
+   *
    * @default api
    */
   apiHostname?: string;
   autoGenerateRoutes?: boolean;
 
+  monitoring?: boolean;
   singleTableDatastore?: SingleTableDatastoreProps;
   authentication?: AuthenticationProps;
   assetCdn?: AssetCdnProps;
+
+  additionalEnv?: {
+    [key: string]: string;
+  };
 }
 
 export class HttpApi<PATHS, OPS> extends cdk.Construct {
@@ -39,6 +45,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
   public readonly singleTableDatastore?: SingleTableDatastore;
   public readonly authentication?: Authentication;
   public readonly assetCdn?: AssetCdn;
+  public readonly monitoring?: Monitoring;
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
@@ -77,6 +84,34 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
       recordName: apiDomainName,
       target: route53.RecordTarget.fromAlias(new route53Target.ApiGatewayv2Domain(dn)),
     });
+
+
+    if (props.monitoring ?? true) {
+      this.monitoring = new Monitoring(this, 'Monitoring', {
+        apiName: this.props.apiName,
+        stageName: this.props.stageName,
+      });
+
+      this.monitoring.apiErrorsWidget.addLeftMetric(this.api.metricServerError({
+        statistic: 'sum',
+      }));
+      this.monitoring.apiErrorsWidget.addLeftMetric(this.api.metricClientError({
+        statistic: 'sum',
+      }));
+
+      this.monitoring.apiLatencyWidget.addLeftMetric(this.api.metricLatency({
+        statistic: 'Average',
+      }));
+      this.monitoring.apiLatencyWidget.addLeftMetric(this.api.metricLatency({
+        statistic: 'p90',
+      }));
+      this.monitoring.apiLatencyTailWidget.addLeftMetric(this.api.metricLatency({
+        statistic: 'p95',
+      }));
+      this.monitoring.apiLatencyTailWidget.addLeftMetric(this.api.metricLatency({
+        statistic: 'p99',
+      }));
+    }
 
     this.integrationStack = new cdk.Stack(this, 'Integrations');
 
@@ -120,7 +155,10 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
 
     const fn = new LambdaFunction(this, `Fn${operation.operationId}`, {
       stageName: this.props.stageName,
-      domainName: this.props.domainName,
+      additionalEnv: {
+        DOMAIN_NAME: this.props.domainName,
+        ...this.props.additionalEnv,
+      },
       file: `rest.${operation.operationId}`,
       description: `[${this.props.stageName}] ${description}`,
       ...this.authentication && {
@@ -137,6 +175,13 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
     });
     this._functions[operation.operationId as string] = fn;
     cdk.Tags.of(fn).add('OpenAPI', description);
+
+    if (this.monitoring) {
+      this.monitoring.lambdaDurationsWidget.addLeftMetric(fn.metricDuration());
+      this.monitoring.lambdaInvokesWidget.addLeftMetric(fn.metricInvocations());
+      this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricErrors());
+      this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricThrottles());
+    }
 
     this.addRoute(path, method, fn);
 

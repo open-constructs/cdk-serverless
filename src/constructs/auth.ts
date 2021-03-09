@@ -6,9 +6,9 @@ export interface AuthenticationProps {
   triggers?: {
     /**
      * Attaches a lambda function to the custom message trigger
-     * 
+     *
      * Code has to reside in './src/lambda/cognito.custom-message.ts' with a method 'handler'
-     * 
+     *
      * @default false
      */
     customMessages?: boolean;

@@ -11,12 +11,42 @@
       "type": "build"
     },
     {
+      "name": "@aws-cdk/aws-appsync",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/aws-certificatemanager",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/aws-cloudfront",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/aws-cloudwatch",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
       "name": "@aws-cdk/aws-cognito",
       "version": "1.91.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-dynamodb",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/aws-iam",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/aws-kms",
       "version": "1.91.0",
       "type": "build"
     },
@@ -37,6 +67,16 @@
     },
     {
       "name": "@aws-cdk/aws-route53",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/aws-s3",
+      "version": "1.91.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/core",
       "version": "1.91.0",
       "type": "build"
     },
@@ -101,10 +141,6 @@
       "type": "build"
     },
     {
-      "name": "openapi-typescript",
-      "type": "build"
-    },
-    {
       "name": "projen",
       "version": "^0.15.18",
       "type": "build"
@@ -134,12 +170,42 @@
       "type": "peer"
     },
     {
+      "name": "@aws-cdk/aws-appsync",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/aws-certificatemanager",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/aws-cloudfront",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/aws-cloudwatch",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
       "name": "@aws-cdk/aws-cognito",
       "version": "^1.91.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-dynamodb",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/aws-iam",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/aws-kms",
       "version": "^1.91.0",
       "type": "peer"
     },
@@ -164,6 +230,16 @@
       "type": "peer"
     },
     {
+      "name": "@aws-cdk/aws-s3",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/core",
+      "version": "^1.91.0",
+      "type": "peer"
+    },
+    {
       "name": "@taimos/lambda-toolbox",
       "type": "runtime"
     },
@@ -177,6 +253,18 @@
     },
     {
       "name": "date-fns",
+      "type": "runtime"
+    },
+    {
+      "name": "esbuild",
+      "type": "runtime"
+    },
+    {
+      "name": "js-yaml",
+      "type": "runtime"
+    },
+    {
+      "name": "openapi-typescript",
       "type": "runtime"
     }
   ],
