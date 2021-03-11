@@ -12,7 +12,6 @@
 .yarn-integrity
 /coverage
 /dist
-/lib
 /test-reports/
 build/Release
 coverage
@@ -40,6 +39,7 @@ yarn-error.log*
 !/.projenrc.js
 !/.versionrc.json
 !/LICENSE
+!/lib
 !/package.json
 !/src
 !/test

@@ -52,4 +52,6 @@ const project = new TaimosTypescriptLibrary({
   },
 });
 
+project.gitignore.include('/lib');
+
 project.synth();
