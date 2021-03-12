@@ -88,7 +88,7 @@
     "date-fns": "^2.19.0",
     "esbuild": "^0.8.57",
     "js-yaml": "^4.0.0",
-    "openapi-typescript": "^3.0.4"
+    "openapi-typescript": "3.0.4"
   },
   "bundledDependencies": [],
   "keywords": [

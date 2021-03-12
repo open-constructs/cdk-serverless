@@ -40,7 +40,6 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
 
   public readonly api: apiGW.HttpApi;
   public readonly apiSpec: OpenAPI3;
-  public readonly integrationStack: cdk.Stack;
 
   public readonly singleTableDatastore?: SingleTableDatastore;
   public readonly authentication?: Authentication;
@@ -113,8 +112,6 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
       }));
     }
 
-    this.integrationStack = new cdk.Stack(this, 'Integrations');
-
     if (props.autoGenerateRoutes ?? true) {
       for (const path in this.apiSpec.paths) {
         if (Object.prototype.hasOwnProperty.call(this.apiSpec.paths, path)) {
@@ -141,7 +138,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
 
   public addRoute<P extends keyof PATHS>(path: P, method: keyof PATHS[P], handler: lambda.Function) {
     const apiMethod = this.methodTransform(method as string);
-    new apiGW.HttpRoute(this.integrationStack, `${apiMethod}${path}`, {
+    new apiGW.HttpRoute(this, `${apiMethod}${path}`, {
       httpApi: this.api,
       routeKey: apiGW.HttpRouteKey.with(path as string, apiMethod),
       integration: new apiGWInteg.LambdaProxyIntegration({ handler }),

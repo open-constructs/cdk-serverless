@@ -30,7 +30,6 @@ export declare class HttpApi<PATHS, OPS> extends cdk.Construct {
     private props;
     readonly api: apiGW.HttpApi;
     readonly apiSpec: OpenAPI3;
-    readonly integrationStack: cdk.Stack;
     readonly singleTableDatastore?: SingleTableDatastore;
     readonly authentication?: Authentication;
     readonly assetCdn?: AssetCdn;

@@ -26,7 +26,6 @@ export interface GraphApiProps {
 export class GraphApi extends cdk.Construct {
 
   public readonly api: appsync.GraphqlApi;
-  public readonly integrationStack: cdk.Stack;
 
   public readonly singleTableDatastore?: SingleTableDatastore;
   public readonly authentication?: Authentication;
@@ -123,8 +122,6 @@ export class GraphApi extends cdk.Construct {
         statistic: 'p99',
       }));
     }
-
-    this.integrationStack = new cdk.Stack(this, 'Integrations');
 
     if (this.singleTableDatastore) {
       this.tableDataSource = new appsync.DynamoDbDataSource(this, 'SingleTableSource', {

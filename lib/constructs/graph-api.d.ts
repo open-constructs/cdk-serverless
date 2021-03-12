@@ -20,7 +20,6 @@ export interface GraphApiProps {
 export declare class GraphApi extends cdk.Construct {
     private props;
     readonly api: appsync.GraphqlApi;
-    readonly integrationStack: cdk.Stack;
     readonly singleTableDatastore?: SingleTableDatastore;
     readonly authentication?: Authentication;
     readonly assetCdn?: AssetCdn;
