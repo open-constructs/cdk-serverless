@@ -5,7 +5,7 @@ import * as cdk from '@aws-cdk/core';
 import { WatchableNodejsFunction } from 'cdk-watch';
 export interface LambdaFunctionProps {
     stageName: string;
-    file: string;
+    entry: string;
     handler?: string;
     description?: string;
     table?: dynamodb.ITable;

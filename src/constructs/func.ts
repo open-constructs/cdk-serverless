@@ -7,7 +7,7 @@ import { WatchableNodejsFunction } from 'cdk-watch';
 
 export interface LambdaFunctionProps {
   stageName: string;
-  file: string;
+  entry: string;
   handler?: string;
   description?: string;
   table?: dynamodb.ITable;
@@ -22,9 +22,10 @@ export interface LambdaFunctionProps {
 }
 
 export class LambdaFunction extends WatchableNodejsFunction {
+
   constructor(scope: cdk.Construct, id: string, private props: LambdaFunctionProps) {
     super(scope, id, {
-      entry: `./src/lambda/${props.file}.ts`,
+      entry: props.entry,
       bundling: {
         externalModules: props.includeSDK ? [] : undefined,
         loader: {

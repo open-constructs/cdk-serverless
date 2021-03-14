@@ -42,6 +42,7 @@ export declare class HttpApi<PATHS, OPS> extends cdk.Construct {
     getFunctionForOperation(operationId: keyof OPS): LambdaFunction;
     addRoute<P extends keyof PATHS>(path: P, method: keyof PATHS[P], handler: lambda.Function): void;
     addRestResource<P extends keyof PATHS>(path: P, method: keyof PATHS[P]): LambdaFunction;
+    private createEntryFile;
     private tableWriteAccessForMethod;
     private methodTransform;
 }

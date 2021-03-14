@@ -138,14 +138,17 @@ export class GraphApi extends cdk.Construct {
     return this._functions[`${typeName}.${fieldName}`];
   }
 
-  protected addLambdaResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): lambdaNodejs.NodejsFunction {
+  public addLambdaResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): lambdaNodejs.NodejsFunction {
     const operationId = `${typeName}.${fieldName}`;
     const description = `Type ${typeName} Field ${fieldName} Resolver`;
+
+    const entryFile = `./src/lambda/${operationId}.ts`;
+    // TODO generate entry file if needed
 
     const fn = new LambdaFunction(this, `Fn${operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: this.props.additionalEnv,
-      file: operationId,
+      entry: entryFile,
       description: `[${this.props.stageName}] ${description}`,
       ...this.authentication && {
         userPool: this.authentication?.userpool,
@@ -183,7 +186,7 @@ export class GraphApi extends cdk.Construct {
     return fn;
   }
 
-  protected addDynamoDbVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): void {
+  public addDynamoDbVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): void {
     const operationId = `${typeName}.${fieldName}`;
 
     new appsync.Resolver(this, `Resolver${operationId}`, {

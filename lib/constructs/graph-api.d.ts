@@ -33,10 +33,10 @@ export declare class GraphApi extends cdk.Construct {
     getFunctionForOperation<TYPE extends {
         __typename?: any;
     }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): LambdaFunction;
-    protected addLambdaResolver<TYPE extends {
+    addLambdaResolver<TYPE extends {
         __typename?: any;
     }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): lambdaNodejs.NodejsFunction;
-    protected addDynamoDbVtlResolver<TYPE extends {
+    addDynamoDbVtlResolver<TYPE extends {
         __typename?: any;
     }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): void;
 }

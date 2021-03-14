@@ -84,7 +84,6 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
       target: route53.RecordTarget.fromAlias(new route53Target.ApiGatewayv2Domain(dn)),
     });
 
-
     if (props.monitoring ?? true) {
       this.monitoring = new Monitoring(this, 'Monitoring', {
         apiName: this.props.apiName,
@@ -150,13 +149,18 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;
     const description = `${method} ${path} - ${operation.summary}`;
 
+    const entryFile = `./src/lambda/rest.${operation.operationId}.ts`;
+    if (!fs.existsSync(entryFile)) {
+      this.createEntryFile(entryFile, method as string, operation);
+    }
+
     const fn = new LambdaFunction(this, `Fn${operation.operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: {
         DOMAIN_NAME: this.props.domainName,
         ...this.props.additionalEnv,
       },
-      file: `rest.${operation.operationId}`,
+      entry: entryFile,
       description: `[${this.props.stageName}] ${description}`,
       ...this.authentication && {
         userPool: this.authentication?.userpool,
@@ -183,6 +187,34 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
     this.addRoute(path, method, fn);
 
     return fn;
+  }
+
+  private createEntryFile(entryFile: string, method: string, operation: OperationObject) {
+    let factoryCall;
+    switch (method.toLowerCase()) {
+      case 'post':
+      case 'put':
+      case 'patch':
+        factoryCall = `http.createOpenApiHandlerWithRequestBody<operations['${operation.operationId}']>(async (ctx, data) => {`;
+        break;
+      case 'options':
+      case 'delete':
+      case 'get':
+      case 'head':
+      default:
+        factoryCall = `http.createOpenApiHandler<operations['${operation.operationId}']>(async (ctx) => {`;
+        break;
+    }
+
+    fs.writeFileSync(entryFile, `import { http, errors } from '@taimos/lambda-toolbox';
+import { operations } from './types.generated';
+
+export const handler = ${factoryCall}
+  console.log(ctx.event);    
+  throw new Error('Not yet implemented');
+});`, {
+      encoding: 'utf-8',
+    });
   }
 
   private tableWriteAccessForMethod(method: string): boolean {
