@@ -1,7 +1,13 @@
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as cdk from '@aws-cdk/core';
 export interface MonitoringProps {
+    /**
+     * Name of the HTTP API
+     */
     apiName: string;
+    /**
+     * Deployment stage (e.g. dev)
+     */
     stageName: string;
 }
 export declare class Monitoring extends cdk.Construct {

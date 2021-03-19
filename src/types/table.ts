@@ -5,6 +5,7 @@ export const ReverseIndex_PK = tb.Primary_SK;
 export const ReverseIndex_SK = tb.Primary_PK;
 
 export interface SingleTableDesign {
+
   /**
    * Create reverse GSI named 'ReverseIndex' and SK as partition key and PK as sort key
    *

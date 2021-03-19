@@ -3,7 +3,15 @@ import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as cdk from '@aws-cdk/core';
 
 export interface MonitoringProps {
+
+  /**
+   * Name of the HTTP API
+   */
   apiName: string;
+
+  /**
+   * Deployment stage (e.g. dev)
+   */
   stageName: string;
 }
 
@@ -63,7 +71,7 @@ export class Monitoring extends cdk.Construct {
 
   getTextWidget(fileName: string): cloudwatch.TextWidget {
     const file = `./dashboard/${fileName}.md`;
-    let markdown = `Create a file called './dashboard/${fileName}.md' to describe this dashboard`;
+    let markdown = `Create a file called './dashboard/${fileName}.md' to describe this widget`;
     if (existsSync(file)) {
       markdown = readFileSync(file).toString('utf-8');
     }

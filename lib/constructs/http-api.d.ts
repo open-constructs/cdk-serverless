@@ -8,8 +8,17 @@ import { LambdaFunction } from './func';
 import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
 export interface HttpApiProps {
+    /**
+     * Name of the HTTP API
+     */
     apiName: string;
+    /**
+     * Deployment stage (e.g. dev)
+     */
     stageName: string;
+    /**
+     * Domain name of the API (e.g. example.com)
+     */
     domainName: string;
     /**
      * Hostname of the API
@@ -17,11 +26,39 @@ export interface HttpApiProps {
      * @default api
      */
     apiHostname?: string;
+    /**
+     * Generate routes for all endpoints configured in the openapi.yaml file
+     *
+     * @default true
+     */
     autoGenerateRoutes?: boolean;
+    /**
+     * Configure CloudWatch Dashboard for the API and the Lambda functions
+     *
+     * @default true
+     */
     monitoring?: boolean;
+    /**
+     * Create a DynamoDB Table to store data using the single table design
+     *
+     * @default none
+     */
     singleTableDatastore?: SingleTableDatastoreProps;
+    /**
+     * Configure a Cognito user pool and use it for authorization
+     *
+     * @default none
+     */
     authentication?: AuthenticationProps;
+    /**
+     * Configure a content delivery network for static assets
+     *
+     * @default none
+     */
     assetCdn?: AssetCdnProps;
+    /**
+     * Additional environment variables of all Lambda functions
+     */
     additionalEnv?: {
         [key: string]: string;
     };

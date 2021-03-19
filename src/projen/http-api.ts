@@ -28,6 +28,7 @@ export class HttpApiAspect extends pj.Component {
     app.tasks.tryFind('build')?.prependSpawn(generateTask);
 
     app.addDevDeps('@types/aws-lambda');
+    app.addDeps('@taimos/lambda-toolbox@^0.0.72');
 
     new pj.SampleFile(app, 'openapi.yaml', {
       contents: '',

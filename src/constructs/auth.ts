@@ -1,8 +1,13 @@
+import * as fs from 'fs';
 import * as cognito from '@aws-cdk/aws-cognito';
 import * as cdk from '@aws-cdk/core';
 import { WatchableNodejsFunction } from 'cdk-watch';
 
 export interface AuthenticationProps {
+
+  /**
+   * Configure Cognito Lambda triggers
+   */
   triggers?: {
     /**
      * Attaches a lambda function to the custom message trigger
@@ -13,12 +18,35 @@ export interface AuthenticationProps {
      */
     customMessages?: boolean;
   };
+
+  /**
+   * Properties of the Cognito user pool
+   */
   userPoolProps?: cognito.UserPoolProps;
+
+  /**
+   * Configure SES mail sending
+   */
   sesEmailSender?: {
+    /**
+     * AWS region to use for SES
+     */
     region: string;
+    /**
+     * Sender name
+     */
     name: string;
+    /**
+     * Sender email. Needs to be verified in SES
+     */
     email: string;
   };
+
+  /**
+   * Groups to create in Cognito user pool
+   * Key: group name
+   * Value: group description
+   */
   groups?: {
     [name: string]: string;
   };
@@ -60,8 +88,30 @@ export class Authentication extends cdk.Construct {
     });
 
     if (props.triggers?.customMessages) {
+      const entryFile = './src/lambda/cognito.custom-message.ts';
+
+      if (!fs.existsSync(entryFile)) {
+        fs.writeFileSync(entryFile, `import { CustomMessageTriggerEvent } from 'aws-lambda';
+      
+export async function handler(event: CustomMessageTriggerEvent): Promise<CustomMessageTriggerEvent> {
+  console.log(event);
+
+  if (event.triggerSource === 'CustomMessage_AdminCreateUser') {
+    // event.response.emailSubject = '';
+    // event.response.emailMessage = '';
+  } else if (event.triggerSource === 'CustomMessage_ForgotPassword') {
+    // event.response.emailSubject = '';
+    // event.response.emailMessage = '';
+  } // ...
+
+  return event;
+}`, {
+          encoding: 'utf-8',
+        });
+      }
+
       this.customMessageFunction = new WatchableNodejsFunction(this, 'CustomMessageFunction', {
-        entry: './src/lambda/cognito.custom-message.ts',
+        entry: entryFile,
         bundling: {
           loader: {
             '.html': 'text',

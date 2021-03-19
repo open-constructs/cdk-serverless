@@ -15,22 +15,67 @@ import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
 
 export interface HttpApiProps {
+
+  /**
+   * Name of the HTTP API
+   */
   apiName: string;
+
+  /**
+   * Deployment stage (e.g. dev)
+   */
   stageName: string;
+
+  /**
+   * Domain name of the API (e.g. example.com)
+   */
   domainName: string;
+
   /**
    * Hostname of the API
    *
    * @default api
    */
   apiHostname?: string;
+
+  /**
+   * Generate routes for all endpoints configured in the openapi.yaml file
+   *
+   * @default true
+   */
   autoGenerateRoutes?: boolean;
 
+  /**
+   * Configure CloudWatch Dashboard for the API and the Lambda functions
+   *
+   * @default true
+   */
   monitoring?: boolean;
+
+  /**
+   * Create a DynamoDB Table to store data using the single table design
+   *
+   * @default none
+   */
   singleTableDatastore?: SingleTableDatastoreProps;
+
+  /**
+   * Configure a Cognito user pool and use it for authorization
+   *
+   * @default none
+   */
   authentication?: AuthenticationProps;
+
+  /**
+   * Configure a content delivery network for static assets
+   *
+   * @default none
+   */
   assetCdn?: AssetCdnProps;
 
+  /**
+   * Additional environment variables of all Lambda functions
+   */
   additionalEnv?: {
     [key: string]: string;
   };
@@ -191,11 +236,13 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
 
   private createEntryFile(entryFile: string, method: string, operation: OperationObject) {
     let factoryCall;
+    let logs;
     switch (method.toLowerCase()) {
       case 'post':
       case 'put':
       case 'patch':
         factoryCall = `http.createOpenApiHandlerWithRequestBody<operations['${operation.operationId}']>(async (ctx, data) => {`;
+        logs = 'console.log(data);';
         break;
       case 'options':
       case 'delete':
@@ -203,6 +250,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
       case 'head':
       default:
         factoryCall = `http.createOpenApiHandler<operations['${operation.operationId}']>(async (ctx) => {`;
+        logs = '';
         break;
     }
 
@@ -210,8 +258,9 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
 import { operations } from './types.generated';
 
 export const handler = ${factoryCall}
-  console.log(ctx.event);    
-  throw new Error('Not yet implemented');
+  console.log(ctx.event);
+  ${logs}
+  throw new errors.HttpError(500, 'Not yet implemented');
 });`, {
       encoding: 'utf-8',
     });

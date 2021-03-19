@@ -6,7 +6,14 @@ import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
 
 export interface AssetCdnProps {
+  /**
+   * Domain name of the asset content delivery network (e.g. example.com)
+   */
   domainName: string;
+
+  /**
+   * Hostname of the asset content delivery network (e.g. cdn)
+   */
   hostName: string;
 }
 

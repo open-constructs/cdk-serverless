@@ -5,10 +5,12 @@ import * as tb from '@taimos/lambda-toolbox/lib/dynamodb';
 import * as tableTypes from '../types/table';
 
 export interface SingleTableDatastoreProps {
+
   /**
    * Table design
    */
   readonly design: tableTypes.SingleTableDesign;
+
   /**
    * Whether server-side encryption with an AWS managed customer master key is enabled.
    *
@@ -18,6 +20,7 @@ export interface SingleTableDatastoreProps {
    * @stability stable
    */
   readonly encryption?: dynamodb.TableEncryption;
+
   /**
    * External KMS key to use for table encryption.
    *
