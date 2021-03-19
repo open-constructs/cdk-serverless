@@ -1,7 +1,7 @@
 import * as apiGW from '@aws-cdk/aws-apigatewayv2';
 import * as lambda from '@aws-cdk/aws-lambda';
 import * as cdk from '@aws-cdk/core';
-import { OpenAPI3 } from 'openapi-typescript/dist-types/types';
+import { OpenAPI3 } from 'openapi-typescript';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps } from './auth';
 import { LambdaFunction } from './func';

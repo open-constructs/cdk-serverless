@@ -6,12 +6,13 @@ const project = new TaimosTypescriptLibrary({
   name: 'cdk-serverless',
   deps: [
     'aws-sdk',
-    '@taimos/lambda-toolbox',
+    '@taimos/lambda-toolbox@^0.0.72',
     'date-fns',
     'cdk-watch',
     'esbuild',
     'js-yaml',
-    'openapi-typescript',
+    'openapi-typescript@^3.1.2',
+    'projen',
   ],
   docgen: false,
   devDeps: [

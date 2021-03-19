@@ -7,7 +7,7 @@ import * as route53 from '@aws-cdk/aws-route53';
 import * as route53Target from '@aws-cdk/aws-route53-targets';
 import * as cdk from '@aws-cdk/core';
 import * as yaml from 'js-yaml';
-import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript/dist-types/types';
+import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps } from './auth';
 import { LambdaFunction } from './func';
