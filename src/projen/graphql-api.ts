@@ -13,6 +13,24 @@ export class GraphQlApiAspect extends pj.Component {
       '@types/aws-lambda',
       '@graphql-codegen/cli',
       '@graphql-codegen/typescript',
+      'graphql',
+    );
+
+    app.addCdkDependency(
+      '@aws-cdk/core',
+      '@aws-cdk/aws-lambda-nodejs',
+      '@aws-cdk/aws-lambda',
+      '@aws-cdk/aws-cloudwatch',
+      '@aws-cdk/aws-dynamodb',
+      '@aws-cdk/aws-cognito',
+      '@aws-cdk/aws-route53',
+      '@aws-cdk/aws-route53-targets',
+      '@aws-cdk/aws-appsync',
+      '@aws-cdk/aws-certificatemanager',
+      '@aws-cdk/aws-cloudfront',
+      '@aws-cdk/aws-s3',
+      '@aws-cdk/aws-iam',
+      '@aws-cdk/aws-kms',
     );
 
     const generateTask = app.addTask('generate:api', {

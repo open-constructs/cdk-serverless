@@ -6,7 +6,7 @@ import { Authentication, AuthenticationProps } from './auth';
 import { LambdaFunction } from './func';
 import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
-export interface GraphApiProps {
+export interface GraphQlApiProps {
     apiName: string;
     stageName: string;
     monitoring?: boolean;
@@ -17,7 +17,7 @@ export interface GraphApiProps {
         [key: string]: string;
     };
 }
-export declare class GraphApi extends cdk.Construct {
+export declare class GraphQlApi extends cdk.Construct {
     private props;
     readonly api: appsync.GraphqlApi;
     readonly singleTableDatastore?: SingleTableDatastore;
@@ -26,7 +26,7 @@ export declare class GraphApi extends cdk.Construct {
     readonly tableDataSource?: appsync.DynamoDbDataSource;
     readonly monitoring?: Monitoring;
     private _functions;
-    constructor(scope: cdk.Construct, id: string, props: GraphApiProps);
+    constructor(scope: cdk.Construct, id: string, props: GraphQlApiProps);
     /**
      * getFunctionForOperation
      */
@@ -39,4 +39,5 @@ export declare class GraphApi extends cdk.Construct {
     addDynamoDbVtlResolver<TYPE extends {
         __typename?: any;
     }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): void;
+    private createEntryFile;
 }

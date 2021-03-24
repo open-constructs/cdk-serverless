@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as appsync from '@aws-cdk/aws-appsync';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as lambdaNodejs from '@aws-cdk/aws-lambda-nodejs';
@@ -8,7 +9,7 @@ import { LambdaFunction } from './func';
 import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
 
-export interface GraphApiProps {
+export interface GraphQlApiProps {
   apiName: string;
   stageName: string;
 
@@ -23,7 +24,7 @@ export interface GraphApiProps {
 
 }
 
-export class GraphApi extends cdk.Construct {
+export class GraphQlApi extends cdk.Construct {
 
   public readonly api: appsync.GraphqlApi;
 
@@ -35,7 +36,7 @@ export class GraphApi extends cdk.Construct {
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
-  constructor(scope: cdk.Construct, id: string, private props: GraphApiProps) {
+  constructor(scope: cdk.Construct, id: string, private props: GraphQlApiProps) {
     super(scope, id);
 
     if (props.singleTableDatastore) {
@@ -143,6 +144,9 @@ export class GraphApi extends cdk.Construct {
     const description = `Type ${typeName} Field ${fieldName} Resolver`;
 
     const entryFile = `./src/lambda/${operationId}.ts`;
+    if (!fs.existsSync(entryFile)) {
+      this.createEntryFile(entryFile, typeName, fieldName as string);
+    }
     // TODO generate entry file if needed
 
     const fn = new LambdaFunction(this, `Fn${operationId}`, {
@@ -189,13 +193,36 @@ export class GraphApi extends cdk.Construct {
   public addDynamoDbVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): void {
     const operationId = `${typeName}.${fieldName}`;
 
+    const mappingReqFile = `./src/vtl/${operationId}.req.vm`;
+    if (!fs.existsSync(mappingReqFile)) {
+      fs.writeFileSync(mappingReqFile, '## Request mapping', { encoding: 'utf-8' });
+    }
+    const mappingResFile = `./src/vtl/${operationId}.res.vm`;
+    if (!fs.existsSync(mappingResFile)) {
+      fs.writeFileSync(mappingResFile, '$util.toJson($ctx.result)', { encoding: 'utf-8' });
+    }
+
     new appsync.Resolver(this, `Resolver${operationId}`, {
       api: this.api,
       typeName,
       fieldName: fieldName as string,
       dataSource: this.tableDataSource,
-      requestMappingTemplate: appsync.MappingTemplate.fromFile(`./src/vtl/${operationId}.req.vm`),
-      responseMappingTemplate: appsync.MappingTemplate.fromFile(`./src/vtl/${operationId}.res.vm`),
+      requestMappingTemplate: appsync.MappingTemplate.fromFile(mappingReqFile),
+      responseMappingTemplate: appsync.MappingTemplate.fromFile(mappingResFile),
+    });
+  }
+
+  private createEntryFile(entryFile: string, typeName: string, fieldName: string) {
+    fs.writeFileSync(entryFile, `import { http } from '@taimos/lambda-toolbox';
+
+// TODO: Replace QUERYTYPE with the input type of the field ${typeName}.${fieldName}
+// TODO: Replace RETURNTYPE with the return type of the field ${typeName}.${fieldName}
+
+export const handler = http.createAppSyncHandler<QUERYTYPE, RETURNTYPE>(async (ctx) => {
+  console.log(ctx.event);
+  throw new Error('Not yet implemented');
+});`, {
+      encoding: 'utf-8',
     });
   }
 }
