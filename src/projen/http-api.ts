@@ -1,24 +1,14 @@
 import * as pj from 'projen';
+import { CoreAspect, CoreAspectOptions } from './core';
 
-export interface HttpApiAspectOptions {
+export interface HttpApiAspectOptions extends CoreAspectOptions {
   //
 }
 
-export class HttpApiAspect extends pj.Component {
+export class HttpApiAspect extends CoreAspect {
 
-  constructor(app: pj.AwsCdkTypeScriptApp, _options: HttpApiAspectOptions = {}) {
-    super(app);
-
-    app.cdkConfig.context = {
-      ...app.cdkConfig.context,
-      'aws-cdk:enableDiffNoFail': 'true',
-      '@aws-cdk/core:enableStackNameDuplicates': 'true',
-      '@aws-cdk/core:newStyleStackSynthesis': 'true',
-      '@aws-cdk/core:stackRelativeExports': 'true',
-      '@aws-cdk/aws-ecr-assets:dockerIgnoreSupport': 'true',
-      '@aws-cdk/aws-secretsmanager:parseOwnedSecretName': 'true',
-      '@aws-cdk/aws-kms:defaultKeyPolicies': 'true',
-    };
+  constructor(app: pj.AwsCdkTypeScriptApp, options: HttpApiAspectOptions = {}) {
+    super(app, options);
 
     const generateTask = app.addTask('generate:api', {
       exec: 'openapi-typescript openapi.yaml --output src/lambda/types.generated.ts',
@@ -26,9 +16,6 @@ export class HttpApiAspect extends pj.Component {
       description: 'Generate Types from OpenAPI specification',
     });
     app.tasks.tryFind('build')?.prependSpawn(generateTask);
-
-    app.addDevDeps('@types/aws-lambda');
-    app.addDeps('@taimos/lambda-toolbox@^0.0.72');
 
     new pj.SampleFile(app, 'openapi.yaml', {
       contents: '',

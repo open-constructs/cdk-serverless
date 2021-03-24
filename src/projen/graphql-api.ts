@@ -1,39 +1,20 @@
 import * as pj from 'projen';
+import { CoreAspect, CoreAspectOptions } from './core';
 
-export interface GraphQlApiAspectOptions {
+export interface GraphQlApiAspectOptions extends CoreAspectOptions {
   //
 }
 
-export class GraphQlApiAspect extends pj.Component {
+export class GraphQlApiAspect extends CoreAspect {
 
-  constructor(app: pj.AwsCdkTypeScriptApp, _options: GraphQlApiAspectOptions = {}) {
-    super(app);
+  constructor(app: pj.AwsCdkTypeScriptApp, options: GraphQlApiAspectOptions = {}) {
+    super(app, options);
 
     app.addDevDeps(
-      '@types/aws-lambda',
       '@graphql-codegen/cli',
       '@graphql-codegen/typescript',
       'graphql',
     );
-
-    app.addCdkDependency(
-      '@aws-cdk/core',
-      '@aws-cdk/aws-lambda-nodejs',
-      '@aws-cdk/aws-lambda',
-      '@aws-cdk/aws-cloudwatch',
-      '@aws-cdk/aws-dynamodb',
-      '@aws-cdk/aws-cognito',
-      '@aws-cdk/aws-route53',
-      '@aws-cdk/aws-route53-targets',
-      '@aws-cdk/aws-appsync',
-      '@aws-cdk/aws-certificatemanager',
-      '@aws-cdk/aws-cloudfront',
-      '@aws-cdk/aws-s3',
-      '@aws-cdk/aws-iam',
-      '@aws-cdk/aws-kms',
-    );
-
-    app.addDeps('@taimos/lambda-toolbox@^0.0.72');
 
     const generateTask = app.addTask('generate:api', {
       exec: 'graphql-codegen',
