@@ -178,6 +178,7 @@ export class GraphQlApi extends cdk.Construct {
 
     const dataSource = new appsync.LambdaDataSource(this, `LambdaDS${operationId}`, {
       api: this.api,
+      name: `Lambda_${typeName}_${fieldName}`,
       lambdaFunction: fn,
     });
 
