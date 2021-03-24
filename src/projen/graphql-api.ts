@@ -33,6 +33,8 @@ export class GraphQlApiAspect extends pj.Component {
       '@aws-cdk/aws-kms',
     );
 
+    app.addDeps('@taimos/lambda-toolbox@^0.0.72');
+
     const generateTask = app.addTask('generate:api', {
       exec: 'graphql-codegen',
       category: pj.tasks.TaskCategory.BUILD,
