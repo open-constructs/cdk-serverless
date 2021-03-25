@@ -5,7 +5,7 @@ import * as cdk from '@aws-cdk/core';
 export interface MonitoringProps {
 
   /**
-   * Name of the HTTP API
+   * Name of the API
    */
   apiName: string;
 

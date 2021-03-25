@@ -1,7 +1,27 @@
 import * as pj from 'projen';
 
 export interface CoreAspectOptions {
+  /**
+   * Configure yarn scripts to run CDK-Watch.
+   * The key is the name of the script and the value is the glob pattern of cdk-watch
+   *
+   * Created scripts will be live:{key} and live:{key}:nologs
+   *
+   * @default no live scripts
+   */
   cdkWatch?: {
+    [script: string]: string;
+  };
+
+  /**
+   * Configure yarn scripts to run 'cdk diff' and 'cdk deploy'.
+   * The key is the name of the script and the value is the glob pattern of cdk deploy
+   *
+   * Created scripts will be diff:{key} and deploy:{key}
+   *
+   * @default no deploy scripts
+   */
+  deployScripts?: {
     [script: string]: string;
   };
 }
@@ -57,8 +77,26 @@ export class CoreAspect extends pj.Component {
           });
           app.addTask(`live:${key}:nologs`, {
             category: pj.tasks.TaskCategory.RELEASE,
-            description: 'Run cdk-watch for the given selection',
+            description: 'Run cdk-watch for the given selection without logs',
             exec: `npx cdkw '${glob}' --no-logs`,
+          });
+        }
+      }
+    }
+
+    if (options.deployScripts) {
+      for (const key in options.deployScripts) {
+        if (Object.prototype.hasOwnProperty.call(options.deployScripts, key)) {
+          const glob = options.deployScripts[key];
+          app.addTask(`diff:${key}`, {
+            category: pj.tasks.TaskCategory.RELEASE,
+            description: 'Run cdk diff for the given selection',
+            exec: `npx cdk diff '${glob}'`,
+          });
+          app.addTask(`deploy:${key}`, {
+            category: pj.tasks.TaskCategory.RELEASE,
+            description: 'Run cdk deploy for the given selection',
+            exec: `npx cdk deploy '${glob}'`,
           });
         }
       }

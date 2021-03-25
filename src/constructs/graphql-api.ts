@@ -147,7 +147,6 @@ export class GraphQlApi extends cdk.Construct {
     if (!fs.existsSync(entryFile)) {
       this.createEntryFile(entryFile, typeName, fieldName as string);
     }
-    // TODO generate entry file if needed
 
     const fn = new LambdaFunction(this, `Fn${operationId}`, {
       stageName: this.props.stageName,
@@ -167,7 +166,7 @@ export class GraphQlApi extends cdk.Construct {
       },
     });
     this._functions[operationId] = fn;
-    cdk.Tags.of(fn).add('OpenAPI', description);
+    cdk.Tags.of(fn).add('GraphQL', description);
 
     if (this.monitoring) {
       this.monitoring.lambdaDurationsWidget.addLeftMetric(fn.metricDuration());

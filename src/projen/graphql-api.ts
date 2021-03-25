@@ -19,7 +19,7 @@ export class GraphQlApiAspect extends CoreAspect {
     const generateTask = app.addTask('generate:api', {
       exec: 'graphql-codegen',
       category: pj.tasks.TaskCategory.BUILD,
-      description: 'Generate Types from GraphQL specification',
+      description: 'Generate Types from the GraphQL specification',
     });
     app.tasks.tryFind('build')?.prependSpawn(generateTask);
 

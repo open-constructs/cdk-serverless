@@ -54,7 +54,7 @@ export interface LambdaFunctionProps {
 
   /**
    * Fully qualified domain name of the asset CDN
-   * It is available as process.env.ASSET_DOAMIN_NAME
+   * It is available as process.env.ASSET_DOMAIN_NAME
    */
   assetDomainName?: string;
 

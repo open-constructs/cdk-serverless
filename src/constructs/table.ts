@@ -14,8 +14,6 @@ export interface SingleTableDatastoreProps {
   /**
    * Whether server-side encryption with an AWS managed customer master key is enabled.
    *
-   * This property cannot be set if `serverSideEncryption` is set.
-   *
    * @default - server-side encryption is enabled with an AWS owned customer master key
    * @stability stable
    */

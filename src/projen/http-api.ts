@@ -13,7 +13,7 @@ export class HttpApiAspect extends CoreAspect {
     const generateTask = app.addTask('generate:api', {
       exec: 'openapi-typescript openapi.yaml --output src/lambda/types.generated.ts',
       category: pj.tasks.TaskCategory.BUILD,
-      description: 'Generate Types from OpenAPI specification',
+      description: 'Generate Types from the OpenAPI specification',
     });
     app.tasks.tryFind('build')?.prependSpawn(generateTask);
 
