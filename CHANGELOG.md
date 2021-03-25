@@ -2,6 +2,13 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+### [0.0.12](https://github.com/taimos/cdk-serverless/compare/v0.0.10...v0.0.12) (2021-03-25)
+
+
+### Features
+
+* deployment scripts ([586fcc9](https://github.com/taimos/cdk-serverless/commit/586fcc9e4768144bdaf093fe3bc89504a11cb76f))
+
 ### [0.0.11](https://github.com/taimos/cdk-serverless/compare/v0.0.10...v0.0.11) (2021-03-25)
 
 ### [0.0.10](https://github.com/taimos/cdk-serverless/compare/v0.0.9...v0.0.10) (2021-03-24)
