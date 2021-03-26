@@ -5,8 +5,6 @@
     "url": "https://github.com/taimos/cdk-serverless"
   },
   "scripts": {
-    "projen": "npx projen",
-    "start": "npx projen start",
     "clobber": "npx projen clobber",
     "compile": "npx projen compile",
     "test:compile": "npx projen test:compile",
@@ -19,7 +17,9 @@
     "projen:upgrade": "npx projen projen:upgrade",
     "watch": "npx projen watch",
     "package": "npx projen package",
-    "eslint": "npx projen eslint"
+    "eslint": "npx projen eslint",
+    "projen": "npx projen",
+    "start": "npx projen start"
   },
   "author": {
     "name": "Taimos GmbH",
@@ -44,7 +44,7 @@
     "@aws-cdk/aws-route53-targets": "1.91.0",
     "@aws-cdk/aws-s3": "1.91.0",
     "@aws-cdk/core": "1.91.0",
-    "@taimos/projen": "^0.0.35",
+    "@taimos/projen": "^0.0.55",
     "@types/aws-lambda": "^8.10.72",
     "@types/jest": "^26.0.20",
     "@types/js-yaml": "^4.0.0",
@@ -58,10 +58,10 @@
     "jest": "^26.6.3",
     "jest-junit": "^12",
     "json-schema": "^0.3.0",
-    "projen": "^0.15.18",
-    "standard-version": "^9.0.0",
+    "projen": "^0.17.17",
+    "standard-version": "^9",
     "ts-jest": "^26.5.3",
-    "typescript": "^4.1.0"
+    "typescript": "^4.2.0"
   },
   "peerDependencies": {
     "@aws-cdk/aws-apigatewayv2": "^1.91.0",
@@ -89,7 +89,7 @@
     "esbuild": "^0.8.57",
     "js-yaml": "^4.0.0",
     "openapi-typescript": "^3.1.2",
-    "projen": "^0.15.18"
+    "projen": "^0.17.17"
   },
   "bundledDependencies": [],
   "keywords": [

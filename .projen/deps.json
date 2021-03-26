@@ -103,12 +103,10 @@
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
-      "version": "^4.3.0",
       "type": "build"
     },
     {
       "name": "@typescript-eslint/parser",
-      "version": "^4.3.0",
       "type": "build"
     },
     {
@@ -142,12 +140,12 @@
     },
     {
       "name": "projen",
-      "version": "^0.15.18",
+      "version": "^0.17.17",
       "type": "build"
     },
     {
       "name": "standard-version",
-      "version": "^9.0.0",
+      "version": "^9",
       "type": "build"
     },
     {
@@ -156,7 +154,7 @@
     },
     {
       "name": "typescript",
-      "version": "^4.1.0",
+      "version": "^4.2.0",
       "type": "build"
     },
     {

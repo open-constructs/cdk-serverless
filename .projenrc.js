@@ -14,6 +14,7 @@ const project = new TaimosTypescriptLibrary({
     'openapi-typescript@^3.1.2',
     'projen',
   ],
+  defaultReleaseBranch: 'main',
   docgen: false,
   devDeps: [
     '@types/aws-lambda',
