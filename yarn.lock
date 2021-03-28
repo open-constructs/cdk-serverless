@@ -1099,21 +1099,21 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@taimos/lambda-toolbox@^0.0.72":
-  version "0.0.72"
-  resolved "https://registry.yarnpkg.com/@taimos/lambda-toolbox/-/lambda-toolbox-0.0.72.tgz#a9d2b2a73804e61c2b8f0f1c09ff5c0a0240d851"
-  integrity sha512-QEsJh0xI3s/7h9j1fVvcw3pE8eaVmuSoET/E7XNH1XxDEA1rH44+eT3xqV4AUeSsdqyatSsDDHtK9ymB4zslXQ==
+"@taimos/lambda-toolbox@^0.0.83":
+  version "0.0.83"
+  resolved "https://registry.yarnpkg.com/@taimos/lambda-toolbox/-/lambda-toolbox-0.0.83.tgz#cbda7bcc9584f15b0f6d13f7b1c90b9d44c5677e"
+  integrity sha512-B20vtwR+8xnYRYXJmON7Qs8w//xI1KSkIz9lMuE8UN0tZffFUCjLHL1gKv03GuhUVPpTe7FjKPwCtPNKYl9uXg==
   dependencies:
-    aws-sdk "^2.867.0"
+    aws-sdk "^2.874.0"
     axios "^0.21.1"
     jsonwebtoken "^8.5.1"
     jwk-to-pem "^2.0.4"
     uuid "^8.3.2"
 
-"@taimos/projen@^0.0.55":
-  version "0.0.55"
-  resolved "https://registry.yarnpkg.com/@taimos/projen/-/projen-0.0.55.tgz#707488a6b980ba4c9dc18643f52be26253389df3"
-  integrity sha512-T48fDt+jLDvtrDwOSWGJdS+U6HP4Mj1rmzEcDy7OtIuE9yKsNUv+QfzYMdioB/4lHYePdYAxg1V+jX7PqZ3Mmw==
+"@taimos/projen@^0.0.60":
+  version "0.0.60"
+  resolved "https://registry.yarnpkg.com/@taimos/projen/-/projen-0.0.60.tgz#f1e4711c68f27f7bcae91690e1f5d92d396ea952"
+  integrity sha512-bOdBVj2/CYNq+NW1loyIbfAjiYrmR/aJ6CW3GlwWlb6zTrTpuhA7GLxHoQjHYoH7wDkuOrLXenMLuCXq+QBsWQ==
   dependencies:
     projen "^0.17.17"
 
@@ -1592,10 +1592,25 @@ atob@^2.1.2:
   resolved "https://registry.yarnpkg.com/atob/-/atob-2.1.2.tgz#6d9517eb9e030d2436666651e86bd9f6f13533c9"
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
-aws-sdk@^2.840.0, aws-sdk@^2.858.0, aws-sdk@^2.867.0:
+aws-sdk@^2.840.0:
   version "2.873.0"
   resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.873.0.tgz#7d2ccca103bebe90574aa7aa8233ea2cc5d6dd39"
   integrity sha512-pww0ImyviDpBDbD2Tj+OyIcSuBKoC7g1g6IzMIFlbWSjbz4WWX46IwZ6jRMy2zGcbEpkl7FjI+s1E7tV9Pcjgg==
+  dependencies:
+    buffer "4.9.2"
+    events "1.1.1"
+    ieee754 "1.1.13"
+    jmespath "0.15.0"
+    querystring "0.2.0"
+    sax "1.2.1"
+    url "0.10.3"
+    uuid "3.3.2"
+    xml2js "0.4.19"
+
+aws-sdk@^2.874.0:
+  version "2.874.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.874.0.tgz#2f1f1ff232e473ddf2a398b276c44f24e5828e2c"
+  integrity sha512-YF2LYIfIuywFTzojGwwUwAiq+pgSM3IWRF/uDoJa28xRQSfYD1uMeZLCqqMt+L0/yxe2UJDYKTVPhB9eEqOxEQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2628,10 +2643,10 @@ es-to-primitive@^1.2.1:
     is-date-object "^1.0.1"
     is-symbol "^1.0.2"
 
-esbuild@^0.8.57:
-  version "0.8.57"
-  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.8.57.tgz#a42d02bc2b57c70bcd0ef897fe244766bb6dd926"
-  integrity sha512-j02SFrUwFTRUqiY0Kjplwjm1psuzO1d6AjaXKuOR9hrY0HuPsT6sV42B6myW34h1q4CRy+Y3g4RU/cGJeI/nNA==
+esbuild@^0.10.2:
+  version "0.10.2"
+  resolved "https://registry.yarnpkg.com/esbuild/-/esbuild-0.10.2.tgz#caa65a8f3096d547d89159918039df6c5c6c90be"
+  integrity sha512-/5vsZD7wTJJHC3yNXLUjXNvUDwqwNoIMvFvLd9tcDQ9el5l13pspYm3yufavjIeYvNtAbo+6N/6uoWx9dGA6ug==
 
 escalade@^3.1.1:
   version "3.1.1"
@@ -5089,7 +5104,7 @@ onetime@^5.1.0, onetime@^5.1.2:
   dependencies:
     mimic-fn "^2.1.0"
 
-openapi-typescript@^3.1.2:
+openapi-typescript@^3.2.0:
   version "3.2.0"
   resolved "https://registry.yarnpkg.com/openapi-typescript/-/openapi-typescript-3.2.0.tgz#9d2126834a72a13a505cfafad613dacdca91f34e"
   integrity sha512-7tdJ5iL9dpk7/1njKp5Oh3Ue1uYoes5kv87JmYgH6fgC7EcrJxyp328SwQnQUg9+fF+nhMNYhZ4SJ0zK8z+Udg==

@@ -239,7 +239,6 @@
     },
     {
       "name": "@taimos/lambda-toolbox",
-      "version": "^0.0.72",
       "type": "runtime"
     },
     {
@@ -264,7 +263,6 @@
     },
     {
       "name": "openapi-typescript",
-      "version": "^3.1.2",
       "type": "runtime"
     },
     {
