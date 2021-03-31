@@ -106,27 +106,8 @@ This operation id support autocompletion using the generated type definitions.
 
 ## Constructs
 
-### Projen
-
-#### HttpApiAspect
-
-#### GraphQlApiAspect
-
-### CDK L3
-
-#### HttpApi
-
-#### GraphQlApi
-
-#### SingleTableDatastore
-
-#### Monitoring
-
-#### AssetCdn
-
-#### Authentication
-
-#### LambdaFunction
+- [Projen](./src/projen)
+- [CDK L3](./src/constructs)
 
 ### Tools
 
