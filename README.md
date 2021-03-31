@@ -1,6 +1,6 @@
 [![npm version](https://badge.fury.io/js/cdk-serverless.svg)](https://badge.fury.io/js/cdk-serverless)
 
-CDK Serverless is a tool suite too facilitate teh use of the AWS CDK in serverless architectures. It provides project management features to configure your TypeScript CDK App and Higher-level (L3) constructs for different APIs and resources needed for serverless applications. Additionally it leverages utility libraries to write Lambda functions and do live updates to Lambda function code during development.
+CDK Serverless is a tool suite to facilitate the use of the AWS CDK in serverless architectures. It provides project management features to configure your TypeScript CDK App and Higher-level (L3) constructs for different APIs and resources needed for serverless applications. Additionally it leverages utility libraries to write Lambda functions and do live updates to Lambda function code during development.
 
 ### Features
 
