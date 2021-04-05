@@ -60,20 +60,22 @@ After this you can add the selected L3 construct to your CDK app and configure i
 
 ```ts
 import { HttpApi } from 'cdk-serverless/lib/constructs';
-// Import the generates Path and Operation information
+// Import the generated Path and Operation information
 import { paths, operations } from './lambda/types.generated';
 
 // Create a new HTTP API
 const api = new HttpApi<paths, operations>(this, 'Api', {
   // Name of the API in the AWS console
   apiName: 'testapi',
-  // This will be prefix with api. by default and will lead to https://api.taimos.de
+  // This will be prefixed with 'api.' by default and will lead to https://api.taimos.de
   domainName: 'taimos.de',
   // Name of the stage in a multi-stage deployment
   stageName: 'dev',
   // Automatically create a DynamoDB table and configure a global secondary index
+  // HashKey will be 'PK' and SortKey will be 'SK'
   singleTableDatastore: {
     design: {
+      // Create an inverted GSI with 'SK' as HashKey and 'PK' as SortKey
       reverseGSI: true,
     },
   },
