@@ -18,13 +18,16 @@ CDK Serverless is a tool suite to facilitate the use of the AWS CDK in serverles
 To start a new project we recommend using projen. To use CDK Serverless you can create any projen CDK Typescript app and then add the appropriate aspect provided by this toolkit.
 
 ```bash
-$ npx projen new awscdk-ts-app
+$ npx projen new awscdk-app-ts
 ```
 
-Add 'cdk-serverless' as a dependency to your project and run 'npx projen'. You can then add the 'GraphQlApiAspect' or the 'HttpApiAspect' depending on your desired API type.
+Adding `cdk-serverless` is a two step process.
+First add 'cdk-serverless' as a dependency to your project and run 'npx projen'.
+You can then add the 'GraphQlApiAspect' or the 'HttpApiAspect' depending on your desired API type.
 
 ```ts
-const { HttpApiAspect } = require('cdk-serverless');
+// Import cdk-serverless projen aspects
+const { HttpApiAspect } = require('cdk-serverless/lib/projen');
 const { AwsCdkTypeScriptApp } = require('projen');
 
 const project = new AwsCdkTypeScriptApp({
@@ -49,12 +52,15 @@ new HttpApiAspect(project, {
 project.synth();
 ```
 
-This will add all the necessary dependencies and register some scripts like `generate:api` to generate type definitions from the `openapi.yaml` and `live:dev` to watch for code changes and redeploy Lambda function code.
+This will install all the necessary dependencies and register some scripts like `generate:api` to generate type definitions from the `openapi.yaml` and `live:dev` to watch for code changes and redeploy the Lambda function code.
+
+**IMPORTANT! cdk-serverless needs an operationId field on every operation in the openapi.yaml**
 
 After this you can add the selected L3 construct to your CDK app and configure it depending on your needs.
 
 ```ts
-import { HttpApi } from 'cdk-serverless';
+import { HttpApi } from 'cdk-serverless/lib/constructs';
+// Import the generates Path and Operation information
 import { paths, operations } from './lambda/types.generated';
 
 // Create a new HTTP API
@@ -81,20 +87,20 @@ const api = new HttpApi<paths, operations>(this, 'Api', {
       customMessages: true,
     },
   },
-  // automatically generate lambda functions for all route in openapi.yaml (true by default)
+  // automatically generate lambda functions for all routes in openapi.yaml (true by default)
   autoGenerateRoutes: true,
-  // Create a CloudWatch Dashboard to monitor the API and all Lambda function (true by default)
+  // Create a CloudWatch Dashboard to monitor the API and all Lambda functions (true by default)
   monitoring: true,
 });
 ```
 
-On the first `cdk synth` this will automatically bootstrap all lambda code files that are not yet existing. If you want to modify Lambda function definitions you can access the by calling:
+On the first `cdk synth` this will automatically bootstrap all lambda code files that are not yet existing. If you want to modify Lambda function definitions you can access them by calling:
 
 ```ts
 api.getFunctionForOperation('operationId').xxx
 ```
 
-This operation id support autocompletion using the generated type definitions.
+This operation id supports autocompletion using the generated type definitions.
 
 <TODO GIF for autocomplete>
 
