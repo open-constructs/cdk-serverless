@@ -1118,9 +1118,9 @@
     projen "^0.17.17"
 
 "@types/aws-lambda@^8.10.72":
-  version "8.10.73"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.73.tgz#77773c9accb2cec26fcb7c6b510a555805604a53"
-  integrity sha512-P+a6TRQbRnVQOIjWkmw6F23wiJcF+4Uniasbzx7NAXjLQCVGx/Z4VoMfit81/pxlmcXNxAMGuYPugn6CrJLilQ==
+  version "8.10.75"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.75.tgz#93b4e688db8a45755018561a3212e7766c0fef57"
+  integrity sha512-orOKSsIVUMsAbKgbSX2ST3FwQt9pxinHVCAIAVl4SmmTxmki2Gu+cGqobMD3eYwDV5FV0YNtaXyxnvE9pLrKTw==
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.13"
