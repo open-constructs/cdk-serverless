@@ -1278,13 +1278,13 @@
     eslint-utils "^2.0.0"
 
 "@typescript-eslint/parser@^4.3.0":
-  version "4.21.0"
-  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-4.21.0.tgz#a227fc2af4001668c3e3f7415d4feee5093894c1"
-  integrity sha512-eyNf7QmE5O/l1smaQgN0Lj2M/1jOuNg2NrBm1dqqQN0sVngTLyw8tdCbih96ixlhbF1oINoN8fDCyEH9SjLeIA==
+  version "4.22.0"
+  resolved "https://registry.yarnpkg.com/@typescript-eslint/parser/-/parser-4.22.0.tgz#e1637327fcf796c641fe55f73530e90b16ac8fe8"
+  integrity sha512-z/bGdBJJZJN76nvAY9DkJANYgK3nlRstRRi74WHm3jjgf2I8AglrSY+6l7ogxOmn55YJ6oKZCLLy+6PW70z15Q==
   dependencies:
-    "@typescript-eslint/scope-manager" "4.21.0"
-    "@typescript-eslint/types" "4.21.0"
-    "@typescript-eslint/typescript-estree" "4.21.0"
+    "@typescript-eslint/scope-manager" "4.22.0"
+    "@typescript-eslint/types" "4.22.0"
+    "@typescript-eslint/typescript-estree" "4.22.0"
     debug "^4.1.1"
 
 "@typescript-eslint/scope-manager@4.21.0":
@@ -1627,9 +1627,9 @@ atob@^2.1.2:
   integrity sha512-Wm6ukoaOGJi/73p/cl2GvLjTI5JM1k/O14isD73YML8StrH/7/lRFgmg8nICZgD3bZZvjwCGxtMOD3wWNAu8cg==
 
 aws-sdk@^2.840.0, aws-sdk@^2.874.0:
-  version "2.884.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.884.0.tgz#dd82338bb2c26201c59ac799abec3d6db51cbe21"
-  integrity sha512-+rhzq7zmntsj4VJRUf0v6ri9vw3dYroy9BbRtbxLHILdnSFPkoqMcodr/pwcUSO5kYEYbCG7mxr5/R2a+cfbxQ==
+  version "2.885.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.885.0.tgz#f8d8d7e2d31d517c3cea90dc2dbbfb9b6332eb98"
+  integrity sha512-V7fS53HkLYap+mt00frWB516HZV34C5pHNhBs/Het3Vgl7A0GbCpJs07G4FOIT9ioJ38+k9McscOzXG++1rWMQ==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
