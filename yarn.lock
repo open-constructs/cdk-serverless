@@ -5090,9 +5090,9 @@ onetime@^5.1.0, onetime@^5.1.2:
     mimic-fn "^2.1.0"
 
 openapi-typescript@^3.2.0:
-  version "3.2.2"
-  resolved "https://registry.yarnpkg.com/openapi-typescript/-/openapi-typescript-3.2.2.tgz#13670219404594172232eed56ae36416d86a0aa0"
-  integrity sha512-IUkItk9YgRpbMrOQm4aeTezt3BaaySk2HoUAdn5MjWyCoXxVk3iriWY3pR7Ki5pwlkwWovmCqbFNOGTNRvdtvw==
+  version "3.2.3"
+  resolved "https://registry.yarnpkg.com/openapi-typescript/-/openapi-typescript-3.2.3.tgz#119ebdee59c760263eccc7e4c8f9b8685a8cf979"
+  integrity sha512-LNm7U/eVHpQ1GMzPEx4sxP0/3ytlXpjm4lVeXy3q/Cv2ZMueErEDDQQNm0yn4NLGGOGYIHhAs7h6M44+SbroKQ==
   dependencies:
     js-yaml "^4.0.0"
     kleur "^4.1.3"
