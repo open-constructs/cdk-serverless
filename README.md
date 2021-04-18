@@ -105,7 +105,7 @@ api.getFunctionForOperation('operationId').doSomething()
 
 This operation id supports autocompletion using the generated type definitions.
 
-<TODO GIF for autocomplete>
+![Autocomplete](img/autocomplete.gif)
 
 ## Docs Links
 
