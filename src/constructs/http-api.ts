@@ -220,7 +220,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
       },
     });
     this._functions[operation.operationId as string] = fn;
-    cdk.Tags.of(fn).add('OpenAPI', description);
+    cdk.Tags.of(fn).add('OpenAPI', description.replace(/[^\w\s\d_.:/=+\-@]/g, ''));
 
     if (this.monitoring) {
       this.monitoring.lambdaDurationsWidget.addLeftMetric(fn.metricDuration());
