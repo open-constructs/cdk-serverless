@@ -1099,23 +1099,24 @@
   dependencies:
     "@sinonjs/commons" "^1.7.0"
 
-"@taimos/lambda-toolbox@^0.0.83":
-  version "0.0.83"
-  resolved "https://registry.yarnpkg.com/@taimos/lambda-toolbox/-/lambda-toolbox-0.0.83.tgz#cbda7bcc9584f15b0f6d13f7b1c90b9d44c5677e"
-  integrity sha512-B20vtwR+8xnYRYXJmON7Qs8w//xI1KSkIz9lMuE8UN0tZffFUCjLHL1gKv03GuhUVPpTe7FjKPwCtPNKYl9uXg==
+"@taimos/lambda-toolbox@^0.0.117":
+  version "0.0.117"
+  resolved "https://registry.yarnpkg.com/@taimos/lambda-toolbox/-/lambda-toolbox-0.0.117.tgz#c3affeedb1b056837d40ebbe6b3cf2dfc8acd2b7"
+  integrity sha512-cqaKjuuVWcQ80lMhE8tp3dsZ3qCfKh6kk3cySSefdMIgpStlRFJwLHB5JkoiM9bU+0CT2tGiw2qH/4X6Ot2c7w==
   dependencies:
     aws-sdk "^2.874.0"
     axios "^0.21.1"
     jsonwebtoken "^8.5.1"
     jwk-to-pem "^2.0.4"
+    lambda-log "^3.0.0"
     uuid "^8.3.2"
 
-"@taimos/projen@^0.0.60":
-  version "0.0.60"
-  resolved "https://registry.yarnpkg.com/@taimos/projen/-/projen-0.0.60.tgz#f1e4711c68f27f7bcae91690e1f5d92d396ea952"
-  integrity sha512-bOdBVj2/CYNq+NW1loyIbfAjiYrmR/aJ6CW3GlwWlb6zTrTpuhA7GLxHoQjHYoH7wDkuOrLXenMLuCXq+QBsWQ==
+"@taimos/projen@^0.0.90":
+  version "0.0.90"
+  resolved "https://registry.yarnpkg.com/@taimos/projen/-/projen-0.0.90.tgz#f0ee181205f769689c66fce60ce4e3788c530cc5"
+  integrity sha512-BsIMN21j97DDlImhSG6kHj1nWf7qLgvgzJQHwEoMsONfm2SJI96eRIHWOHSRHYLyKSDsgnp8v+12heyBDUAHEg==
   dependencies:
-    projen "^0.17.17"
+    projen "^0.17.62"
 
 "@types/aws-lambda@^8.10.72":
   version "8.10.75"
@@ -1612,7 +1613,7 @@ aws-sign2@~0.7.0:
   resolved "https://registry.yarnpkg.com/aws-sign2/-/aws-sign2-0.7.0.tgz#b46e890934a9591f2d2f6f86d7e6a9f1b3fe76a8"
   integrity sha1-tG6JCTSpWR8tL2+G1+ap8bP+dqg=
 
-aws4@^1.8.0:
+aws4@^1.11.0, aws4@^1.8.0:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/aws4/-/aws4-1.11.0.tgz#d61f46d83b2519250e2784daf5b09479a8b41c59"
   integrity sha512-xh1Rl34h6Fi1DC2WWKfxUTVqRsNnr6LsKz2+hfwDxQJWmrx8+c7ylaqBMcHfl1U1r2dsifOvKX3LQuLNZ+XSvA==
@@ -1904,13 +1905,14 @@ caseless@~0.12.0:
   resolved "https://registry.yarnpkg.com/caseless/-/caseless-0.12.0.tgz#1b681c21ff84033c826543090689420d187151dc"
   integrity sha1-G2gcIf+EAzyCZUMJBolCDRhxUdw=
 
-cdk-watch@^0.0.17:
-  version "0.0.17"
-  resolved "https://registry.yarnpkg.com/cdk-watch/-/cdk-watch-0.0.17.tgz#0e1c3ccb0344ad29abcde329f1c7daafb2bc85ff"
-  integrity sha512-5ahGQUF7L3mXX7hX4VFBHmWgHhsCcr2Y0+f5fqs99uRo5akSWMpwWGO/Jeuu4iRGJaeF2eM1stL1hjKcKUoNaQ==
+cdk-watch@^0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/cdk-watch/-/cdk-watch-0.0.19.tgz#87228138176f45267be06c9cb9cf4aa0c0f64228"
+  integrity sha512-wcyelCWCXahOtfM1WuoglDVsxRj/itp90WlgmGRGTsY30v8bU2CMfwXBUGGSj+2FshwTleFb2hitRFgBu5/jdw==
   dependencies:
     archiver "^5.2.0"
     aws-sdk "^2.840.0"
+    aws4 "^1.11.0"
     chalk "^4.1.0"
     cli-truncate "^2.1.0"
     commander "^7.0.0"
@@ -1919,8 +1921,10 @@ cdk-watch@^0.0.17:
     fs-extra "^9.1.0"
     json5 "^2.2.0"
     minimatch "^3.0.4"
+    reconnecting-websocket "^4.4.0"
     stream-buffers "^3.0.2"
     twisters "^1.1.0"
+    ws "^7.4.4"
 
 chalk@^2.0.0, chalk@^2.4.2:
   version "2.4.2"
@@ -2985,6 +2989,11 @@ fast-levenshtein@^2.0.6, fast-levenshtein@~2.0.6:
   resolved "https://registry.yarnpkg.com/fast-levenshtein/-/fast-levenshtein-2.0.6.tgz#3d8a5c66883a16a30ca8643e851f19baa7797917"
   integrity sha1-PYpcZog6FqMMqGQ+hR8Zuqd5eRc=
 
+fast-safe-stringify@^2.0.6:
+  version "2.0.7"
+  resolved "https://registry.yarnpkg.com/fast-safe-stringify/-/fast-safe-stringify-2.0.7.tgz#124aa885899261f68aedb42a7c080de9da608743"
+  integrity sha512-Utm6CdzT+6xsDk2m8S6uL8VHxNwI6Jub+e9NYTcAms28T84pTa25GJQV9j0CY0N1rM8hK4x6grpF2BQf+2qwVA==
+
 fastq@^1.6.0:
   version "1.11.0"
   resolved "https://registry.yarnpkg.com/fastq/-/fastq-1.11.0.tgz#bb9fb955a07130a918eb63c1f5161cc32a5d0858"
@@ -3544,6 +3553,11 @@ ini@^1.3.2:
   version "1.3.8"
   resolved "https://registry.yarnpkg.com/ini/-/ini-1.3.8.tgz#a29da425b48806f34767a4efce397269af28432c"
   integrity sha512-JV/yugV2uzW5iMRSiZAyDtQd+nxtUnjeLt0acNdw98kKLrvuRVyB80tsREOE7yvGVgalhZ6RNXCmEHkUKBKxew==
+
+ini@^2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/ini/-/ini-2.0.0.tgz#e5fd556ecdd5726be978fa1001862eacb0a94bc5"
+  integrity sha512-7PnF4oN3CvZF23ADhA5wRaYEQpJ8qygSkbtTXWBeXWXmEVRXK+1ITciHWwHhsjv1TmW0MgacIv6hEi5pX5NQdA==
 
 inquirer@^7.3.3:
   version "7.3.3"
@@ -4493,6 +4507,13 @@ kleur@^4.1.3:
   resolved "https://registry.yarnpkg.com/kleur/-/kleur-4.1.4.tgz#8c202987d7e577766d039a8cd461934c01cda04d"
   integrity sha512-8QADVssbrFjivHWQU7KkMgptGTl6WAcSdlbBPY4uNF+mWr6DGcKrvY2w4FQJoXch7+fKMjj0dRrL75vk3k23OA==
 
+lambda-log@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/lambda-log/-/lambda-log-3.0.0.tgz#178d0997afcbd50f5127c882c6d0aed3c75dc58e"
+  integrity sha512-xn6qbqJ/Jv5aybdACuXHPZVKg/bCfloFzfH18iZ8YJ1K29HaSLD+hGaF33NUudwD1opMTzXCrKoJIlgsJNdLpQ==
+  dependencies:
+    fast-safe-stringify "^2.0.6"
+
 lazystream@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/lazystream/-/lazystream-1.0.0.tgz#f6995fe0f820392f61396be89462407bb77168e4"
@@ -5408,16 +5429,17 @@ progress@^2.0.0:
   resolved "https://registry.yarnpkg.com/progress/-/progress-2.0.3.tgz#7e8cf8d8f5b8f239c1bc68beb4eb78567d572ef8"
   integrity sha512-7PiHtLll5LdnKIMw100I+8xJXR5gW2QwWYkT6iJva0bXitZKa/XMrSbdmg3r2Xnaidz9Qumd0VPaMrZlF9V9sA==
 
-projen@^0.17.17:
-  version "0.17.17"
-  resolved "https://registry.yarnpkg.com/projen/-/projen-0.17.17.tgz#497333f5ab23dac13b600bdbdb686c97d230ee41"
-  integrity sha512-4Or7h/ABz2w7F9+0s7jGLi+aS7iV5im290fR/yz9PEsaHYro8+W3khFjUzNz3K93M0m5qBAN3Mp2rtaFYbg0SQ==
+projen@^0.17.62:
+  version "0.17.62"
+  resolved "https://registry.yarnpkg.com/projen/-/projen-0.17.62.tgz#4828ff92a9e89fc8bff4f8f2cf565216d2359206"
+  integrity sha512-wHMY/ZicPvqf6XCr5Lu7/2ConCgZMIyQOrB0GwPZ+UYuV7Bk8He7jBJn/w3WKyE79EZdszfaRjEU3utzqqDOqw==
   dependencies:
     "@iarna/toml" "^2.2.5"
     chalk "^4.1.0"
     decamelize "^4.0.0"
     fs-extra "^9.0.1"
     glob "^7"
+    ini "^2.0.0"
     inquirer "^7.3.3"
     semver "^7.3.2"
     xmlbuilder2 "^2.4.0"
@@ -5590,6 +5612,11 @@ rechoir@^0.6.2:
   integrity sha1-hSBLVNuoLVdC4oyWdW70OvUOM4Q=
   dependencies:
     resolve "^1.1.6"
+
+reconnecting-websocket@^4.4.0:
+  version "4.4.0"
+  resolved "https://registry.yarnpkg.com/reconnecting-websocket/-/reconnecting-websocket-4.4.0.tgz#3b0e5b96ef119e78a03135865b8bb0af1b948783"
+  integrity sha512-D2E33ceRPga0NvTDhJmphEgJ7FUYF0v4lr1ki0csq06OdlxKfugGzN0dSkxM/NfqCxYELK4KcaTOUOjTV6Dcng==
 
 redent@^1.0.0:
   version "1.0.0"
