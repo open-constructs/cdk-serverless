@@ -258,7 +258,7 @@ export class GraphQlApi extends cdk.Construct {
 // TODO: Replace RETURNTYPE with the return type of the field ${typeName}.${fieldName}
 
 export const handler = http.createAppSyncHandler<QUERYTYPE, RETURNTYPE>(async (ctx) => {
-  console.log(ctx.event);
+  ctx.logger.info(ctx.event);
   throw new Error('Not yet implemented');
 });`, {
       encoding: 'utf-8',

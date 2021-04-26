@@ -248,7 +248,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
       case 'put':
       case 'patch':
         factoryCall = `http.createOpenApiHandlerWithRequestBody<operations['${operation.operationId}']>(async (ctx, data) => {`;
-        logs = 'console.log(data);';
+        logs = 'ctx.logger.info(JSON.stringify(data));';
         break;
       case 'options':
       case 'delete':
@@ -264,7 +264,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
 import { operations } from './types.generated';
 
 export const handler = ${factoryCall}
-  console.log(ctx.event);
+  ctx.logger.info(JSON.stringify(ctx.event));
   ${logs}
   throw new errors.HttpError(500, 'Not yet implemented');
 });`, {

@@ -61,7 +61,7 @@ export class CoreAspect extends pj.Component {
       '@aws-cdk/aws-kms',
     );
 
-    app.addDevDeps('@types/aws-lambda', '@types/uuid');
+    app.addDevDeps('@types/aws-lambda', '@types/uuid', '@types/lambda-log');
     app.addDeps('@taimos/lambda-toolbox', 'uuid');
 
     app.tasks.tryFind('synth')?.prependExec('rm -rf cdk.out/');
