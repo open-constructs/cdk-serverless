@@ -1,6 +1,6 @@
 const { TaimosTypescriptLibrary } = require('@taimos/projen');
 
-const cdkVersion = '^1.91.0';
+const cdkVersion = '^1.100.0';
 
 const project = new TaimosTypescriptLibrary({
   name: 'cdk-serverless',

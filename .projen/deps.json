@@ -2,82 +2,82 @@
   "dependencies": [
     {
       "name": "@aws-cdk/aws-apigatewayv2-integrations",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-apigatewayv2",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-appsync",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-certificatemanager",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-cloudfront",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-cloudwatch",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-cognito",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-dynamodb",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-iam",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-kms",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-lambda-nodejs",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-lambda",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-route53-targets",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-route53",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/aws-s3",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
       "name": "@aws-cdk/core",
-      "version": "1.91.0",
+      "version": "1.100.0",
       "type": "build"
     },
     {
@@ -159,82 +159,82 @@
     },
     {
       "name": "@aws-cdk/aws-apigatewayv2-integrations",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-apigatewayv2",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-appsync",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-certificatemanager",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-cloudfront",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-cloudwatch",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-cognito",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-dynamodb",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-iam",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-kms",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-lambda-nodejs",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-lambda",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-route53-targets",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-route53",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/aws-s3",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {
       "name": "@aws-cdk/core",
-      "version": "^1.91.0",
+      "version": "^1.100.0",
       "type": "peer"
     },
     {

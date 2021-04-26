@@ -126,7 +126,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
     new route53.ARecord(this, 'DnsRecord', {
       zone: hostedZone,
       recordName: apiDomainName,
-      target: route53.RecordTarget.fromAlias(new route53Target.ApiGatewayv2Domain(dn)),
+      target: route53.RecordTarget.fromAlias(new route53Target.ApiGatewayv2DomainProperties(dn.regionalDomainName, dn.regionalHostedZoneId)),
     });
 
     if (props.monitoring ?? true) {
