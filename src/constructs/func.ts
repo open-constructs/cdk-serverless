@@ -3,7 +3,9 @@ import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
-import { WatchableNodejsFunction } from 'cdk-watch';
+import { WatchableNodejsFunction, WatchableNodejsFunctionProps } from 'cdk-watch';
+
+export type LambdaOptions = Omit<WatchableNodejsFunctionProps, 'entry' | 'handler' | 'description'>
 
 export interface LambdaFunctionProps {
   /**
@@ -71,20 +73,29 @@ export interface LambdaFunctionProps {
   additionalEnv?: {
     [key: string]: string;
   };
+
+  /**
+   * additional options for the underlying Lambda function construct
+   */
+  lambdaOptions?: LambdaOptions;
 }
 
 export class LambdaFunction extends WatchableNodejsFunction {
 
   constructor(scope: cdk.Construct, id: string, private props: LambdaFunctionProps) {
     super(scope, id, {
+      ...props.lambdaOptions,
       entry: props.entry,
       bundling: {
+        ...props.lambdaOptions?.bundling,
         externalModules: props.includeSDK ? [] : undefined,
         loader: {
+          ...props.lambdaOptions?.bundling?.loader,
           '.yaml': 'text',
         },
       },
       environment: {
+        ...props.lambdaOptions?.environment,
         STAGE: props.stageName,
         ...props.table && {
           TABLE: props.table.tableName,
@@ -101,8 +112,6 @@ export class LambdaFunction extends WatchableNodejsFunction {
         ...props.additionalEnv,
       },
       handler: props.handler ?? 'handler',
-      timeout: cdk.Duration.seconds(5),
-      // logRetention: 3,
       description: props.description,
     });
 

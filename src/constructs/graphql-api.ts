@@ -5,22 +5,60 @@ import * as lambdaNodejs from '@aws-cdk/aws-lambda-nodejs';
 import * as cdk from '@aws-cdk/core';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps } from './auth';
-import { LambdaFunction } from './func';
+import { LambdaFunction, LambdaOptions } from './func';
 import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
 
 export interface GraphQlApiProps {
+
+  /**
+   * Name of the GraphQL API
+   */
   apiName: string;
+
+  /**
+   * Deployment stage (e.g. dev)
+   */
   stageName: string;
 
+  /**
+   * Configure CloudWatch Dashboard for the API and the Lambda functions
+   *
+   * @default true
+   */
   monitoring?: boolean;
+
+  /**
+   * Create a DynamoDB Table to store data using the single table design
+   *
+   * @default none
+   */
   singleTableDatastore?: SingleTableDatastoreProps;
+
+  /**
+   * Configure a Cognito user pool and use it for authorization
+   *
+   * @default none
+   */
   authentication?: AuthenticationProps;
+
+  /**
+   * Configure a content delivery network for static assets
+   *
+   * @default none
+   */
   assetCdn?: AssetCdnProps;
 
+  /**
+   * Additional environment variables of all Lambda functions
+   */
   additionalEnv?: {
     [key: string]: string;
   };
+  /**
+   * additional options for the underlying Lambda function construct
+   */
+  lambdaOptions?: LambdaOptions;
 
 }
 
@@ -164,6 +202,7 @@ export class GraphQlApi extends cdk.Construct {
         assetDomainName: this.assetCdn.assetDomainName,
         assetBucket: this.assetCdn.assetBucket,
       },
+      lambdaOptions: this.props.lambdaOptions,
     });
     this._functions[operationId] = fn;
     cdk.Tags.of(fn).add('GraphQL', description);

@@ -10,7 +10,7 @@ import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps } from './auth';
-import { LambdaFunction } from './func';
+import { LambdaFunction, LambdaOptions } from './func';
 import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
 
@@ -79,6 +79,11 @@ export interface HttpApiProps {
   additionalEnv?: {
     [key: string]: string;
   };
+
+  /**
+   * additional options for the underlying Lambda construct of all created functions
+   */
+  lambdaOptions?: LambdaOptions;
 }
 
 export class HttpApi<PATHS, OPS> extends cdk.Construct {
@@ -218,6 +223,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
         assetDomainName: this.assetCdn.assetDomainName,
         assetBucket: this.assetCdn.assetBucket,
       },
+      lambdaOptions: this.props.lambdaOptions,
     });
     this._functions[operation.operationId as string] = fn;
     cdk.Tags.of(fn).add('OpenAPI', description.replace(/[^\w\s\d_.:/=+\-@]/g, ''));
