@@ -13,6 +13,8 @@ CDK Serverless is a tool suite to facilitate the use of the AWS Cloud Developmen
 - Full features of CDK usable to implement your special use cases
 - Fully typed auto-completion for routes, resolvers, etc.
 
+Short intro video: https://www.youtube.com/watch?v=GGc0eg3E9MM&t=7s
+
 ## Quick Start
 
 To start a new project we recommend using projen. To use CDK Serverless you can create any projen CDK Typescript app and then add the appropriate aspect provided by this toolkit.
