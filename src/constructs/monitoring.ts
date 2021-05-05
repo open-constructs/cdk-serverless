@@ -31,7 +31,7 @@ export class Monitoring extends cdk.Construct {
     super(scope, id);
 
     this.dashboard = new cloudwatch.Dashboard(this, 'Dashboard', {
-      dashboardName: `${props.apiName}-${props.stageName}`,
+      dashboardName: `${props.apiName}-${props.stageName}`.replace(/[^\w-]/g, '-'),
     });
 
     this.apiErrorsWidget = new cloudwatch.GraphWidget({
