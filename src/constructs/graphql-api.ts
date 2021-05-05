@@ -1,7 +1,6 @@
 import * as fs from 'fs';
 import * as appsync from '@aws-cdk/aws-appsync';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
-import * as lambdaNodejs from '@aws-cdk/aws-lambda-nodejs';
 import * as cdk from '@aws-cdk/core';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps } from './auth';
@@ -177,7 +176,7 @@ export class GraphQlApi extends cdk.Construct {
     return this._functions[`${typeName}.${fieldName}`];
   }
 
-  public addLambdaResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): lambdaNodejs.NodejsFunction {
+  public addLambdaResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): LambdaFunction {
     const operationId = `${typeName}.${fieldName}`;
     const description = `Type ${typeName} Field ${fieldName} Resolver`;
 
