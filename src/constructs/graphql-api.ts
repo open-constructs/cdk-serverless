@@ -229,6 +229,13 @@ export class GraphQlApi extends cdk.Construct {
   }
 
   public addDynamoDbVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): void {
+    if (!this.tableDataSource) {
+      throw new Error('DynamoDB is not initialized');
+    }
+    this.addVtlResolver(typeName, fieldName, this.tableDataSource);
+  }
+
+  public addVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>, dataSource: appsync.BaseDataSource): void {
     const operationId = `${typeName}.${fieldName}`;
 
     const mappingReqFile = `./src/vtl/${operationId}.req.vm`;
@@ -244,7 +251,7 @@ export class GraphQlApi extends cdk.Construct {
       api: this.api,
       typeName,
       fieldName: fieldName as string,
-      dataSource: this.tableDataSource,
+      dataSource,
       requestMappingTemplate: appsync.MappingTemplate.fromFile(mappingReqFile),
       responseMappingTemplate: appsync.MappingTemplate.fromFile(mappingResFile),
     });
