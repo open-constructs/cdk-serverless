@@ -61,6 +61,20 @@ export interface GraphQlApiProps {
 
 }
 
+export interface VtlResolverOptions {
+  /**
+   * The datasource the VTL resolver targets
+   */
+  dataSource: appsync.BaseDataSource;
+
+  /**
+   * string replacements to process on the VTL
+   *
+   * @default no variable expansions
+   */
+  variables?: { [name: string]: string };
+}
+
 export class GraphQlApi extends cdk.Construct {
 
   public readonly api: appsync.GraphqlApi;
@@ -228,14 +242,17 @@ export class GraphQlApi extends cdk.Construct {
     return fn;
   }
 
-  public addDynamoDbVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>): void {
+  public addDynamoDbVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>, options?: Omit<VtlResolverOptions, 'dataSource'>): void {
     if (!this.tableDataSource) {
       throw new Error('DynamoDB is not initialized');
     }
-    this.addVtlResolver(typeName, fieldName, this.tableDataSource);
+    this.addVtlResolver(typeName, fieldName, {
+      dataSource: this.tableDataSource,
+      ...options,
+    });
   }
 
-  public addVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>, dataSource: appsync.BaseDataSource): void {
+  public addVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>, options: VtlResolverOptions): void {
     const operationId = `${typeName}.${fieldName}`;
 
     const mappingReqFile = `./src/vtl/${operationId}.req.vm`;
@@ -251,10 +268,21 @@ export class GraphQlApi extends cdk.Construct {
       api: this.api,
       typeName,
       fieldName: fieldName as string,
-      dataSource,
-      requestMappingTemplate: appsync.MappingTemplate.fromFile(mappingReqFile),
-      responseMappingTemplate: appsync.MappingTemplate.fromFile(mappingResFile),
+      dataSource: options.dataSource,
+      requestMappingTemplate: appsync.MappingTemplate.fromString(this.substVariables(fs.readFileSync(mappingReqFile).toString('utf-8'), options.variables)),
+      responseMappingTemplate: appsync.MappingTemplate.fromString(this.substVariables(fs.readFileSync(mappingResFile).toString('utf-8'), options.variables)),
     });
+  }
+
+  private substVariables(data: string, vars: { [name: string]: string } = {}): string {
+    let res = data;
+    for (const name in vars) {
+      if (Object.prototype.hasOwnProperty.call(vars, name)) {
+        const value = vars[name];
+        res = res.replace(new RegExp(`\\$\{${name}\}`, 'g'), value);
+      }
+    }
+    return res;
   }
 
   private createEntryFile(entryFile: string, typeName: string, fieldName: string) {
