@@ -91,9 +91,7 @@ export class Authentication extends cdk.Construct {
       const entryFile = './src/lambda/cognito.custom-message.ts';
 
       if (!fs.existsSync(entryFile)) {
-        fs.writeFileSync(entryFile, `import { CustomMessageTriggerEvent } from 'aws-lambda';
-      
-export async function handler(event: CustomMessageTriggerEvent): Promise<CustomMessageTriggerEvent> {
+        fs.writeFileSync(entryFile, `export async function handler(event: AWSLambda.CustomMessageTriggerEvent): Promise<AWSLambda.CustomMessageTriggerEvent> {
   console.log(event);
 
   if (event.triggerSource === 'CustomMessage_AdminCreateUser') {
