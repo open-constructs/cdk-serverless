@@ -109,7 +109,7 @@ const api = new GraphQlApi(this, 'Api', {
 // Create Lambda direct resolvers for queries and mutations
 api.addLambdaResolver<Query>('Query', 'listAllTasks');
 api.addLambdaResolver<Mutation>('Mutation', 'addTask');
-// Read `./src/vtl/Query.getTaskById.{req|res}.vm` and use as VTL resolver backed by the DynamoDB table
+// Read `./src/vtl/Query.getTaskById.{req|res}.vtl` and use as VTL resolver backed by the DynamoDB table
 api.addDynamoDbVtlResolver<Query>('Query', 'getTaskById');
 
 ```

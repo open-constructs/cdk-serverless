@@ -255,11 +255,11 @@ export class GraphQlApi extends cdk.Construct {
   public addVtlResolver<TYPE extends { __typename?: any }>(typeName: TYPE['__typename'], fieldName: keyof Omit<TYPE, '__typename'>, options: VtlResolverOptions): void {
     const operationId = `${typeName}.${fieldName}`;
 
-    const mappingReqFile = `./src/vtl/${operationId}.req.vm`;
+    const mappingReqFile = `./src/vtl/${operationId}.req.vtl`;
     if (!fs.existsSync(mappingReqFile)) {
       fs.writeFileSync(mappingReqFile, '## Request mapping', { encoding: 'utf-8' });
     }
-    const mappingResFile = `./src/vtl/${operationId}.res.vm`;
+    const mappingResFile = `./src/vtl/${operationId}.res.vtl`;
     if (!fs.existsSync(mappingResFile)) {
       fs.writeFileSync(mappingResFile, '$util.toJson($ctx.result)', { encoding: 'utf-8' });
     }
