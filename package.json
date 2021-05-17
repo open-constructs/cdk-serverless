@@ -15,6 +15,7 @@
     "test:watch": "npx projen test:watch",
     "test:update": "npx projen test:update",
     "projen:upgrade": "npx projen projen:upgrade",
+    "default": "npx projen default",
     "watch": "npx projen watch",
     "package": "npx projen package",
     "eslint": "npx projen eslint",
@@ -44,10 +45,10 @@
     "@aws-cdk/aws-route53-targets": "1.100.0",
     "@aws-cdk/aws-s3": "1.100.0",
     "@aws-cdk/core": "1.100.0",
-    "@taimos/projen": "^0.0.92",
-    "@types/aws-lambda": "^8.10.72",
-    "@types/jest": "^26.0.20",
-    "@types/js-yaml": "^4.0.0",
+    "@taimos/projen": "^0.0.100",
+    "@types/aws-lambda": "^8.10.76",
+    "@types/jest": "^26.0.23",
+    "@types/js-yaml": "^4.0.1",
     "@types/node": "^10.17.0",
     "@typescript-eslint/eslint-plugin": "^4.3.0",
     "@typescript-eslint/parser": "^4.3.0",
@@ -58,7 +59,7 @@
     "jest": "^26.6.3",
     "jest-junit": "^12",
     "json-schema": "^0.3.0",
-    "projen": "^0.17.62",
+    "projen": "^0.17.92",
     "standard-version": "^9",
     "ts-jest": "^26.5.6",
     "typescript": "^4.2.0"
@@ -82,14 +83,14 @@
     "@aws-cdk/core": "^1.100.0"
   },
   "dependencies": {
-    "@taimos/lambda-toolbox": "^0.0.117",
-    "aws-sdk": "^2.901.0",
+    "@taimos/lambda-toolbox": "^0.0.118",
+    "aws-sdk": "^2.907.0",
     "cdk-watch": "^0.0.21",
-    "date-fns": "^2.21.2",
-    "esbuild": "^0.11.18",
+    "date-fns": "^2.21.3",
+    "esbuild": "^0.11.23",
     "js-yaml": "^4.1.0",
-    "openapi-typescript": "^3.2.3",
-    "projen": "^0.17.62"
+    "openapi-typescript": "^3.2.4",
+    "projen": "^0.17.92"
   },
   "bundledDependencies": [],
   "keywords": [
