@@ -106,6 +106,14 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
     }
     if (props.authentication) {
       this.authentication = new Authentication(this, 'Authentication', props.authentication);
+      if (this.singleTableDatastore) {
+        if (this.authentication.customMessageFunction) {
+          this.authentication.customMessageFunction.setTable(this.singleTableDatastore.table, false);
+        }
+        if (this.authentication.preTokenGenerationFunction) {
+          this.authentication.preTokenGenerationFunction.setTable(this.singleTableDatastore.table, false);
+        }
+      }
     }
     if (props.assetCdn) {
       this.assetCdn = new AssetCdn(this, 'AssetCdn', props.assetCdn);

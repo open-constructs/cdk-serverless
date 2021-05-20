@@ -11,7 +11,7 @@ export interface LambdaFunctionProps {
   /**
    * Deployment stage (e.g. dev)
    */
-  stageName: string;
+  stageName?: string;
 
   /**
    * entry file name
@@ -96,7 +96,9 @@ export class LambdaFunction extends WatchableNodejsFunction {
       },
       environment: {
         ...props.lambdaOptions?.environment,
-        STAGE: props.stageName,
+        ...props.stageName && {
+          STAGE: props.stageName,
+        },
         ...props.table && {
           TABLE: props.table.tableName,
         },
@@ -122,6 +124,26 @@ export class LambdaFunction extends WatchableNodejsFunction {
         props.table.grantReadData(this);
       }
     }
+  }
+
+  public setTable(table: dynamodb.ITable, tableWrites?: boolean): LambdaFunction {
+    this.props.table = table;
+    this.props.tableWrites = tableWrites;
+
+    this.addEnvironment('TABLE', table.tableName);
+    if (tableWrites ?? true) {
+      table.grantReadWriteData(this);
+    } else {
+      table.grantReadData(this);
+    }
+
+    return this;
+  }
+
+  public setUserPool(userPool: cognito.IUserPool): LambdaFunction {
+    this.props.userPool = userPool;
+    this.addEnvironment('USER_POOL_ID', userPool.userPoolId);
+    return this;
   }
 
   public grantSendEmails(): LambdaFunction {

@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import * as cognito from '@aws-cdk/aws-cognito';
 import * as cdk from '@aws-cdk/core';
-import { WatchableNodejsFunction } from 'cdk-watch';
+import { LambdaFunction } from './func';
 
 export interface AuthenticationProps {
 
@@ -17,6 +17,15 @@ export interface AuthenticationProps {
      * @default false
      */
     customMessages?: boolean;
+
+    /**
+     * Attaches a lambda function to the pre token generation trigger
+     *
+     * Code has to reside in './src/lambda/cognito.pre-token-generation.ts' with a method 'handler'
+     *
+     * @default false
+     */
+    preTokenGeneration?: boolean;
   };
 
   /**
@@ -55,7 +64,8 @@ export interface AuthenticationProps {
 export class Authentication extends cdk.Construct {
 
   public readonly userpool: cognito.UserPool;
-  public readonly customMessageFunction?: WatchableNodejsFunction;
+  public readonly customMessageFunction?: LambdaFunction;
+  public readonly preTokenGenerationFunction?: LambdaFunction;
 
   constructor(scope: cdk.Construct, id: string, props: AuthenticationProps) {
     super(scope, id);
@@ -108,17 +118,44 @@ export class Authentication extends cdk.Construct {
         });
       }
 
-      this.customMessageFunction = new WatchableNodejsFunction(this, 'CustomMessageFunction', {
+      this.customMessageFunction = new LambdaFunction(this, 'CustomMessageFunction', {
         entry: entryFile,
-        bundling: {
-          loader: {
-            '.html': 'text',
+        lambdaOptions: {
+          bundling: {
+            loader: {
+              '.html': 'text',
+            },
           },
+          timeout: cdk.Duration.seconds(5),
         },
-        handler: 'handler',
-        timeout: cdk.Duration.seconds(5),
+        userPool: this.userpool,
       });
       this.userpool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, this.customMessageFunction);
+    }
+
+    if (props.triggers?.preTokenGeneration) {
+      const entryFile = './src/lambda/cognito.pre-token-generation.ts';
+
+      if (!fs.existsSync(entryFile)) {
+        fs.writeFileSync(entryFile, `export async function handler(event: AWSLambda.PreTokenGenerationTriggerEvent): Promise<AWSLambda.PreTokenGenerationTriggerEvent> {
+  console.log(JSON.stringify(event));
+
+  // modify event.response here ...
+
+  return event;
+}`, {
+          encoding: 'utf-8',
+        });
+      }
+
+      this.preTokenGenerationFunction = new LambdaFunction(this, 'PreTokenGenerationFunction', {
+        lambdaOptions: {
+          timeout: cdk.Duration.seconds(5),
+        },
+        entry: entryFile,
+        userPool: this.userpool,
+      });
+      this.userpool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION, this.preTokenGenerationFunction);
     }
 
     if (props.sesEmailSender) {
