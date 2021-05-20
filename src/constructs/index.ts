@@ -5,3 +5,4 @@ export * from './graphql-api';
 export * from './http-api';
 export * from './monitoring';
 export * from './table';
+export * from './webhook';
