@@ -73,10 +73,10 @@ export class HttpWebhook extends cdk.Construct {
   private createHandler() {
     const description = `Webhook ${this.props.name}`;
 
-    const entryFile = `./src/lambda/webhook.${this.props.name.replace(/[^\w-]/g, '-')}.ts`;
+    const entryFile = `./src/lambda/webhook.${this.props.name.toLowerCase().replace(/[^\w-]/g, '-')}.ts`;
     if (!fs.existsSync(entryFile)) {
+      fs.mkdirSync('./src/lambda', { recursive: true });
       fs.writeFileSync(entryFile, `import { http, errors } from '@taimos/lambda-toolbox';
-import { operations } from './types.generated';
 
 export const handler = http.createHttpHandler<any, any>(async (ctx) => {
   ctx.logger.info(JSON.stringify(ctx.event));
