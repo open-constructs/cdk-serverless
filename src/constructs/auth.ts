@@ -3,6 +3,10 @@ import * as cognito from '@aws-cdk/aws-cognito';
 import * as cdk from '@aws-cdk/core';
 import { LambdaFunction } from './func';
 
+export interface IAuthentication {
+  readonly userpool: cognito.IUserPool;
+}
+
 export interface AuthenticationProps {
 
   /**
@@ -61,7 +65,7 @@ export interface AuthenticationProps {
   };
 }
 
-export class Authentication extends cdk.Construct {
+export class Authentication extends cdk.Construct implements IAuthentication {
 
   public readonly userpool: cognito.UserPool;
   public readonly customMessageFunction?: LambdaFunction;

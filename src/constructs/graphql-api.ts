@@ -2,63 +2,11 @@ import * as fs from 'fs';
 import * as appsync from '@aws-cdk/aws-appsync';
 import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
 import * as cdk from '@aws-cdk/core';
-import { AssetCdn, AssetCdnProps } from './asset-cdn';
-import { Authentication, AuthenticationProps } from './auth';
-import { LambdaFunction, LambdaOptions } from './func';
-import { Monitoring } from './monitoring';
-import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
+import { BaseApi, BaseApiProps } from './base-api';
+import { LambdaFunction } from './func';
 
-export interface GraphQlApiProps {
-
-  /**
-   * Name of the GraphQL API
-   */
-  apiName: string;
-
-  /**
-   * Deployment stage (e.g. dev)
-   */
-  stageName: string;
-
-  /**
-   * Configure CloudWatch Dashboard for the API and the Lambda functions
-   *
-   * @default true
-   */
-  monitoring?: boolean;
-
-  /**
-   * Create a DynamoDB Table to store data using the single table design
-   *
-   * @default none
-   */
-  singleTableDatastore?: SingleTableDatastoreProps;
-
-  /**
-   * Configure a Cognito user pool and use it for authorization
-   *
-   * @default none
-   */
-  authentication?: AuthenticationProps;
-
-  /**
-   * Configure a content delivery network for static assets
-   *
-   * @default none
-   */
-  assetCdn?: AssetCdnProps;
-
-  /**
-   * Additional environment variables of all Lambda functions
-   */
-  additionalEnv?: {
-    [key: string]: string;
-  };
-  /**
-   * additional options for the underlying Lambda function construct
-   */
-  lambdaOptions?: LambdaOptions;
-
+export interface GraphQlApiProps extends BaseApiProps {
+  //
 }
 
 export interface VtlResolverOptions {
@@ -75,30 +23,15 @@ export interface VtlResolverOptions {
   variables?: { [name: string]: string };
 }
 
-export class GraphQlApi extends cdk.Construct {
+export class GraphQlApi extends BaseApi {
 
   public readonly api: appsync.GraphqlApi;
-
-  public readonly singleTableDatastore?: SingleTableDatastore;
-  public readonly authentication?: Authentication;
-  public readonly assetCdn?: AssetCdn;
   public readonly tableDataSource?: appsync.DynamoDbDataSource;
-  public readonly monitoring?: Monitoring;
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
   constructor(scope: cdk.Construct, id: string, private props: GraphQlApiProps) {
-    super(scope, id);
-
-    if (props.singleTableDatastore) {
-      this.singleTableDatastore = new SingleTableDatastore(this, 'SingleTableDS', props.singleTableDatastore);
-    }
-    if (props.authentication) {
-      this.authentication = new Authentication(this, 'Authentication', props.authentication);
-    }
-    if (props.assetCdn) {
-      this.assetCdn = new AssetCdn(this, 'AssetCdn', props.assetCdn);
-    }
+    super(scope, id, props);
 
     this.api = new appsync.GraphqlApi(this, 'Resource', {
       name: `${props.apiName} [${props.stageName}]`,
@@ -119,12 +52,7 @@ export class GraphQlApi extends cdk.Construct {
       },
     });
 
-    if (props.monitoring ?? true) {
-      this.monitoring = new Monitoring(this, 'Monitoring', {
-        apiName: this.props.apiName,
-        stageName: this.props.stageName,
-      });
-
+    if ((props.monitoring ?? true) && this.monitoring) {
       this.monitoring.apiErrorsWidget.addLeftMetric(new cloudwatch.Metric({
         namespace: 'AWS/AppSync',
         metricName: '5XXError',

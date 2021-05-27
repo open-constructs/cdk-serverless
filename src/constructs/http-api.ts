@@ -8,23 +8,10 @@ import * as route53Target from '@aws-cdk/aws-route53-targets';
 import * as cdk from '@aws-cdk/core';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
-import { AssetCdn, AssetCdnProps } from './asset-cdn';
-import { Authentication, AuthenticationProps } from './auth';
-import { LambdaFunction, LambdaOptions } from './func';
-import { Monitoring } from './monitoring';
-import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
+import { BaseApi, BaseApiProps } from './base-api';
+import { LambdaFunction } from './func';
 
-export interface HttpApiProps {
-
-  /**
-   * Name of the HTTP API
-   */
-  apiName: string;
-
-  /**
-   * Deployment stage (e.g. dev)
-   */
-  stageName: string;
+export interface HttpApiProps extends BaseApiProps {
 
   /**
    * Domain name of the API (e.g. example.com)
@@ -45,79 +32,17 @@ export interface HttpApiProps {
    */
   autoGenerateRoutes?: boolean;
 
-  /**
-   * Configure CloudWatch Dashboard for the API and the Lambda functions
-   *
-   * @default true
-   */
-  monitoring?: boolean;
-
-  /**
-   * Create a DynamoDB Table to store data using the single table design
-   *
-   * @default none
-   */
-  singleTableDatastore?: SingleTableDatastoreProps;
-
-  /**
-   * Configure a Cognito user pool and use it for authorization
-   *
-   * @default none
-   */
-  authentication?: AuthenticationProps;
-
-  /**
-   * Configure a content delivery network for static assets
-   *
-   * @default none
-   */
-  assetCdn?: AssetCdnProps;
-
-  /**
-   * Additional environment variables of all Lambda functions
-   */
-  additionalEnv?: {
-    [key: string]: string;
-  };
-
-  /**
-   * additional options for the underlying Lambda construct of all created functions
-   */
-  lambdaOptions?: LambdaOptions;
 }
 
-export class HttpApi<PATHS, OPS> extends cdk.Construct {
+export class HttpApi<PATHS, OPS> extends BaseApi {
 
   public readonly api: apiGW.HttpApi;
   public readonly apiSpec: OpenAPI3;
 
-  public readonly singleTableDatastore?: SingleTableDatastore;
-  public readonly authentication?: Authentication;
-  public readonly assetCdn?: AssetCdn;
-  public readonly monitoring?: Monitoring;
-
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
   constructor(scope: cdk.Construct, id: string, private props: HttpApiProps) {
-    super(scope, id);
-
-    if (props.singleTableDatastore) {
-      this.singleTableDatastore = new SingleTableDatastore(this, 'SingleTableDS', props.singleTableDatastore);
-    }
-    if (props.authentication) {
-      this.authentication = new Authentication(this, 'Authentication', props.authentication);
-      if (this.singleTableDatastore) {
-        if (this.authentication.customMessageFunction) {
-          this.authentication.customMessageFunction.setTable(this.singleTableDatastore.table, false);
-        }
-        if (this.authentication.preTokenGenerationFunction) {
-          this.authentication.preTokenGenerationFunction.setTable(this.singleTableDatastore.table, false);
-        }
-      }
-    }
-    if (props.assetCdn) {
-      this.assetCdn = new AssetCdn(this, 'AssetCdn', props.assetCdn);
-    }
+    super(scope, id, props);
 
     const hostedZone = route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
     const apiDomainName = `${props.apiHostname ?? 'api'}.${props.domainName}`;
@@ -142,12 +67,7 @@ export class HttpApi<PATHS, OPS> extends cdk.Construct {
       target: route53.RecordTarget.fromAlias(new route53Target.ApiGatewayv2DomainProperties(dn.regionalDomainName, dn.regionalHostedZoneId)),
     });
 
-    if (props.monitoring ?? true) {
-      this.monitoring = new Monitoring(this, 'Monitoring', {
-        apiName: this.props.apiName,
-        stageName: this.props.stageName,
-      });
-
+    if ((props.monitoring ?? true) && this.monitoring) {
       this.monitoring.apiErrorsWidget.addLeftMetric(this.api.metricServerError({
         statistic: 'sum',
       }));
