@@ -15,11 +15,13 @@ export interface HttpApiProps extends BaseApiProps {
 
   /**
    * Domain name of the API (e.g. example.com)
+   *
+   * @default - No custom domain is configured
    */
-  domainName: string;
+  domainName?: string;
 
   /**
-   * Hostname of the API
+   * Hostname of the API if a domain name is specified
    *
    * @default api
    */
@@ -31,6 +33,13 @@ export interface HttpApiProps extends BaseApiProps {
    * @default true
    */
   autoGenerateRoutes?: boolean;
+
+  /**
+   * custom options for the created HttpApi
+   *
+   * @default -
+   */
+  httpApiProps?: apiGW.HttpApiProps;
 
 }
 
@@ -44,27 +53,36 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
   constructor(scope: cdk.Construct, id: string, private props: HttpApiProps) {
     super(scope, id, props);
 
-    const hostedZone = route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
-    const apiDomainName = `${props.apiHostname ?? 'api'}.${props.domainName}`;
     this.apiSpec = yaml.load(fs.readFileSync('openapi.yaml').toString()) as OpenAPI3;
 
-    const dn = new apiGW.DomainName(this, 'DomainName', {
-      domainName: apiDomainName,
-      certificate: new acm.Certificate(this, 'Cert', {
+    let customDomainName;
+    if (props.domainName) {
+      const hostedZone = route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
+      const apiDomainName = `${props.apiHostname ?? 'api'}.${props.domainName}`;
+      customDomainName = new apiGW.DomainName(this, 'DomainName', {
         domainName: apiDomainName,
-        validation: acm.CertificateValidation.fromDns(hostedZone),
-      }),
-    });
+        certificate: new acm.Certificate(this, 'Cert', {
+          domainName: apiDomainName,
+          validation: acm.CertificateValidation.fromDns(hostedZone),
+        }),
+      });
+      new route53.ARecord(this, 'DnsRecord', {
+        zone: hostedZone,
+        recordName: apiDomainName,
+        target: route53.RecordTarget.fromAlias(
+          new route53Target.ApiGatewayv2DomainProperties(customDomainName.regionalDomainName, customDomainName.regionalHostedZoneId),
+        ),
+      });
+    }
+
     this.api = new apiGW.HttpApi(this, 'Resource', {
       apiName: `${props.apiName} [${props.stageName}]`,
-      defaultDomainMapping: {
-        domainName: dn,
+      ...customDomainName && {
+        defaultDomainMapping: {
+          domainName: customDomainName,
+        },
       },
-    });
-    new route53.ARecord(this, 'DnsRecord', {
-      zone: hostedZone,
-      recordName: apiDomainName,
-      target: route53.RecordTarget.fromAlias(new route53Target.ApiGatewayv2DomainProperties(dn.regionalDomainName, dn.regionalHostedZoneId)),
+      ...props.httpApiProps,
     });
 
     if ((props.monitoring ?? true) && this.monitoring) {
@@ -135,7 +153,9 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
     const fn = new LambdaFunction(this, `Fn${operation.operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: {
-        DOMAIN_NAME: this.props.domainName,
+        ...this.props.domainName && {
+          DOMAIN_NAME: this.props.domainName,
+        },
         ...this.props.additionalEnv,
       },
       entry: entryFile,
