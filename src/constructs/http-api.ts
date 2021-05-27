@@ -132,10 +132,14 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
   }
 
   public addRoute<P extends keyof PATHS>(path: P, method: keyof PATHS[P], handler: lambda.Function) {
-    const apiMethod = this.methodTransform(method as string);
+    this.addCustomRoute(path as string, method as string, handler);
+  }
+
+  public addCustomRoute(path: string, method: string, handler: lambda.Function) {
+    const apiMethod = this.methodTransform(method);
     new apiGW.HttpRoute(this, `${apiMethod}${path}`, {
       httpApi: this.api,
-      routeKey: apiGW.HttpRouteKey.with(path as string, apiMethod),
+      routeKey: apiGW.HttpRouteKey.with(path, apiMethod),
       integration: new apiGWInteg.LambdaProxyIntegration({ handler }),
     });
   }
@@ -143,14 +147,20 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
   public addRestResource<P extends keyof PATHS>(path: P, method: keyof PATHS[P]) {
     const oaPath = this.apiSpec.paths![path as string];
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;
+    const operationId = operation.operationId!;
     const description = `${method} ${path} - ${operation.summary}`;
 
-    const entryFile = `./src/lambda/rest.${operation.operationId}.ts`;
+    return this.addCustomRestResource(path as string, method as string, operationId, description);
+  }
+
+  public addCustomRestResource(path: string, method: string, operationId: string, description: string) {
+
+    const entryFile = `./src/lambda/rest.${operationId}.ts`;
     if (!fs.existsSync(entryFile)) {
-      this.createEntryFile(entryFile, method as string, operation);
+      this.createEntryFile(entryFile, method as string, operationId);
     }
 
-    const fn = new LambdaFunction(this, `Fn${operation.operationId}`, {
+    const fn = new LambdaFunction(this, `Fn${operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: {
         ...this.props.domainName && {
@@ -173,7 +183,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
       },
       lambdaOptions: this.props.lambdaOptions,
     });
-    this._functions[operation.operationId as string] = fn;
+    this._functions[operationId] = fn;
     cdk.Tags.of(fn).add('OpenAPI', description.replace(/[^\w\s\d_.:/=+\-@]/g, ''));
 
     if (this.monitoring) {
@@ -183,19 +193,19 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
       this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricThrottles());
     }
 
-    this.addRoute(path, method, fn);
+    this.addCustomRoute(path, method, fn);
 
     return fn;
   }
 
-  private createEntryFile(entryFile: string, method: string, operation: OperationObject) {
+  private createEntryFile(entryFile: string, method: string, operationId: string) {
     let factoryCall;
     let logs;
     switch (method.toLowerCase()) {
       case 'post':
       case 'put':
       case 'patch':
-        factoryCall = `http.createOpenApiHandlerWithRequestBody<operations['${operation.operationId}']>(async (ctx, data) => {`;
+        factoryCall = `http.createOpenApiHandlerWithRequestBody<operations['${operationId}']>(async (ctx, data) => {`;
         logs = 'ctx.logger.info(JSON.stringify(data));';
         break;
       case 'options':
@@ -203,7 +213,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
       case 'get':
       case 'head':
       default:
-        factoryCall = `http.createOpenApiHandler<operations['${operation.operationId}']>(async (ctx) => {`;
+        factoryCall = `http.createOpenApiHandler<operations['${operationId}']>(async (ctx) => {`;
         logs = '';
         break;
     }

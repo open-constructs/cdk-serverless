@@ -56,9 +56,14 @@ export class CoreAspect extends pj.Component {
       '@aws-cdk/aws-appsync',
       '@aws-cdk/aws-certificatemanager',
       '@aws-cdk/aws-cloudfront',
+      '@aws-cdk/aws-cloudfront-origins',
       '@aws-cdk/aws-s3',
       '@aws-cdk/aws-iam',
       '@aws-cdk/aws-kms',
+      '@aws-cdk/pipelines',
+      '@aws-cdk/aws-codepipeline',
+      '@aws-cdk/aws-codepipeline-actions',
+      '@aws-cdk/aws-codebuild',
     );
 
     app.addDevDeps('@types/aws-lambda', '@types/uuid', '@types/lambda-log');
