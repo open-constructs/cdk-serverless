@@ -146,6 +146,14 @@ export class LambdaFunction extends WatchableNodejsFunction {
     return this;
   }
 
+  public grantTableWrite(): LambdaFunction {
+    if (!this.props.table) {
+      throw new Error('No table configured');
+    }
+    this.props.table.grantReadWriteData(this);
+    return this;
+  }
+
   public grantSendEmails(): LambdaFunction {
     this.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: [
