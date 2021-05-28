@@ -1,6 +1,7 @@
 import * as cognito from '@aws-cdk/aws-cognito';
 import * as dynamodb from '@aws-cdk/aws-dynamodb';
 import * as iam from '@aws-cdk/aws-iam';
+import * as lambda from '@aws-cdk/aws-lambda';
 import * as s3 from '@aws-cdk/aws-s3';
 import * as cdk from '@aws-cdk/core';
 import { WatchableNodejsFunction, WatchableNodejsFunctionProps } from 'cdk-watch';
@@ -213,4 +214,10 @@ export class LambdaFunction extends WatchableNodejsFunction {
     }));
     return this;
   }
+
+  public setTimeout(timeout: cdk.Duration): LambdaFunction {
+    (this.node.defaultChild as lambda.CfnFunction).addPropertyOverride('Timeout', timeout.toSeconds());
+    return this;
+  }
+
 }
