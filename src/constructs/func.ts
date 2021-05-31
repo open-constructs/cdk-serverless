@@ -158,6 +158,7 @@ export class LambdaFunction extends WatchableNodejsFunction {
   public grantSendEmails(): LambdaFunction {
     this.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: [
+        'ses:SendEmail',
         'ses:SendTemplatedEmail',
         'ses:SendBulkTemplatedEmail',
       ],
