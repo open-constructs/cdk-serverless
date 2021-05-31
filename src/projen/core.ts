@@ -54,6 +54,8 @@ export class CoreAspect extends pj.Component {
       '@aws-cdk/aws-route53',
       '@aws-cdk/aws-route53-targets',
       '@aws-cdk/aws-appsync',
+      '@aws-cdk/aws-events',
+      '@aws-cdk/aws-events-targets',
       '@aws-cdk/aws-certificatemanager',
       '@aws-cdk/aws-cloudfront',
       '@aws-cdk/aws-cloudfront-origins',

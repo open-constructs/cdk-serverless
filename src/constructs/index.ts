@@ -1,6 +1,7 @@
 export * from './asset-cdn';
 export * from './auth';
 export * from './func';
+export * from './scheduled-func';
 export * from './graphql-api';
 export * from './http-api';
 export * from './monitoring';

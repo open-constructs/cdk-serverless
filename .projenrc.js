@@ -38,6 +38,8 @@ const project = new TaimosTypescriptLibrary({
     `@aws-cdk/core@${cdkVersion}`,
     `@aws-cdk/aws-iam@${cdkVersion}`,
     `@aws-cdk/aws-kms@${cdkVersion}`,
+    `@aws-cdk/aws-events@${cdkVersion}`,
+    `@aws-cdk/aws-events-targets@${cdkVersion}`,
   ],
   keywords: [
     'aws',

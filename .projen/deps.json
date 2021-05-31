@@ -41,6 +41,16 @@
       "type": "build"
     },
     {
+      "name": "@aws-cdk/aws-events-targets",
+      "version": "1.100.0",
+      "type": "build"
+    },
+    {
+      "name": "@aws-cdk/aws-events",
+      "version": "1.100.0",
+      "type": "build"
+    },
+    {
       "name": "@aws-cdk/aws-iam",
       "version": "1.100.0",
       "type": "build"
@@ -204,6 +214,16 @@
     },
     {
       "name": "@aws-cdk/aws-dynamodb",
+      "version": "^1.100.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/aws-events-targets",
+      "version": "^1.100.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-cdk/aws-events",
       "version": "^1.100.0",
       "type": "peer"
     },
