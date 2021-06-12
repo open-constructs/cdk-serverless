@@ -33,33 +33,6 @@
       ],
       "condition": "git diff --exit-code > /dev/null"
     },
-    "bump": {
-      "name": "bump",
-      "category": "20.release",
-      "description": "Bumps version based on latest git tag and generates a changelog entry",
-      "steps": [
-        {
-          "exec": "git -c \"versionsort.suffix=-\" tag --sort=\"-version:refname\" --list \"v*\" | head -n1 > .version.tmp.json"
-        },
-        {
-          "exec": "if [ \"$(cat .version.tmp.json)\" = \"\" ]; then echo \"v0.1.0\" > .version.tmp.json; fi"
-        },
-        {
-          "exec": "standard-version"
-        }
-      ],
-      "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
-    },
-    "unbump": {
-      "name": "unbump",
-      "category": "20.release",
-      "description": "Restores version to 0.0.0",
-      "steps": [
-        {
-          "exec": "standard-version -r 0.0.0"
-        }
-      ]
-    },
     "compile": {
       "name": "compile",
       "category": "00.build",
@@ -138,8 +111,38 @@
         }
       ]
     },
+    "bump": {
+      "name": "bump",
+      "category": "20.release",
+      "description": "Bumps version based on latest git tag and generates a changelog entry",
+      "env": {
+        "OUTFILE": "package.json",
+        "CHANGELOG": ".changelog.tmp.md"
+      },
+      "steps": [
+        {
+          "builtin": "release/bump-version"
+        }
+      ],
+      "condition": "! git log --oneline -1 | grep -q \"chore(release):\""
+    },
+    "unbump": {
+      "name": "unbump",
+      "category": "20.release",
+      "description": "Restores version to 0.0.0",
+      "env": {
+        "OUTFILE": "package.json",
+        "CHANGELOG": ".changelog.tmp.md"
+      },
+      "steps": [
+        {
+          "builtin": "release/reset-version"
+        }
+      ]
+    },
     "upgrade-dependencies": {
       "name": "upgrade-dependencies",
+      "description": "upgrade dependencies",
       "env": {
         "CI": "0"
       },
@@ -148,18 +151,31 @@
           "exec": "npm-check-updates --upgrade --target=minor --reject='projen'"
         },
         {
+          "exec": "yarn install --check-files"
+        },
+        {
+          "exec": "yarn upgrade @aws-cdk/aws-apigatewayv2-integrations @aws-cdk/aws-apigatewayv2 @aws-cdk/aws-appsync @aws-cdk/aws-certificatemanager @aws-cdk/aws-cloudfront @aws-cdk/aws-cloudwatch @aws-cdk/aws-cognito @aws-cdk/aws-dynamodb @aws-cdk/aws-events-targets @aws-cdk/aws-events @aws-cdk/aws-iam @aws-cdk/aws-kms @aws-cdk/aws-lambda-nodejs @aws-cdk/aws-lambda @aws-cdk/aws-route53-targets @aws-cdk/aws-route53 @aws-cdk/aws-s3 @aws-cdk/core @taimos/projen @types/aws-lambda @types/jest @types/js-yaml @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser eslint eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import jest jest-junit json-schema npm-check-updates standard-version ts-jest typescript @aws-cdk/aws-apigatewayv2-integrations @aws-cdk/aws-apigatewayv2 @aws-cdk/aws-appsync @aws-cdk/aws-certificatemanager @aws-cdk/aws-cloudfront @aws-cdk/aws-cloudwatch @aws-cdk/aws-cognito @aws-cdk/aws-dynamodb @aws-cdk/aws-events-targets @aws-cdk/aws-events @aws-cdk/aws-iam @aws-cdk/aws-kms @aws-cdk/aws-lambda-nodejs @aws-cdk/aws-lambda @aws-cdk/aws-route53-targets @aws-cdk/aws-route53 @aws-cdk/aws-s3 @aws-cdk/core @taimos/lambda-toolbox aws-sdk cdk-watch date-fns esbuild js-yaml openapi-typescript"
+        },
+        {
           "exec": "npx projen"
         }
       ]
     },
     "upgrade-projen": {
       "name": "upgrade-projen",
+      "description": "upgrade projen",
       "env": {
         "CI": "0"
       },
       "steps": [
         {
           "exec": "npm-check-updates --upgrade --target=minor --filter='projen'"
+        },
+        {
+          "exec": "yarn install --check-files"
+        },
+        {
+          "exec": "yarn upgrade projen projen"
         },
         {
           "exec": "npx projen"
