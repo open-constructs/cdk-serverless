@@ -53,8 +53,8 @@
     "@types/jest": "^26.0.23",
     "@types/js-yaml": "^4.0.1",
     "@types/node": "^10.17.0",
-    "@typescript-eslint/eslint-plugin": "^4.26.1",
-    "@typescript-eslint/parser": "^4.26.1",
+    "@typescript-eslint/eslint-plugin": "^4.27.0",
+    "@typescript-eslint/parser": "^4.27.0",
     "eslint": "^7.28.0",
     "eslint-import-resolver-node": "^0.3.4",
     "eslint-import-resolver-typescript": "^2.4.0",
@@ -90,10 +90,10 @@
   },
   "dependencies": {
     "@taimos/lambda-toolbox": "^0.0.120",
-    "aws-sdk": "^2.927.0",
+    "aws-sdk": "^2.931.0",
     "cdk-watch": "^0.0.24",
     "date-fns": "^2.22.1",
-    "esbuild": "^0.12.8",
+    "esbuild": "^0.12.9",
     "js-yaml": "^4.1.0",
     "openapi-typescript": "^3.4.1",
     "projen": "^0.24.1"
