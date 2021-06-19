@@ -18,7 +18,7 @@ export class HttpApiAspect extends CoreAspect {
     app.tasks.tryFind('build')?.prependSpawn(generateTask);
 
     new pj.SampleFile(app, 'openapi.yaml', {
-      contents: '',
+      contents: '# add your OpenAPI Specification in this file',
     });
   }
 
