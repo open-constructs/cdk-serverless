@@ -57,7 +57,11 @@ project.synth();
 
 This will install all the necessary dependencies and register some scripts like `generate:api` to generate type definitions from the `openapi.yaml` and `live:dev` to watch for code changes and redeploy the Lambda function code.
 
+Replace the content of file `openapi.yaml` with your OpenAPI definition. An [example OpenAPI file](https://github.com/taimos/cdk-serverless-demo-http/blob/main/openapi.yaml) is available in the [demo project](https://github.com/taimos/cdk-serverless-demo-http).
+
 > **IMPORTANT! cdk-serverless needs an operationId field on every operation in the openapi.yaml**
+>
+> OpenAPI 3.0 or higher is supported in `openapi.yaml`. The content type for request- and response-body is currently limited to `application/json`.
 
 After this you can add the selected L3 construct to your CDK app and configure it depending on your needs.
 

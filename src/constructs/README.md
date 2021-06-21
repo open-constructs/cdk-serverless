@@ -13,6 +13,8 @@ It also adds a best practice CloudWatch dashboard that contains all relevant met
 
 By default the construct inspects your `openapi.yaml` file and generates Lambda functions for all operations using best practice settings and permissions. You can access all generated functions by their operation ID and modify all settings.
 
+The API definition in `openapi.yaml` can be defined in OpenAPI version 3.0 or higher. The content type for request- and response-body is currently limited to `application/json`.
+
 On synth all the missing handler files will be scaffolded using the Lambda toolbox wrappers.
 
 This construct also supports creating a single table design DynamoDB table, a Cognito user pool and an S3 backed asset CDN.
