@@ -132,7 +132,6 @@ export class Authentication extends cdk.Construct implements IAuthentication {
           },
           timeout: cdk.Duration.seconds(5),
         },
-        userPool: this.userpool,
       });
       this.userpool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, this.customMessageFunction);
     }
