@@ -23,11 +23,14 @@ To start a new project we recommend using projen. To use CDK Serverless you can 
 $ npx projen new awscdk-app-ts
 ```
 
-Adding `cdk-serverless` is a two step process.
-First add 'cdk-serverless' as a dependency to your project and run 'npx projen' to install it.
+Adding CDK Serverless is a two step process:
+
+1. Add 'cdk-serverless' as a dependency to your project
+2. Run `npx projen` to install it
 
 You can then add the 'GraphQlApiAspect' or the 'HttpApiAspect' depending on your desired API type.
 
+`.projenrc.js`:
 ```ts
 // Import cdk-serverless projen aspects
 const { HttpApiAspect } = require('cdk-serverless/lib/projen');
@@ -57,7 +60,7 @@ project.synth();
 
 This will install all the necessary dependencies and register some scripts like `generate:api` to generate type definitions from the `openapi.yaml` and `live:dev` to watch for code changes and redeploy the Lambda function code.
 
-Replace the content of file `openapi.yaml` with your OpenAPI definition. An [example OpenAPI file](https://github.com/taimos/cdk-serverless-demo-http/blob/main/openapi.yaml) is available in the [demo project](https://github.com/taimos/cdk-serverless-demo-http).
+Replace the content of file `openapi.yaml` with your OpenAPI definition and run `yarn generate:api` to generate type definitions. An [example OpenAPI file](https://github.com/taimos/cdk-serverless-demo-http/blob/main/openapi.yaml) is available in the [demo project](https://github.com/taimos/cdk-serverless-demo-http).
 
 > **IMPORTANT! cdk-serverless needs an operationId field on every operation in the openapi.yaml**
 >
@@ -65,6 +68,7 @@ Replace the content of file `openapi.yaml` with your OpenAPI definition. An [exa
 
 After this you can add the selected L3 construct to your CDK app and configure it depending on your needs.
 
+`src/main.js`:
 ```ts
 import { HttpApi } from 'cdk-serverless/lib/constructs';
 // Import the generated Path and Operation information
