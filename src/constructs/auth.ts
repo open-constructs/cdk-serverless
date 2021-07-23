@@ -156,7 +156,6 @@ export class Authentication extends cdk.Construct implements IAuthentication {
           timeout: cdk.Duration.seconds(5),
         },
         entry: entryFile,
-        userPool: this.userpool,
       });
       this.userpool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION, this.preTokenGenerationFunction);
     }

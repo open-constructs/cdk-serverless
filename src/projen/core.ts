@@ -78,12 +78,10 @@ export class CoreAspect extends pj.Component {
         if (Object.prototype.hasOwnProperty.call(options.cdkWatch, key)) {
           const glob = options.cdkWatch[key];
           app.addTask(`live:${key}`, {
-            category: pj.tasks.TaskCategory.RELEASE,
             description: 'Run cdk-watch for the given selection',
             exec: `npx cdkw '${glob}'`,
           });
           app.addTask(`live:${key}:nologs`, {
-            category: pj.tasks.TaskCategory.RELEASE,
             description: 'Run cdk-watch for the given selection without logs',
             exec: `npx cdkw '${glob}' --no-logs`,
           });
@@ -96,12 +94,10 @@ export class CoreAspect extends pj.Component {
         if (Object.prototype.hasOwnProperty.call(options.deployScripts, key)) {
           const glob = options.deployScripts[key];
           app.addTask(`diff:${key}`, {
-            category: pj.tasks.TaskCategory.RELEASE,
             description: 'Run cdk diff for the given selection',
             exec: `npx cdk diff '${glob}'`,
           });
           app.addTask(`deploy:${key}`, {
-            category: pj.tasks.TaskCategory.RELEASE,
             description: 'Run cdk deploy for the given selection',
             exec: `npx cdk deploy '${glob}'`,
           });
