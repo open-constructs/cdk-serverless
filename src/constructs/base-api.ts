@@ -1,7 +1,7 @@
 import * as cdk from '@aws-cdk/core';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps, IAuthentication } from './auth';
-import { LambdaOptions } from './func';
+import { LambdaOptions, LambdaTracingOptions } from './func';
 import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
 
@@ -58,10 +58,16 @@ export interface BaseApiProps {
   additionalEnv?: {
     [key: string]: string;
   };
+
   /**
    * additional options for the underlying Lambda function construct
    */
   lambdaOptions?: LambdaOptions;
+
+  /**
+   * Tracing config for the generated Lambda functions
+   */
+  lambdaTracing?: LambdaTracingOptions;
 
 }
 

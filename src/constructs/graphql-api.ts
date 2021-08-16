@@ -144,6 +144,7 @@ export class GraphQlApi extends BaseApi {
         assetBucket: this.assetCdn.assetBucket,
       },
       lambdaOptions: this.props.lambdaOptions,
+      lambdaTracing: this.props.lambdaTracing,
     });
     this._functions[operationId] = fn;
     cdk.Tags.of(fn).add('GraphQL', description);

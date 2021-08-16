@@ -182,6 +182,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
         assetBucket: this.assetCdn.assetBucket,
       },
       lambdaOptions: this.props.lambdaOptions,
+      lambdaTracing: this.props.lambdaTracing,
     });
     this._functions[operationId] = fn;
     cdk.Tags.of(fn).add('OpenAPI', description.replace(/[^\w\s\d_.:/=+\-@]/g, ''));
