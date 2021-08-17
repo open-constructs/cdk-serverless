@@ -90,7 +90,7 @@
     "@aws-cdk/core": "^1.100.0"
   },
   "dependencies": {
-    "@taimos/lambda-toolbox": "^0.0.122",
+    "@taimos/lambda-toolbox": "^0.0.124",
     "aws-sdk": "^2.963.0",
     "cdk-watch": "^0.0.24",
     "date-fns": "^2.23.0",
