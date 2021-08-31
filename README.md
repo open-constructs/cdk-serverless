@@ -117,6 +117,14 @@ This operation id supports autocompletion using the generated type definitions.
 
 ![Autocomplete](img/autocomplete.gif)
 
+## DynamoDB SingleTable
+
+If enabled a [Single-Table Design](https://www.alexdebrie.com/posts/dynamodb-single-table/) DynamoDB table will be created.
+
+### Permissions
+
+All functions have read permissions, regardless of which operation they are bound to. Only functions bound to a `DELETE`, `POST`, `PUT` or `PATCH` operation will have write permissions.
+
 ## Docs Links
 
 - [FAQ](FAQ.md)
