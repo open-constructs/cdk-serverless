@@ -47,13 +47,6 @@ const project = new TaimosTypescriptLibrary({
     'dynamodb',
   ],
   repository: 'https://github.com/taimos/cdk-serverless',
-  jestOptions: {
-    typescriptConfig: {
-      compilerOptions: {
-        esModuleInterop: true,
-      },
-    },
-  },
   pullRequestTemplateContents: [`* **Please check if the PR fulfills these requirements**
 - [ ] The commit message describes your change and conform to conventional commits
 - [ ] Tests for the changes have been added if possible (for bug fixes / features)

@@ -108,7 +108,7 @@
     },
     {
       "name": "@types/node",
-      "version": "^10.17.0",
+      "version": "^14.17.0",
       "type": "build"
     },
     {
@@ -164,6 +164,10 @@
     },
     {
       "name": "ts-jest",
+      "type": "build"
+    },
+    {
+      "name": "ts-node",
       "type": "build"
     },
     {
