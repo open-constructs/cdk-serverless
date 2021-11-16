@@ -1,6 +1,6 @@
 import { existsSync, readFileSync } from 'fs';
-import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
-import * as cdk from '@aws-cdk/core';
+import { aws_cloudwatch as cloudwatch } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 
 export interface MonitoringProps {
 
@@ -15,7 +15,7 @@ export interface MonitoringProps {
   stageName: string;
 }
 
-export class Monitoring extends cdk.Construct {
+export class Monitoring extends Construct {
 
   public readonly dashboard: cloudwatch.Dashboard;
 
@@ -27,7 +27,7 @@ export class Monitoring extends cdk.Construct {
   public readonly lambdaInvokesWidget: cloudwatch.GraphWidget;
   public readonly lambdaDurationsWidget: cloudwatch.GraphWidget;
 
-  constructor(scope: cdk.Construct, id: string, props: MonitoringProps) {
+  constructor(scope: Construct, id: string, props: MonitoringProps) {
     super(scope, id);
 
     this.dashboard = new cloudwatch.Dashboard(this, 'Dashboard', {

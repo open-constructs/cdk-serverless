@@ -1,9 +1,9 @@
-import * as certificatemanager from '@aws-cdk/aws-certificatemanager';
-import * as cloudfront from '@aws-cdk/aws-cloudfront';
-import * as route53 from '@aws-cdk/aws-route53';
-import * as route53Targets from '@aws-cdk/aws-route53-targets';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as cdk from '@aws-cdk/core';
+import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager';
+import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
+import * as route53 from 'aws-cdk-lib/aws-route53';
+import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
+import * as s3 from 'aws-cdk-lib/aws-s3';
+import { Construct } from 'constructs';
 
 export interface AssetCdnProps {
   /**
@@ -17,13 +17,13 @@ export interface AssetCdnProps {
   hostName: string;
 }
 
-export class AssetCdn extends cdk.Construct {
+export class AssetCdn extends Construct {
 
   public readonly zone: route53.IHostedZone;
   public readonly assetBucket: s3.Bucket;
   public readonly assetDomainName: string;
 
-  constructor(scope: cdk.Construct, id: string, props: AssetCdnProps) {
+  constructor(scope: Construct, id: string, props: AssetCdnProps) {
     super(scope, id);
 
     this.zone = route53.HostedZone.fromLookup(this, 'HostedZone', {

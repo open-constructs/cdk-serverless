@@ -1,10 +1,12 @@
 import * as fs from 'fs';
-import * as apiGW from '@aws-cdk/aws-apigatewayv2';
-import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations';
-import * as acm from '@aws-cdk/aws-certificatemanager';
-import * as route53 from '@aws-cdk/aws-route53';
-import * as route53Target from '@aws-cdk/aws-route53-targets';
-import * as cdk from '@aws-cdk/core';
+import {
+  aws_certificatemanager as acm,
+  aws_route53 as route53,
+  aws_route53_targets as route53Target,
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as apiGW from '@aws-cdk/aws-apigatewayv2-alpha';
+import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { LambdaFunction, LambdaOptions } from './func';
 
 export interface HttpWebhookProps {
@@ -35,13 +37,13 @@ export interface HttpWebhookProps {
   lambdaOptions?: LambdaOptions;
 }
 
-export class HttpWebhook extends cdk.Construct {
+export class HttpWebhook extends Construct {
 
   public readonly api: apiGW.HttpApi;
   public readonly handler: LambdaFunction;
   private webhookDomainName: string;
 
-  constructor(scope: cdk.Construct, id: string, private props: HttpWebhookProps) {
+  constructor(scope: Construct, id: string, private props: HttpWebhookProps) {
     super(scope, id);
 
     const hostedZone = route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });

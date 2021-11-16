@@ -1,10 +1,13 @@
 import * as fs from 'fs';
-import * as cognito from '@aws-cdk/aws-cognito';
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as events from '@aws-cdk/aws-events';
-import * as eventsTargets from '@aws-cdk/aws-events-targets';
-import * as s3 from '@aws-cdk/aws-s3';
-import * as cdk from '@aws-cdk/core';
+import {
+  aws_cognito as cognito,
+  aws_dynamodb as dynamodb,
+  aws_events as events,
+  aws_events_targets as eventsTargets,
+  aws_s3 as s3,
+} from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { LambdaFunction, LambdaOptions } from './func';
 
 export interface ScheduledFunctionProps {
@@ -73,12 +76,12 @@ export interface ScheduledFunctionProps {
   schedule: events.Schedule;
 }
 
-export class ScheduledFunction extends cdk.Construct {
+export class ScheduledFunction extends Construct {
 
   public readonly lambdaFunction: LambdaFunction;
   public readonly rule: events.Rule;
 
-  constructor(scope: cdk.Construct, id: string, props: ScheduledFunctionProps) {
+  constructor(scope: Construct, id: string, props: ScheduledFunctionProps) {
     super(scope, id);
 
     const entryFile = `./src/lambda/schedule.${props.name.toLowerCase().replace(/[^\w-]/g, '-')}.ts`;

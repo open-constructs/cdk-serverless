@@ -1,11 +1,14 @@
 import * as fs from 'fs';
-import * as apiGW from '@aws-cdk/aws-apigatewayv2';
-import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations';
-import * as acm from '@aws-cdk/aws-certificatemanager';
-import * as lambda from '@aws-cdk/aws-lambda';
-import * as route53 from '@aws-cdk/aws-route53';
-import * as route53Target from '@aws-cdk/aws-route53-targets';
-import * as cdk from '@aws-cdk/core';
+import {
+  aws_certificatemanager as acm,
+  aws_lambda as lambda,
+  aws_route53 as route53,
+  aws_route53_targets as route53Target,
+} from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
+import * as apiGW from '@aws-cdk/aws-apigatewayv2-alpha';
+import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { BaseApi, BaseApiProps } from './base-api';
@@ -50,7 +53,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
-  constructor(scope: cdk.Construct, id: string, private props: HttpApiProps) {
+  constructor(scope: Construct, id: string, private props: HttpApiProps) {
     super(scope, id, props);
 
     this.apiSpec = yaml.load(fs.readFileSync('openapi.yaml').toString()) as OpenAPI3;

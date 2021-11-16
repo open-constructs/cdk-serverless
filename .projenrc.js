@@ -1,7 +1,5 @@
 const { TaimosTypescriptLibrary } = require('@taimos/projen');
 
-const cdkVersion = '^1.100.0';
-
 const project = new TaimosTypescriptLibrary({
   name: 'cdk-serverless',
   deps: [
@@ -22,24 +20,11 @@ const project = new TaimosTypescriptLibrary({
     '@taimos/projen',
   ],
   peerDeps: [
-    `@aws-cdk/aws-lambda-nodejs@${cdkVersion}`,
-    `@aws-cdk/aws-lambda@${cdkVersion}`,
-    `@aws-cdk/aws-cloudwatch@${cdkVersion}`,
-    `@aws-cdk/aws-dynamodb@${cdkVersion}`,
-    `@aws-cdk/aws-cognito@${cdkVersion}`,
-    `@aws-cdk/aws-route53@${cdkVersion}`,
-    `@aws-cdk/aws-route53-targets@${cdkVersion}`,
-    `@aws-cdk/aws-apigatewayv2@${cdkVersion}`,
-    `@aws-cdk/aws-apigatewayv2-integrations@${cdkVersion}`,
-    `@aws-cdk/aws-appsync@${cdkVersion}`,
-    `@aws-cdk/aws-certificatemanager@${cdkVersion}`,
-    `@aws-cdk/aws-cloudfront@${cdkVersion}`,
-    `@aws-cdk/aws-s3@${cdkVersion}`,
-    `@aws-cdk/core@${cdkVersion}`,
-    `@aws-cdk/aws-iam@${cdkVersion}`,
-    `@aws-cdk/aws-kms@${cdkVersion}`,
-    `@aws-cdk/aws-events@${cdkVersion}`,
-    `@aws-cdk/aws-events-targets@${cdkVersion}`,
+    'aws-cdk-lib@^2.0.0-rc.29',
+    '@aws-cdk/aws-appsync-alpha@^2.0.0-rc.24',
+    '@aws-cdk/aws-apigatewayv2-alpha@^2.0.0-rc.24',
+    '@aws-cdk/aws-apigatewayv2-integrations-alpha@^2.0.0-rc.24',
+    'constructs@^10',
   ],
   keywords: [
     'aws',

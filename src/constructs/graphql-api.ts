@@ -1,9 +1,10 @@
 import * as fs from 'fs';
-import * as appsync from '@aws-cdk/aws-appsync';
-import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
-import * as cdk from '@aws-cdk/core';
+import { aws_cloudwatch as cloudwatch } from 'aws-cdk-lib';
+import * as appsync from "@aws-cdk/aws-appsync-alpha";
+import * as cdk from 'aws-cdk-lib';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction } from './func';
+import { Construct } from 'constructs';
 
 export interface GraphQlApiProps extends BaseApiProps {
   //
@@ -30,7 +31,7 @@ export class GraphQlApi extends BaseApi {
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
-  constructor(scope: cdk.Construct, id: string, private props: GraphQlApiProps) {
+  constructor(scope: Construct, id: string, private props: GraphQlApiProps) {
     super(scope, id, props);
 
     this.api = new appsync.GraphqlApi(this, 'Resource', {

@@ -1,6 +1,7 @@
 import * as fs from 'fs';
-import * as cognito from '@aws-cdk/aws-cognito';
-import * as cdk from '@aws-cdk/core';
+import * as cognito from 'aws-cdk-lib/aws-cognito';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { LambdaFunction } from './func';
 
 export interface IAuthentication {
@@ -65,13 +66,13 @@ export interface AuthenticationProps {
   };
 }
 
-export class Authentication extends cdk.Construct implements IAuthentication {
+export class Authentication extends Construct implements IAuthentication {
 
   public readonly userpool: cognito.UserPool;
   public readonly customMessageFunction?: LambdaFunction;
   public readonly preTokenGenerationFunction?: LambdaFunction;
 
-  constructor(scope: cdk.Construct, id: string, props: AuthenticationProps) {
+  constructor(scope: Construct, id: string, props: AuthenticationProps) {
     super(scope, id);
 
     this.userpool = new cognito.UserPool(this, 'UserPool', {
