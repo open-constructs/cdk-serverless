@@ -31,17 +31,6 @@ export class CoreAspect extends pj.Component {
   constructor(app: pj.AwsCdkTypeScriptApp, options: CoreAspectOptions = {}) {
     super(app);
 
-    app.cdkConfig.context = {
-      ...app.cdkConfig.context,
-      'aws-cdk:enableDiffNoFail': 'true',
-      '@aws-cdk/core:enableStackNameDuplicates': 'true',
-      '@aws-cdk/core:newStyleStackSynthesis': 'true',
-      '@aws-cdk/core:stackRelativeExports': 'true',
-      '@aws-cdk/aws-ecr-assets:dockerIgnoreSupport': 'true',
-      '@aws-cdk/aws-secretsmanager:parseOwnedSecretName': 'true',
-      '@aws-cdk/aws-kms:defaultKeyPolicies': 'true',
-    };
-
     app.addCdkDependency(
       '@aws-cdk/core',
       '@aws-cdk/aws-apigatewayv2',
