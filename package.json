@@ -50,7 +50,7 @@
     "@aws-cdk/aws-route53-targets": "1.100.0",
     "@aws-cdk/aws-s3": "1.100.0",
     "@aws-cdk/core": "1.100.0",
-    "@taimos/projen": "^0.0.126",
+    "@taimos/projen": "^0.0.127",
     "@types/aws-lambda": "^8.10.85",
     "@types/jest": "^26.0.24",
     "@types/js-yaml": "^4.0.4",
@@ -65,11 +65,11 @@
     "jest-junit": "^12",
     "json-schema": "^0.4.0",
     "npm-check-updates": "^11",
-    "projen": "^0.34.0",
+    "projen": "^0.34.3",
     "standard-version": "^9",
     "ts-jest": "^26.5.6",
     "ts-node": "^10.4.0",
-    "typescript": "^4.2.0"
+    "typescript": "^4.4.0"
   },
   "peerDependencies": {
     "@aws-cdk/aws-apigatewayv2": "^1.100.0",
@@ -92,14 +92,14 @@
     "@aws-cdk/core": "^1.100.0"
   },
   "dependencies": {
-    "@taimos/lambda-toolbox": "^0.0.127",
-    "aws-sdk": "^2.1029.0",
-    "cdk-watch": "^0.0.24",
+    "@taimos/lambda-toolbox": "^0.0.128",
+    "aws-sdk": "^2.1030.0",
+    "cdk-watch": "^0.0.25",
     "date-fns": "^2.25.0",
-    "esbuild": "^0.13.13",
+    "esbuild": "^0.13.14",
     "js-yaml": "^4.1.0",
     "openapi-typescript": "^3.4.1",
-    "projen": "^0.34.0"
+    "projen": "^0.34.3"
   },
   "bundledDependencies": [],
   "keywords": [
