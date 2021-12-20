@@ -7,7 +7,7 @@ export interface HttpApiAspectOptions extends CoreAspectOptions {
 
 export class HttpApiAspect extends CoreAspect {
 
-  constructor(app: pj.AwsCdkTypeScriptApp, options: HttpApiAspectOptions = {}) {
+  constructor(app: pj.awscdk.AwsCdkTypeScriptApp, options: HttpApiAspectOptions = {}) {
     super(app, options);
 
     const generateTask = app.addTask('generate:api', {

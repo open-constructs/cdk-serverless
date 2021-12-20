@@ -1,9 +1,9 @@
+import { Construct } from 'constructs';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps, IAuthentication } from './auth';
 import { LambdaOptions, LambdaTracingOptions } from './func';
 import { Monitoring } from './monitoring';
 import { SingleTableDatastore, SingleTableDatastoreProps } from './table';
-import { Construct } from 'constructs';
 
 export interface BaseApiProps {
 

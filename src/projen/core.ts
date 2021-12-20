@@ -2,22 +2,10 @@ import * as pj from 'projen';
 
 export interface CoreAspectOptions {
   /**
-   * Configure yarn scripts to run CDK-Watch.
-   * The key is the name of the script and the value is the glob pattern of cdk-watch
-   *
-   * Created scripts will be live:{key} and live:{key}:nologs
-   *
-   * @default no live scripts
-   */
-  cdkWatch?: {
-    [script: string]: string;
-  };
-
-  /**
    * Configure yarn scripts to run 'cdk diff' and 'cdk deploy'.
    * The key is the name of the script and the value is the glob pattern of cdk deploy
    *
-   * Created scripts will be diff:{key} and deploy:{key}
+   * Created scripts will be `diff:{key}`, `deploy:{key}`, and `deploy:{key} --watch`
    *
    * @default no deploy scripts
    */
@@ -28,55 +16,19 @@ export interface CoreAspectOptions {
 
 export class CoreAspect extends pj.Component {
 
-  constructor(app: pj.AwsCdkTypeScriptApp, options: CoreAspectOptions = {}) {
+  constructor(app: pj.awscdk.AwsCdkTypeScriptApp, options: CoreAspectOptions = {}) {
     super(app);
 
     app.addCdkDependency(
-      '@aws-cdk/core',
       '@aws-cdk/aws-apigatewayv2',
       '@aws-cdk/aws-apigatewayv2-integrations',
-      '@aws-cdk/aws-lambda-nodejs',
-      '@aws-cdk/aws-lambda',
-      '@aws-cdk/aws-cloudwatch',
-      '@aws-cdk/aws-dynamodb',
-      '@aws-cdk/aws-cognito',
-      '@aws-cdk/aws-route53',
-      '@aws-cdk/aws-route53-targets',
       '@aws-cdk/aws-appsync',
-      '@aws-cdk/aws-events',
-      '@aws-cdk/aws-events-targets',
-      '@aws-cdk/aws-certificatemanager',
-      '@aws-cdk/aws-cloudfront',
-      '@aws-cdk/aws-cloudfront-origins',
-      '@aws-cdk/aws-s3',
-      '@aws-cdk/aws-iam',
-      '@aws-cdk/aws-kms',
-      '@aws-cdk/pipelines',
-      '@aws-cdk/aws-codepipeline',
-      '@aws-cdk/aws-codepipeline-actions',
-      '@aws-cdk/aws-codebuild',
     );
 
     app.addDevDeps('@types/aws-lambda', '@types/uuid', '@types/lambda-log');
     app.addDeps('@taimos/lambda-toolbox', 'uuid');
 
     app.tasks.tryFind('synth')?.prependExec('rm -rf cdk.out/');
-
-    if (options.cdkWatch) {
-      for (const key in options.cdkWatch) {
-        if (Object.prototype.hasOwnProperty.call(options.cdkWatch, key)) {
-          const glob = options.cdkWatch[key];
-          app.addTask(`live:${key}`, {
-            description: 'Run cdk-watch for the given selection',
-            exec: `npx cdkw '${glob}'`,
-          });
-          app.addTask(`live:${key}:nologs`, {
-            description: 'Run cdk-watch for the given selection without logs',
-            exec: `npx cdkw '${glob}' --no-logs`,
-          });
-        }
-      }
-    }
 
     if (options.deployScripts) {
       for (const key in options.deployScripts) {
@@ -89,6 +41,10 @@ export class CoreAspect extends pj.Component {
           app.addTask(`deploy:${key}`, {
             description: 'Run cdk deploy for the given selection',
             exec: `npx cdk deploy '${glob}'`,
+          });
+          app.addTask(`watch:${key}`, {
+            description: 'Run cdk deploy for the given selection in watch mode',
+            exec: `npx cdk deploy '${glob}' --watch`,
           });
         }
       }

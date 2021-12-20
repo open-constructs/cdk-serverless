@@ -7,7 +7,7 @@ export interface GraphQlApiAspectOptions extends CoreAspectOptions {
 
 export class GraphQlApiAspect extends CoreAspect {
 
-  constructor(app: pj.AwsCdkTypeScriptApp, options: GraphQlApiAspectOptions = {}) {
+  constructor(app: pj.awscdk.AwsCdkTypeScriptApp, options: GraphQlApiAspectOptions = {}) {
     super(app, options);
 
     app.addDevDeps(

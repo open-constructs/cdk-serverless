@@ -1,14 +1,15 @@
 import {
   aws_dynamodb as dynamodb,
   aws_s3 as s3,
+  aws_iam as iam,
   aws_cognito as cognito,
   aws_lambda as lambda,
+  aws_lambda_nodejs as lambdaNodejs,
 } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { WatchableNodejsFunction, WatchableNodejsFunctionProps } from 'cdk-watch';
 
-export type LambdaOptions = Omit<WatchableNodejsFunctionProps, 'entry' | 'handler' | 'description'>
+export type LambdaOptions = Omit<lambdaNodejs.NodejsFunctionProps, 'entry' | 'handler' | 'description'>
 
 export interface LambdaTracingOptions {
   /**
@@ -124,7 +125,7 @@ export interface LambdaFunctionProps {
   lambdaTracing?: LambdaTracingOptions;
 }
 
-export class LambdaFunction extends WatchableNodejsFunction {
+export class LambdaFunction extends lambdaNodejs.NodejsFunction {
 
   constructor(scope: Construct, id: string, private props: LambdaFunctionProps) {
     super(scope, id, {

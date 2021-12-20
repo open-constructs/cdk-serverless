@@ -1,8 +1,10 @@
-import * as certificatemanager from 'aws-cdk-lib/aws-certificatemanager';
-import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
-import * as route53 from 'aws-cdk-lib/aws-route53';
-import * as route53Targets from 'aws-cdk-lib/aws-route53-targets';
-import * as s3 from 'aws-cdk-lib/aws-s3';
+import {
+  aws_certificatemanager as certificatemanager,
+  aws_cloudfront as cloudfront,
+  aws_route53 as route53,
+  aws_route53_targets as route53Targets,
+  aws_s3 as s3,
+} from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
 export interface AssetCdnProps {

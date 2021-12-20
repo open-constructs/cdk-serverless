@@ -1,4 +1,6 @@
 import * as fs from 'fs';
+import * as apiGW from '@aws-cdk/aws-apigatewayv2-alpha';
+import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import {
   aws_certificatemanager as acm,
   aws_lambda as lambda,
@@ -7,8 +9,6 @@ import {
 } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as apiGW from '@aws-cdk/aws-apigatewayv2-alpha';
-import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { BaseApi, BaseApiProps } from './base-api';
@@ -143,7 +143,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
     new apiGW.HttpRoute(this, `${apiMethod}${path}`, {
       httpApi: this.api,
       routeKey: apiGW.HttpRouteKey.with(path, apiMethod),
-      integration: new apiGWInteg.LambdaProxyIntegration({ handler }),
+      integration: new apiGWInteg.HttpLambdaIntegration(`${apiMethod}${path}Integration`, handler),
     });
   }
 

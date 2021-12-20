@@ -6,7 +6,6 @@ import {
   aws_events_targets as eventsTargets,
   aws_s3 as s3,
 } from 'aws-cdk-lib';
-import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { LambdaFunction, LambdaOptions } from './func';
 

@@ -1,12 +1,12 @@
 import * as fs from 'fs';
+import * as apiGW from '@aws-cdk/aws-apigatewayv2-alpha';
+import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import {
   aws_certificatemanager as acm,
   aws_route53 as route53,
   aws_route53_targets as route53Target,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as apiGW from '@aws-cdk/aws-apigatewayv2-alpha';
-import * as apiGWInteg from '@aws-cdk/aws-apigatewayv2-integrations-alpha';
 import { LambdaFunction, LambdaOptions } from './func';
 
 export interface HttpWebhookProps {
@@ -62,7 +62,7 @@ export class HttpWebhook extends Construct {
       defaultDomainMapping: {
         domainName: dn,
       },
-      defaultIntegration: new apiGWInteg.LambdaProxyIntegration({ handler: this.handler }),
+      defaultIntegration: new apiGWInteg.HttpLambdaIntegration('Integration', this.handler),
     });
     new route53.ARecord(this, 'DnsRecord', {
       zone: hostedZone,
@@ -88,7 +88,7 @@ export const handler = http.createHttpHandler<any, any>(async (ctx) => {
       });
     }
 
-    const fn = new LambdaFunction(this, 'LambdaHandler', {
+    return new LambdaFunction(this, 'LambdaHandler', {
       stageName: this.props.stageName,
       additionalEnv: {
         DOMAIN_NAME: this.props.domainName,
@@ -97,8 +97,6 @@ export const handler = http.createHttpHandler<any, any>(async (ctx) => {
       description: `[${this.props.stageName}] ${description}`,
       lambdaOptions: this.props.lambdaOptions,
     });
-
-    return fn;
   }
 
 }
