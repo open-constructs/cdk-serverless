@@ -33,7 +33,7 @@
     "@aws-cdk/aws-apigatewayv2-alpha": "2.2.0-alpha.0",
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "2.2.0-alpha.0",
     "@aws-cdk/aws-appsync-alpha": "2.2.0-alpha.0",
-    "@taimos/projen": "^0.0.128",
+    "@taimos/projen": "^0.0.129",
     "@types/aws-lambda": "^8.10.88",
     "@types/jest": "^26.0.24",
     "@types/js-yaml": "^4.0.4",
@@ -61,7 +61,7 @@
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "^2.2.0-alpha.0",
     "@aws-cdk/aws-appsync-alpha": "^2.2.0-alpha.0",
     "aws-cdk-lib": "^2.2.0",
-    "constructs": "^10"
+    "constructs": "^10.0.0"
   },
   "dependencies": {
     "@taimos/lambda-toolbox": "^0.0.128",

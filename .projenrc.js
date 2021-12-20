@@ -24,7 +24,7 @@ const project = new TaimosTypescriptLibrary({
     '@aws-cdk/aws-appsync-alpha@^2.2.0-alpha.0',
     '@aws-cdk/aws-apigatewayv2-alpha@^2.2.0-alpha.0',
     '@aws-cdk/aws-apigatewayv2-integrations-alpha@^2.2.0-alpha.0',
-    'constructs@^10',
+    'constructs@^10.0.0',
   ],
   keywords: [
     'aws',

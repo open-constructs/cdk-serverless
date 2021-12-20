@@ -20,7 +20,7 @@ export class GraphQlApiAspect extends CoreAspect {
       exec: 'graphql-codegen',
       description: 'Generate Types from the GraphQL specification',
     });
-    app.tasks.tryFind('build')?.prependSpawn(generateTask);
+    app.preCompileTask.prependSpawn(generateTask);
 
     const codegenConfig = {
       schema: 'schema.graphql',

@@ -14,7 +14,7 @@ export class HttpApiAspect extends CoreAspect {
       exec: 'openapi-typescript openapi.yaml --output src/lambda/types.generated.ts',
       description: 'Generate Types from the OpenAPI specification',
     });
-    app.tasks.tryFind('build')?.prependSpawn(generateTask);
+    app.preCompileTask.prependSpawn(generateTask);
 
     new pj.SampleFile(app, 'openapi.yaml', {
       contents: '# add your OpenAPI Specification in this file',

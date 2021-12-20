@@ -135,7 +135,7 @@
     },
     {
       "name": "constructs",
-      "version": "^10",
+      "version": "^10.0.0",
       "type": "peer"
     },
     {
