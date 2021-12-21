@@ -1,4 +1,4 @@
-import * as cdk from '@aws-cdk/core';
+import { Construct } from 'constructs';
 import { AssetCdn, AssetCdnProps } from './asset-cdn';
 import { Authentication, AuthenticationProps, IAuthentication } from './auth';
 import { LambdaOptions, LambdaTracingOptions } from './func';
@@ -71,14 +71,14 @@ export interface BaseApiProps {
 
 }
 
-export abstract class BaseApi extends cdk.Construct {
+export abstract class BaseApi extends Construct {
 
   public readonly singleTableDatastore?: SingleTableDatastore;
   public readonly authentication?: IAuthentication;
   public readonly assetCdn?: AssetCdn;
   public readonly monitoring?: Monitoring;
 
-  constructor(scope: cdk.Construct, id: string, props: BaseApiProps) {
+  constructor(scope: Construct, id: string, props: BaseApiProps) {
     super(scope, id);
 
     if (props.singleTableDatastore) {

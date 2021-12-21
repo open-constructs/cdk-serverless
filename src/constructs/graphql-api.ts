@@ -1,7 +1,8 @@
 import * as fs from 'fs';
-import * as appsync from '@aws-cdk/aws-appsync';
-import * as cloudwatch from '@aws-cdk/aws-cloudwatch';
-import * as cdk from '@aws-cdk/core';
+import * as appsync from '@aws-cdk/aws-appsync-alpha';
+import { aws_cloudwatch as cloudwatch } from 'aws-cdk-lib';
+import * as cdk from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction } from './func';
 
@@ -30,7 +31,7 @@ export class GraphQlApi extends BaseApi {
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
-  constructor(scope: cdk.Construct, id: string, private props: GraphQlApiProps) {
+  constructor(scope: Construct, id: string, private props: GraphQlApiProps) {
     super(scope, id, props);
 
     this.api = new appsync.GraphqlApi(this, 'Resource', {
@@ -56,7 +57,7 @@ export class GraphQlApi extends BaseApi {
       this.monitoring.apiErrorsWidget.addLeftMetric(new cloudwatch.Metric({
         namespace: 'AWS/AppSync',
         metricName: '5XXError',
-        dimensions: {
+        dimensionsMap: {
           GraphQLAPIId: this.api.apiId,
         },
         statistic: 'sum',
@@ -64,7 +65,7 @@ export class GraphQlApi extends BaseApi {
       this.monitoring.apiErrorsWidget.addLeftMetric(new cloudwatch.Metric({
         namespace: 'AWS/AppSync',
         metricName: '4XXError',
-        dimensions: {
+        dimensionsMap: {
           GraphQLAPIId: this.api.apiId,
         },
         statistic: 'sum',
@@ -72,7 +73,7 @@ export class GraphQlApi extends BaseApi {
       this.monitoring.apiLatencyWidget.addLeftMetric(new cloudwatch.Metric({
         namespace: 'AWS/AppSync',
         metricName: 'Latency',
-        dimensions: {
+        dimensionsMap: {
           GraphQLAPIId: this.api.apiId,
         },
         statistic: 'Average',
@@ -80,7 +81,7 @@ export class GraphQlApi extends BaseApi {
       this.monitoring.apiLatencyWidget.addLeftMetric(new cloudwatch.Metric({
         namespace: 'AWS/AppSync',
         metricName: 'Latency',
-        dimensions: {
+        dimensionsMap: {
           GraphQLAPIId: this.api.apiId,
         },
         statistic: 'p90',
@@ -88,7 +89,7 @@ export class GraphQlApi extends BaseApi {
       this.monitoring.apiLatencyTailWidget.addLeftMetric(new cloudwatch.Metric({
         namespace: 'AWS/AppSync',
         metricName: 'Latency',
-        dimensions: {
+        dimensionsMap: {
           GraphQLAPIId: this.api.apiId,
         },
         statistic: 'p95',
@@ -96,7 +97,7 @@ export class GraphQlApi extends BaseApi {
       this.monitoring.apiLatencyTailWidget.addLeftMetric(new cloudwatch.Metric({
         namespace: 'AWS/AppSync',
         metricName: 'Latency',
-        dimensions: {
+        dimensionsMap: {
           GraphQLAPIId: this.api.apiId,
         },
         statistic: 'p99',

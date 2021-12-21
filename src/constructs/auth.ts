@@ -1,6 +1,9 @@
 import * as fs from 'fs';
-import * as cognito from '@aws-cdk/aws-cognito';
-import * as cdk from '@aws-cdk/core';
+import {
+  aws_cognito as cognito, CfnOutput, Duration, Stack,
+
+} from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import { LambdaFunction } from './func';
 
 export interface IAuthentication {
@@ -65,13 +68,13 @@ export interface AuthenticationProps {
   };
 }
 
-export class Authentication extends cdk.Construct implements IAuthentication {
+export class Authentication extends Construct implements IAuthentication {
 
   public readonly userpool: cognito.UserPool;
   public readonly customMessageFunction?: LambdaFunction;
   public readonly preTokenGenerationFunction?: LambdaFunction;
 
-  constructor(scope: cdk.Construct, id: string, props: AuthenticationProps) {
+  constructor(scope: Construct, id: string, props: AuthenticationProps) {
     super(scope, id);
 
     this.userpool = new cognito.UserPool(this, 'UserPool', {
@@ -130,7 +133,7 @@ export class Authentication extends cdk.Construct implements IAuthentication {
               '.html': 'text',
             },
           },
-          timeout: cdk.Duration.seconds(5),
+          timeout: Duration.seconds(5),
         },
       });
       this.userpool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, this.customMessageFunction);
@@ -153,7 +156,7 @@ export class Authentication extends cdk.Construct implements IAuthentication {
 
       this.preTokenGenerationFunction = new LambdaFunction(this, 'PreTokenGenerationFunction', {
         lambdaOptions: {
-          timeout: cdk.Duration.seconds(5),
+          timeout: Duration.seconds(5),
         },
         entry: entryFile,
       });
@@ -164,7 +167,7 @@ export class Authentication extends cdk.Construct implements IAuthentication {
       (this.userpool.node.defaultChild as cognito.CfnUserPool).emailConfiguration = {
         emailSendingAccount: 'DEVELOPER',
         from: `${props.sesEmailSender.name} <${props.sesEmailSender.email}>`,
-        sourceArn: `arn:aws:ses:${props.sesEmailSender.region}:${cdk.Stack.of(this).account}:identity/${props.sesEmailSender.email}`,
+        sourceArn: `arn:aws:ses:${props.sesEmailSender.region}:${Stack.of(this).account}:identity/${props.sesEmailSender.email}`,
       };
     }
 
@@ -179,6 +182,6 @@ export class Authentication extends cdk.Construct implements IAuthentication {
       }
     }
 
-    new cdk.CfnOutput(this, 'UserPoolId', { value: this.userpool.userPoolId });
+    new CfnOutput(this, 'UserPoolId', { value: this.userpool.userPoolId });
   }
 }

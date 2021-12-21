@@ -1,7 +1,6 @@
-import * as dynamodb from '@aws-cdk/aws-dynamodb';
-import * as kms from '@aws-cdk/aws-kms';
-import * as cdk from '@aws-cdk/core';
 import * as tb from '@taimos/lambda-toolbox/lib/dynamodb';
+import { aws_dynamodb as dynamodb, aws_kms as kms } from 'aws-cdk-lib';
+import { Construct } from 'constructs';
 import * as tableTypes from '../types/table';
 
 export interface SingleTableDatastoreProps {
@@ -31,16 +30,15 @@ export interface SingleTableDatastoreProps {
   readonly encryptionKey?: kms.IKey;
 }
 
-export class SingleTableDatastore extends cdk.Construct {
+export class SingleTableDatastore extends Construct {
 
   public readonly table: dynamodb.Table;
 
-  constructor(scope: cdk.Construct, id: string, props: SingleTableDatastoreProps) {
+  constructor(scope: Construct, id: string, props: SingleTableDatastoreProps) {
     super(scope, id);
 
     this.table = new dynamodb.Table(this, 'Resource', {
       billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
-      serverSideEncryption: !props.encryption,
       partitionKey: {
         type: dynamodb.AttributeType.STRING,
         name: tb.Primary_PK,
