@@ -108,19 +108,17 @@
     },
     {
       "name": "@types/node",
-      "version": "^14.17.0",
+      "version": "^12",
       "type": "build"
     },
     {
       "name": "@typescript-eslint/eslint-plugin",
+      "version": "^5",
       "type": "build"
     },
     {
       "name": "@typescript-eslint/parser",
-      "type": "build"
-    },
-    {
-      "name": "eslint",
+      "version": "^5",
       "type": "build"
     },
     {
@@ -136,12 +134,17 @@
       "type": "build"
     },
     {
+      "name": "eslint",
+      "version": "^8",
+      "type": "build"
+    },
+    {
       "name": "jest",
       "type": "build"
     },
     {
       "name": "jest-junit",
-      "version": "^12",
+      "version": "^13",
       "type": "build"
     },
     {
@@ -150,7 +153,7 @@
     },
     {
       "name": "npm-check-updates",
-      "version": "^11",
+      "version": "^12",
       "type": "build"
     },
     {
