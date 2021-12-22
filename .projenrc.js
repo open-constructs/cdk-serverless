@@ -32,6 +32,14 @@ const project = new TaimosTypescriptLibrary({
     'dynamodb',
   ],
   repository: 'https://github.com/taimos/cdk-serverless',
+  gitpod: true,
+  autoApproveUpgrades: true,
+  autoApproveOptions: { allowedUsernames: ['taimos-automation'], secret: 'GITHUB_TOKEN' },
+  depsUpgradeOptions: {
+    workflowOptions: {
+      secret: 'GH_TOKEN',
+    },
+  },
   pullRequestTemplateContents: [`* **Please check if the PR fulfills these requirements**
 - [ ] The commit message describes your change and conform to conventional commits
 - [ ] Tests for the changes have been added if possible (for bug fixes / features)
