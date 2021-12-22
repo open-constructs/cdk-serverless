@@ -34,7 +34,7 @@ const project = new TaimosTypescriptLibrary({
   repository: 'https://github.com/taimos/cdk-serverless',
   gitpod: true,
   autoApproveUpgrades: true,
-  autoApproveOptions: { allowedUsernames: ['taimos-automation'], secret: 'GITHUB_TOKEN' },
+  autoApproveOptions: { allowedUsernames: ['hoegertn'], secret: 'GITHUB_TOKEN' },
   depsUpgradeOptions: {
     workflowOptions: {
       secret: 'GH_TOKEN',
