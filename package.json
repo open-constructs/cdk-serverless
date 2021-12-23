@@ -36,7 +36,7 @@
     "@taimos/projen": "^0.0.129",
     "@types/aws-lambda": "^8.10.88",
     "@types/jest": "^26.0.24",
-    "@types/js-yaml": "^4.0.4",
+    "@types/js-yaml": "^4.0.5",
     "@types/node": "^12",
     "@typescript-eslint/eslint-plugin": "^5",
     "@typescript-eslint/parser": "^5",
@@ -50,7 +50,7 @@
     "jest-junit": "^13",
     "json-schema": "^0.4.0",
     "npm-check-updates": "^12",
-    "projen": "^0.45.3",
+    "projen": "^0.45.4",
     "standard-version": "^9",
     "ts-jest": "^26.5.6",
     "ts-node": "^10.4.0",
@@ -65,12 +65,12 @@
   },
   "dependencies": {
     "@taimos/lambda-toolbox": "^0.0.128",
-    "aws-sdk": "^2.1030.0",
-    "date-fns": "^2.25.0",
-    "esbuild": "^0.13.14",
+    "aws-sdk": "^2.1048.0",
+    "date-fns": "^2.27.0",
+    "esbuild": "^0.14.7",
     "js-yaml": "^4.1.0",
     "openapi-typescript": "^3.4.1",
-    "projen": "^0.45.3"
+    "projen": "^0.45.4"
   },
   "bundledDependencies": [],
   "keywords": [
