@@ -67,7 +67,7 @@
     "@taimos/lambda-toolbox": "^0.0.128",
     "aws-sdk": "^2.1048.0",
     "date-fns": "^2.27.0",
-    "esbuild": "^0.14.7",
+    "esbuild": "^0.14.8",
     "js-yaml": "^4.1.0",
     "openapi-typescript": "^3.4.1",
     "projen": "^0.45.4"
