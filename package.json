@@ -13,6 +13,7 @@
     "eslint": "npx projen eslint",
     "package": "npx projen package",
     "post-compile": "npx projen post-compile",
+    "post-upgrade": "npx projen post-upgrade",
     "pre-compile": "npx projen pre-compile",
     "release": "npx projen release",
     "test": "npx projen test",
@@ -51,7 +52,7 @@
     "jest-junit": "^13",
     "json-schema": "^0.4.0",
     "npm-check-updates": "^12",
-    "projen": "^0.50.6",
+    "projen": "^0.50.23",
     "standard-version": "^9",
     "ts-jest": "^26.5.6",
     "ts-node": "^10.4.0",
@@ -71,7 +72,7 @@
     "esbuild": "^0.14.11",
     "js-yaml": "^4.1.0",
     "openapi-typescript": "^3.4.1",
-    "projen": "^0.50.6"
+    "projen": "^0.50.23"
   },
   "keywords": [
     "aws",
@@ -92,6 +93,7 @@
       "json",
       "lcov",
       "clover",
+      "cobertura",
       "text"
     ],
     "coverageDirectory": "coverage",
