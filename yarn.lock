@@ -728,10 +728,10 @@
   resolved "https://registry.yarnpkg.com/@tsconfig/node16/-/node16-1.0.2.tgz#423c77877d0569db20e1fc80885ac4118314010e"
   integrity sha512-eZxlbI8GZscaGS7kkc/trHTT5xgrjH3/1n2JDwusC9iahPKWMRvRjJSAN5mCXviuTGQ/lHnhvv8Q1YTpnfz9gA==
 
-"@types/aws-lambda@^8.10.89":
-  version "8.10.89"
-  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.89.tgz#22617ecc1eef9571abebb50c947553362da6051b"
-  integrity sha512-jwtSuEZj4rY4R2pAEOXi+RutS8RWbwMzoGlRVukdyOpnfqA/XPkAf8QoGWmg4o/UaNpQ8Mj0Xhkp5SZ1t/Zq4Q==
+"@types/aws-lambda@^8.10.90":
+  version "8.10.90"
+  resolved "https://registry.yarnpkg.com/@types/aws-lambda/-/aws-lambda-8.10.90.tgz#d9995deb8925afb78b8c6179fc58fa9316925102"
+  integrity sha512-B08uyjXQuOh/Kyj9NZ0BEJjkfqqj4tsAYpbBgUMRydtYAs1Fs5WL5KiYFtu+OoG5mI64pnsvW8ohFgpJYWdWIg==
 
 "@types/babel__core@^7.0.0", "@types/babel__core@^7.1.7":
   version "7.1.18"
@@ -821,9 +821,9 @@
   integrity sha512-jhuKLIRrhvCPLqwPcx6INqmKeiA5EWrsCOPhrlFSrbrmU4ZMPjj5Ul/oLCMDO98XRUIwVm78xICz4EPCektzeQ==
 
 "@types/node@*":
-  version "17.0.9"
-  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.9.tgz#0b7f161afb5b1cc12518d29b2cdc7175d5490628"
-  integrity sha512-5dNBXu/FOER+EXnyah7rn8xlNrfMOQb/qXnw4NQgLkCygKBKhdmF/CA5oXVOKZLBEahw8s2WP9LxIcN/oDDRgQ==
+  version "17.0.10"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-17.0.10.tgz#616f16e9d3a2a3d618136b1be244315d95bd7cab"
+  integrity sha512-S/3xB4KzyFxYGCppyDt68yzBU9ysL88lSdIah4D6cptdcltc4NCPCAMc0+PCpg/lLIyC7IPvj2Z52OJWeIUkog==
 
 "@types/node@^12":
   version "12.20.42"
@@ -1206,10 +1206,10 @@ aws-cdk-lib@2.2.0:
     semver "^7.3.5"
     yaml "1.10.2"
 
-aws-sdk@^2.1049.0, aws-sdk@^2.1058.0:
-  version "2.1058.0"
-  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1058.0.tgz#77755516c6f678b98a1f29bd939f0d7ae42da90c"
-  integrity sha512-q6bTq1DBBeBaU6GKKoTHmJj16WOQHhOoK7jwV93IT8pO0P1XH99gesFofhew3eT0h8Ev7quVKutk4B1kfnIXPQ==
+aws-sdk@^2.1049.0, aws-sdk@^2.1059.0:
+  version "2.1059.0"
+  resolved "https://registry.yarnpkg.com/aws-sdk/-/aws-sdk-2.1059.0.tgz#8ce3fa0652ef2836665d0c3566bc56a3d5cfc929"
+  integrity sha512-Q+6T9kpO6aobUNboTOk9MVAmWbs/KK0pxgCNFK0M8YO+7EWUFkNOLHM9tdYOP5vsJK5pLz6D2t2w3lHQjKzGlg==
   dependencies:
     buffer "4.9.2"
     events "1.1.1"
@@ -2181,9 +2181,9 @@ ecdsa-sig-formatter@1.0.11:
     safe-buffer "^5.0.1"
 
 electron-to-chromium@^1.4.17:
-  version "1.4.47"
-  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.47.tgz#5d5535cdbca2b9264abee4d6ea121995e9554bbe"
-  integrity sha512-ZHc8i3/cgeCRK/vC7W2htAG6JqUmOUgDNn/f9yY9J8UjfLjwzwOVEt4MWmgJAdvmxyrsR5KIFA/6+kUHGY0eUA==
+  version "1.4.48"
+  resolved "https://registry.yarnpkg.com/electron-to-chromium/-/electron-to-chromium-1.4.48.tgz#1948b5227aa0ca1ed690945eae1adbe9e7904575"
+  integrity sha512-RT3SEmpv7XUA+tKXrZGudAWLDpa7f8qmhjcLaM6OD/ERxjQ/zAojT8/Vvo0BSzbArkElFZ1WyZ9FuwAYbkdBNA==
 
 elliptic@^6.5.4:
   version "6.5.4"
