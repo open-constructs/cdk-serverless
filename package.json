@@ -46,7 +46,7 @@
     "constructs": "10.0.0",
     "eslint": "^8",
     "eslint-import-resolver-node": "^0.3.6",
-    "eslint-import-resolver-typescript": "^2.5.0",
+    "eslint-import-resolver-typescript": "^2.7.0",
     "eslint-plugin-import": "^2.25.4",
     "jest": "^26.6.3",
     "jest-junit": "^13",
@@ -67,7 +67,7 @@
   },
   "dependencies": {
     "@taimos/lambda-toolbox": "^0.0.129",
-    "aws-sdk": "^2.1098.0",
+    "aws-sdk": "^2.1099.0",
     "date-fns": "^2.28.0",
     "esbuild": "^0.14.27",
     "js-yaml": "^4.1.0",
