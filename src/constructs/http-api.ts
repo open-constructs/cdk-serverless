@@ -14,7 +14,7 @@ import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
 
-export interface HttpApiProps extends BaseApiProps {
+export interface HttpApiProps<OPS> extends BaseApiProps {
 
   /**
    * Domain name of the API (e.g. example.com)
@@ -49,7 +49,7 @@ export interface HttpApiProps extends BaseApiProps {
    *
    * @default -
    */
-  lambdaOptionsByOperation?: { [operationId: string]: LambdaOptions };
+  lambdaOptionsByOperation?: { [operationId in keyof OPS]: LambdaOptions };
 
 }
 
@@ -60,7 +60,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
-  constructor(scope: Construct, id: string, private props: HttpApiProps) {
+  constructor(scope: Construct, id: string, private props: HttpApiProps<OPS>) {
     super(scope, id, props);
 
     this.apiSpec = yaml.load(fs.readFileSync('openapi.yaml').toString()) as OpenAPI3;
@@ -160,21 +160,22 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
     const operationId = operation.operationId!;
     const description = `${method} ${path} - ${operation.summary}`;
 
-    return this.addCustomRestResource(path as string, method as string, operationId, description);
+    const customLambdaOptions = this.props.lambdaOptionsByOperation ? this.props.lambdaOptionsByOperation[operationId as keyof OPS] : undefined;
+    return this.addCustomRestResource(path as string, method as string, operationId, description, customLambdaOptions);
   }
 
-  public addCustomRestResource(path: string, method: string, operationId: string, description: string) {
+  public addCustomRestResource(path: string, method: string, operationId: string, description: string, additionalLambdaOptions: LambdaOptions = {}) {
 
     const entryFile = `./src/lambda/rest.${operationId}.ts`;
     if (!fs.existsSync(entryFile)) {
-      this.createEntryFile(entryFile, method as string, operationId);
+      this.createEntryFile(entryFile, method, operationId);
     }
 
     const lambdaOptions = {
-      ...this.props.lambdaOptions,
-      ...this.props.lambdaOptionsByOperation && this.props.lambdaOptionsByOperation[operationId] && {
-        ...this.props.lambdaOptionsByOperation[operationId],
+      ...this.props.lambdaOptions && {
+        ...this.props.lambdaOptions,
       },
+      ...additionalLambdaOptions,
     };
 
     const fn = new LambdaFunction(this, `Fn${operationId}`, {
@@ -192,7 +193,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
       },
       ...this.singleTableDatastore && {
         table: this.singleTableDatastore.table,
-        tableWrites: this.tableWriteAccessForMethod(method as string),
+        tableWrites: this.tableWriteAccessForMethod(method),
       },
       ...this.assetCdn && {
         assetDomainName: this.assetCdn.assetDomainName,
