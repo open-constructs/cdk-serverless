@@ -12,7 +12,7 @@ import { Construct } from 'constructs';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { BaseApi, BaseApiProps } from './base-api';
-import { LambdaFunction } from './func';
+import { LambdaFunction, LambdaOptions } from './func';
 
 export interface HttpApiProps extends BaseApiProps {
 
@@ -43,6 +43,13 @@ export interface HttpApiProps extends BaseApiProps {
    * @default -
    */
   httpApiProps?: apiGW.HttpApiProps;
+
+  /**
+   * additional options for the underlying Lambda function construct per operationId
+   *
+   * @default -
+   */
+  lambdaOptionsByOperation?: { [operationId: string]: LambdaOptions };
 
 }
 
@@ -134,11 +141,11 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
     return this._functions[operationId as string];
   }
 
-  public addRoute<P extends keyof PATHS>(path: P, method: keyof PATHS[P], handler: lambda.Function) {
+  public addRoute<P extends keyof PATHS>(path: P, method: keyof PATHS[P], handler: lambda.IFunction) {
     this.addCustomRoute(path as string, method as string, handler);
   }
 
-  public addCustomRoute(path: string, method: string, handler: lambda.Function) {
+  public addCustomRoute(path: string, method: string, handler: lambda.IFunction) {
     const apiMethod = this.methodTransform(method);
     new apiGW.HttpRoute(this, `${apiMethod}${path}`, {
       httpApi: this.api,
@@ -163,6 +170,13 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
       this.createEntryFile(entryFile, method as string, operationId);
     }
 
+    const lambdaOptions = {
+      ...this.props.lambdaOptions,
+      ...this.props.lambdaOptionsByOperation && this.props.lambdaOptionsByOperation[operationId] && {
+        ...this.props.lambdaOptionsByOperation[operationId],
+      },
+    };
+
     const fn = new LambdaFunction(this, `Fn${operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: {
@@ -184,7 +198,7 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
         assetDomainName: this.assetCdn.assetDomainName,
         assetBucket: this.assetCdn.assetBucket,
       },
-      lambdaOptions: this.props.lambdaOptions,
+      lambdaOptions,
       lambdaTracing: this.props.lambdaTracing,
     });
     this._functions[operationId] = fn;
@@ -197,7 +211,8 @@ export class HttpApi<PATHS, OPS> extends BaseApi {
       this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricThrottles());
     }
 
-    this.addCustomRoute(path, method, fn);
+    const hasVersionConfig = lambdaOptions.currentVersionOptions != undefined;
+    this.addCustomRoute(path, method, hasVersionConfig ? fn.currentVersion : fn);
 
     return fn;
   }
