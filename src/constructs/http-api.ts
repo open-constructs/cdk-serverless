@@ -49,7 +49,7 @@ export interface HttpApiProps<OPS> extends BaseApiProps {
    *
    * @default -
    */
-  lambdaOptionsByOperation?: { [operationId in keyof OPS]: LambdaOptions };
+  lambdaOptionsByOperation?: { [operationId in keyof OPS]?: LambdaOptions };
 
 }
 
