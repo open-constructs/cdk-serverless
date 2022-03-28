@@ -167,7 +167,7 @@ export class Authentication extends Construct implements IAuthentication {
       (this.userpool.node.defaultChild as cognito.CfnUserPool).emailConfiguration = {
         emailSendingAccount: 'DEVELOPER',
         from: `${props.sesEmailSender.name} <${props.sesEmailSender.email}>`,
-        sourceArn: `arn:aws:ses:${props.sesEmailSender.region}:${Stack.of(this).account}:identity/${props.sesEmailSender.email}`,
+        sourceArn: `arn:aws:ses:${props.sesEmailSender.region ?? Stack.of(this).region}:${Stack.of(this).account}:identity/${props.sesEmailSender.email}`,
       };
     }
 
