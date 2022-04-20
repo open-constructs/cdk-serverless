@@ -32,7 +32,7 @@ export class CoreAspect extends pj.Component {
       'uuid',
     );
 
-    app.defaultTask.prependExec('rm -rf cdk.out/');
+    app.defaultTask?.prependExec('rm -rf cdk.out/');
 
     if (options.deployScripts) {
       for (const key in options.deployScripts) {
