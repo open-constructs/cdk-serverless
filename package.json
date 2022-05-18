@@ -35,7 +35,7 @@
     "@aws-cdk/aws-apigatewayv2-alpha": "2.2.0-alpha.0",
     "@aws-cdk/aws-apigatewayv2-integrations-alpha": "2.2.0-alpha.0",
     "@aws-cdk/aws-appsync-alpha": "2.2.0-alpha.0",
-    "@taimos/projen": "^0.0.167",
+    "@taimos/projen": "^0.0.168",
     "@types/aws-lambda": "^8.10.97",
     "@types/jest": "^26.0.24",
     "@types/js-yaml": "^4.0.5",
@@ -52,7 +52,7 @@
     "jest-junit": "^13",
     "json-schema": "^0.4.0",
     "npm-check-updates": "^12",
-    "projen": "^0.56.14",
+    "projen": "^0.56.15",
     "standard-version": "^9",
     "ts-jest": "^27",
     "ts-node": "^10.7.0",
@@ -66,13 +66,13 @@
     "constructs": "^10.0.0"
   },
   "dependencies": {
-    "@taimos/lambda-toolbox": "^0.0.168",
-    "aws-sdk": "^2.1136.0",
+    "@taimos/lambda-toolbox": "^0.0.169",
+    "aws-sdk": "^2.1137.0",
     "date-fns": "^2.28.0",
     "esbuild": "^0.14.39",
     "js-yaml": "^4.1.0",
     "openapi-typescript": "^3.4.1",
-    "projen": "^0.56.14"
+    "projen": "^0.56.15"
   },
   "keywords": [
     "aws",
