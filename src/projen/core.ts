@@ -1,5 +1,7 @@
 import * as pj from 'projen';
 
+export const PACKAGE_NAME = '@taimos/cdk-serverless-v2';
+
 export interface ServerlessProjectOptions extends pj.awscdk.AwsCdkTypeScriptAppOptions {
   //
 }

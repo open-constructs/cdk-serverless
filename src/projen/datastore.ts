@@ -1,6 +1,7 @@
 import * as fs from 'fs';
 import { OneSchema } from 'dynamodb-onetable';
 import * as pj from 'projen';
+import { PACKAGE_NAME } from './core';
 
 export interface DatastoreOptions {
   readonly modelName: string;
@@ -69,7 +70,7 @@ export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Typ
 
     fs.writeFileSync(fileName, `import { AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
-import { SingleTableDatastore, SingleTableDatastoreProps } from '../sls/constructs';
+import { SingleTableDatastore, SingleTableDatastoreProps } from '${PACKAGE_NAME}/lib/constructs';
 
 export interface ${this.options.modelName}DatastoreProps extends Omit<SingleTableDatastoreProps, 'design'> {
   //

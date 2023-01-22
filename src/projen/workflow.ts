@@ -1,5 +1,6 @@
 import * as fs from 'fs';
 import * as pj from 'projen';
+import { PACKAGE_NAME } from './core';
 
 export interface WorkflowOptions {
   readonly workflowName: string;
@@ -32,7 +33,7 @@ export class Workflow extends pj.Component {
 
   protected createConstructFile(fileName: string, matchedVariables: VariableDefinition[]) {
     fs.writeFileSync(fileName, `import * as constructs from 'constructs';
-import * as sls from '../sls/constructs/workflow';
+import * as sls from '${PACKAGE_NAME}/lib/constructs';
 
 export interface ${this.options.workflowName}WorkflowProps extends Omit<sls.WorkflowProps, 'definitionFileName' | 'definitionSubstitutions'> {
   readonly stateConfig: {

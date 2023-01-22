@@ -2,6 +2,7 @@ import * as fs from 'fs';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import * as pj from 'projen';
+import { PACKAGE_NAME } from './core';
 
 export interface RestApiOptions {
   readonly apiName: string;
@@ -38,7 +39,7 @@ export class RestApi extends pj.Component {
   protected createConstructFile(fileName: string) {
 
     fs.writeFileSync(fileName, `import { Construct } from 'constructs';
-import { RestApi, RestApiProps } from '../sls/constructs';
+import { RestApi, RestApiProps } from '${PACKAGE_NAME}/lib/constructs';
 import { operations, paths } from './rest.${this.options.apiName.toLowerCase()}-model.generated';
 
 export interface ${this.options.apiName}RestApiProps extends Omit<RestApiProps<operations>, 'definitionFileName' | 'apiName'> {
