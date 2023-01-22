@@ -75,7 +75,7 @@
     "lambda"
   ],
   "engines": {
-    "node": ">= v16.8.0"
+    "node": ">= v16.10.0"
   },
   "main": "lib/index.js",
   "license": "Apache-2.0",
