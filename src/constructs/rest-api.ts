@@ -1,7 +1,7 @@
 import * as fs from 'fs';
 import {
   aws_certificatemanager,
-  aws_lambda,
+  aws_iam,
   aws_route53,
   aws_route53_targets,
   aws_apigateway,
@@ -42,7 +42,7 @@ export interface RestApiProps<OPS> extends BaseApiProps {
    *
    * @default -
    */
-  restApiProps?: aws_apigateway.RestApiProps;
+  restApiProps?: aws_apigateway.RestApiBaseProps;
 
   /**
    * additional options for the underlying Lambda function construct per operationId
@@ -58,7 +58,7 @@ export interface RestApiProps<OPS> extends BaseApiProps {
 
 export class RestApi<PATHS, OPS> extends BaseApi {
 
-  public readonly api: aws_apigateway.RestApi;
+  public readonly api: aws_apigateway.SpecRestApi;
   public readonly apiSpec: OpenAPI3;
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
@@ -68,35 +68,19 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
     this.apiSpec = yaml.load(fs.readFileSync(props.definitionFileName).toString()) as OpenAPI3;
 
-    let customDomainName;
+    let customDomainName: aws_apigateway.DomainNameOptions | undefined;
+    let hostedZone: aws_route53.IHostedZone | undefined;
     if (props.domainName) {
-      const hostedZone = aws_route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
+      hostedZone = aws_route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
       const apiDomainName = `${props.apiHostname ?? 'api'}.${props.domainName}`;
-      customDomainName = new aws_apigateway.DomainName(this, 'DomainName', {
+      customDomainName = {
         domainName: apiDomainName,
         certificate: new aws_certificatemanager.Certificate(this, 'Cert', {
           domainName: apiDomainName,
           validation: aws_certificatemanager.CertificateValidation.fromDns(hostedZone),
         }),
-      });
-      new aws_route53.ARecord(this, 'DnsRecord', {
-        zone: hostedZone,
-        recordName: apiDomainName,
-        target: aws_route53.RecordTarget.fromAlias(
-          new aws_route53_targets.ApiGatewayDomain(customDomainName),
-        ),
-      });
+      };
     }
-
-    this.api = new aws_apigateway.RestApi(this, 'Resource', {
-      restApiName: `${props.apiName} [${props.stageName}]`,
-      ...customDomainName && {
-        defaultDomainMapping: {
-          domainName: customDomainName,
-        },
-      },
-      ...props.restApiProps,
-    });
 
     // if ((props.monitoring ?? true) && this.monitoring) {
     //   this.monitoring.apiErrorsWidget.addLeftMetric(this.api.metricServerError({
@@ -135,6 +119,80 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       }
     }
 
+    // Add _spec Endpoint
+    this.apiSpec.paths!['/openapi.json'] = {
+      get: {
+        'summary': 'Returns the raw OpenAPI spec of this API',
+        'description': 'Returns the raw OpenAPI spec of this API',
+        'operationId': '_spec',
+        'responses': {
+          200: {
+            description: 'OpenAPI spec of this API',
+            content: {
+              'application/openapi+json': {},
+            },
+          },
+        },
+        // @ts-ignore Custom property for AWS
+        'x-amazon-apigateway-integration': {
+          type: 'mock',
+          httpMethod: 'GET',
+          payloadFormatVersion: '1.0',
+          requestTemplates: {
+            'application/json': '{\'statusCode\': 200}',
+          },
+          responses: {
+            200: {
+              statusCode: 200,
+              responseTemplates: {
+                'application/openapi+json': JSON.stringify(this.cleanupSpec(JSON.parse(JSON.stringify((this.apiSpec))))),
+              },
+            },
+          },
+        },
+      },
+    };
+
+    this.patchSecurity(this.apiSpec);
+
+    this.api = new aws_apigateway.SpecRestApi(this, 'Resource', {
+      restApiName: `${props.apiName} [${props.stageName}]`,
+      domainName: customDomainName,
+      apiDefinition: aws_apigateway.ApiDefinition.fromInline(this.apiSpec),
+      ...props.restApiProps,
+    });
+
+    // add invoke permissions to Lambda functions
+    for (const fn of Object.values(this._functions)) {
+      fn.addPermission('RestApiInvoke', {
+        principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
+        action: 'lambda:InvokeFunction',
+        sourceArn: this.api.arnForExecuteApi(),
+      });
+    }
+
+    if (customDomainName && this.api.domainName) {
+      new aws_route53.ARecord(this, 'DnsRecord', {
+        zone: hostedZone!,
+        recordName: customDomainName.domainName,
+        target: aws_route53.RecordTarget.fromAlias(
+          new aws_route53_targets.ApiGatewayDomain(this.api.domainName),
+        ),
+      });
+    }
+
+  }
+
+  protected cleanupSpec(spec: { [key: string]: any }): { [key: string]: any } {
+    Object.entries(spec).forEach(([prop, value]: [string, any]) => {
+      if (prop.startsWith('x-')) {
+        delete spec[prop];
+      } else if (typeof value === 'object') {
+        this.cleanupSpec(spec[prop]);
+      }
+    });
+
+    return spec;
   }
 
   /**
@@ -144,22 +202,6 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     return this._functions[operationId as string];
   }
 
-  public addRoute<P extends keyof PATHS>(path: P, method: keyof PATHS[P], operationName: string | undefined, handler: aws_lambda.IFunction) {
-    this.addCustomRoute(path as string, method as string, operationName, handler);
-  }
-
-  public addCustomRoute(path: string, method: string, operationName: string | undefined, handler: aws_lambda.IFunction) {
-    const apiMethod = method.toUpperCase();
-    new aws_apigateway.Method(this, `${apiMethod}${path}`, {
-      httpMethod: apiMethod,
-      resource: this.api.root.resourceForPath(path),
-      integration: new aws_apigateway.LambdaIntegration(handler),
-      options: {
-        operationName,
-      },
-    });
-  }
-
   public addRestResource<P extends keyof PATHS>(path: P, method: keyof PATHS[P]) {
     const oaPath = this.apiSpec.paths![path as string];
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;
@@ -167,12 +209,15 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     const description = `${method as string} ${path as string} - ${operation.summary}`;
 
     const customLambdaOptions = this.props.lambdaOptionsByOperation ? this.props.lambdaOptionsByOperation[operationId as keyof OPS] : undefined;
-    return this.addCustomRestResource(path as string, method as string, operationId, description, customLambdaOptions);
+    return this.addCustomRestResource(operation, method as string, description, customLambdaOptions);
   }
 
-  public addCustomRestResource(path: string, method: string, operationId: string, description: string, additionalLambdaOptions: LambdaOptions = {}) {
+  public addCustomRestResource(operation: OperationObject, method: string, description: string, additionalLambdaOptions: LambdaOptions = {}) {
+    if ('x-amazon-apigateway-integration' in operation) {
+      return; // Skip if operation was declared in spec file already!
+    }
 
-    const entryFile = `./src/lambda/rest.${this.props.apiName.toLowerCase()}.${operationId}.ts`;
+    const entryFile = `./src/lambda/rest.${this.props.apiName.toLowerCase()}.${operation.operationId}.ts`;
 
     const lambdaOptions = {
       ...this.props.lambdaOptions && {
@@ -181,7 +226,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       ...additionalLambdaOptions,
     };
 
-    const fn = new LambdaFunction(this, `Fn${operationId}`, {
+    const fn = new LambdaFunction(this, `Fn${operation.operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: {
         ...this.props.domainName && {
@@ -205,7 +250,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       lambdaOptions,
       lambdaTracing: this.props.lambdaTracing,
     });
-    this._functions[operationId] = fn;
+    this._functions[operation.operationId!] = fn;
     cdk.Tags.of(fn).add('OpenAPI', description.replace(/[^\w\s\d_.:/=+\-@]/g, ''));
 
     // if (this.monitoring) {
@@ -216,7 +261,21 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     // }
 
     const hasVersionConfig = lambdaOptions.currentVersionOptions != undefined;
-    this.addCustomRoute(path, method, operationId, hasVersionConfig ? fn.currentVersion : fn);
+
+    operation['x-amazon-apigateway-integration'] = {
+      type: 'aws_proxy',
+      httpMethod: 'POST',
+      uri: cdk.Stack.of(this).formatArn({
+        resource: 'path',
+        service: 'apigateway',
+        account: 'lambda',
+        arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+        resourceName: `2015-03-31/functions/${(hasVersionConfig ? fn.currentVersion : fn).functionArn}/invocations`,
+        //             ^^^^^^^^^^ - THIS NEEDS TO BE THIS DATE. EXACTLY!
+      }),
+      passthroughBehavior: 'when_no_templates',
+      payloadFormatVersion: '1.0',
+    };
 
     return fn;
   }
@@ -233,6 +292,34 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       case 'head':
       default:
         return false;
+    }
+  }
+
+  /**
+   * AWS does not properly apply the 'security' option to every single path-method.
+   * According to documentation, global security gets applied, if there is no security
+   * set for the particular path-method. If there is any, even empty, it will get precedence.
+   * THIS DOES NOT HAPPEN ON AWS. IT JUST ALWAYS USES THE GLOBAL SETTING!
+   *
+   * 'security applies [...] schemes globally to all API operations, unless overridden on the operation level'
+   * @see https://swagger.io/docs/specification/authentication/
+   */
+  protected patchSecurity(spec: OpenAPI3) {
+    if ('security' in spec) {
+      for (const specPath of Object.values(spec.paths || [])) {
+        for (const key in specPath) {
+          // @ts-expect-error -> There is a wrong definition for method includes! It allows any value to be given!
+          if (!this.apiMethods.includes(key)) {
+            continue; // Skip if not http method definition
+          }
+
+          const specMethod = specPath[key as keyof PathItemObject]!;
+          if (!('security' in specMethod)) {
+            specMethod.security = spec.security;
+          }
+        }
+      }
+      delete spec.security;
     }
   }
 

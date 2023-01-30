@@ -19,7 +19,7 @@ const project = new TaimosTypescriptLibrary({
     'openapi-typescript',
     'dynamodb-onetable',
     'aws-cdk-lib@^2.60.0',
-    'constructs@^10.0.0',
+    'constructs@^10.0.5',
   ],
   keywords: [
     'aws',
