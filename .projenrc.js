@@ -6,6 +6,11 @@ const project = new TaimosTypescriptLibrary({
     'date-fns',
     'js-yaml',
     'projen',
+    'jsonwebtoken',
+    'jwk-to-pem',
+    'axios',
+    'uuid',
+    'lambda-log',
   ],
   defaultReleaseBranch: 'v2',
   docgen: false,
@@ -13,9 +18,13 @@ const project = new TaimosTypescriptLibrary({
     '@types/aws-lambda',
     '@types/js-yaml',
     '@taimos/projen',
+    '@types/lambda-log',
+    '@types/jsonwebtoken',
+    '@types/jwk-to-pem',
+    '@types/uuid',
+    '@hapi/boom',
   ],
   peerDeps: [
-    '@taimos/lambda-toolbox',
     'openapi-typescript',
     'dynamodb-onetable',
     'aws-cdk-lib@^2.60.0',
@@ -47,6 +56,7 @@ const docgen = project.addTask('docgen', {
   exec: `typedoc ${project.srcdir}/constructs --disableSources --out ${project.docsDirectory}constructs/`,
 });
 docgen.exec(`typedoc ${project.srcdir}/projen --disableSources --out ${project.docsDirectory}projen/`);
+docgen.exec(`typedoc ${project.srcdir}/lambda --disableSources --out ${project.docsDirectory}lambda/`);
 project.postCompileTask.spawn(docgen);
 
 project.synth();

@@ -14,7 +14,6 @@ export class ServerlessProject extends pj.awscdk.AwsCdkTypeScriptApp {
       projenrcTs: true,
       deps: [
         ...options.deps ?? [],
-        '@taimos/lambda-toolbox',
         'uuid',
         'esbuild',
         'js-yaml',

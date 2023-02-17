@@ -100,6 +100,9 @@
         },
         {
           "exec": "typedoc src/projen --disableSources --out docs/projen/"
+        },
+        {
+          "exec": "typedoc src/lambda --disableSources --out docs/lambda/"
         }
       ]
     },

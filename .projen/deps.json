@@ -1,7 +1,7 @@
 {
   "dependencies": [
     {
-      "name": "@taimos/lambda-toolbox",
+      "name": "@hapi/boom",
       "type": "build"
     },
     {
@@ -21,8 +21,24 @@
       "type": "build"
     },
     {
+      "name": "@types/jsonwebtoken",
+      "type": "build"
+    },
+    {
+      "name": "@types/jwk-to-pem",
+      "type": "build"
+    },
+    {
+      "name": "@types/lambda-log",
+      "type": "build"
+    },
+    {
       "name": "@types/node",
       "version": "^16",
+      "type": "build"
+    },
+    {
+      "name": "@types/uuid",
       "type": "build"
     },
     {
@@ -115,10 +131,6 @@
       "type": "build"
     },
     {
-      "name": "@taimos/lambda-toolbox",
-      "type": "peer"
-    },
-    {
       "name": "aws-cdk-lib",
       "version": "^2.60.0",
       "type": "peer"
@@ -137,6 +149,10 @@
       "type": "peer"
     },
     {
+      "name": "axios",
+      "type": "runtime"
+    },
+    {
       "name": "date-fns",
       "type": "runtime"
     },
@@ -145,7 +161,23 @@
       "type": "runtime"
     },
     {
+      "name": "jsonwebtoken",
+      "type": "runtime"
+    },
+    {
+      "name": "jwk-to-pem",
+      "type": "runtime"
+    },
+    {
+      "name": "lambda-log",
+      "type": "runtime"
+    },
+    {
       "name": "projen",
+      "type": "runtime"
+    },
+    {
+      "name": "uuid",
       "type": "runtime"
     }
   ],

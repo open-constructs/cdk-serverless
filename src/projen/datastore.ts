@@ -23,8 +23,14 @@ export class Datastore extends pj.Component {
 
   protected createModelFile(fileName: string, model: OneSchema) {
 
-    fs.writeFileSync(fileName, `import { dynamodb } from '@taimos/lambda-toolbox';
-import { Model, Table, Entity } from 'dynamodb-onetable';
+    fs.writeFileSync(fileName, `import { Model, Table, Entity } from 'dynamodb-onetable';
+
+const agent = new https.Agent({
+  keepAlive: true,
+});
+export const dynamoClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient({ httpOptions: { agent } });
+
+export const TABLE_NAME: string = env.TABLE!;
 
 ${Object.entries(model.indexes).map(([idx, data]) => `export const Index_${idx}_Name = '${idx}';
 export const Index_${idx}_HashKey = '${data.hash}';
@@ -34,8 +40,8 @@ export const Index_${idx}_SortKey = '${data.sort}';
 export const Schema = ${this.stringifyModel(model)};
 
 export const table = new Table({
-  client: dynamodb.dynamoClient,
-  name: dynamodb.TABLE_NAME,
+  client: dynamoClient,
+  name: TABLE_NAME,
   schema: Schema,
   isoDates: true,
   // logger: true,

@@ -93,7 +93,7 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
         break;
     }
 
-    fs.writeFileSync(entryFile, `import { http, errors } from '@taimos/lambda-toolbox';
+    fs.writeFileSync(entryFile, `import { http, errors } from '${PACKAGE_NAME}/lib/lambda';
 import { operations } from '../generated/rest.${this.options.apiName.toLowerCase()}-model.generated';
 
 export const handler = ${factoryCall}
