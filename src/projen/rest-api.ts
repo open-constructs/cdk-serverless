@@ -80,7 +80,7 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
       case 'post':
       case 'put':
       case 'patch':
-        factoryCall = `http.createOpenApiHandlerWithRequestBody<operations['${operationId}']>(async (ctx, data) => {`;
+        factoryCall = `api.createOpenApiHandlerWithRequestBody<operations['${operationId}']>(async (ctx, data) => {`;
         logs = 'ctx.logger.info(JSON.stringify(data));';
         break;
       case 'options':
@@ -88,12 +88,12 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
       case 'get':
       case 'head':
       default:
-        factoryCall = `http.createOpenApiHandler<operations['${operationId}']>(async (ctx) => {`;
+        factoryCall = `api.createOpenApiHandler<operations['${operationId}']>(async (ctx) => {`;
         logs = '';
         break;
     }
 
-    fs.writeFileSync(entryFile, `import { http, errors } from '${PACKAGE_NAME}/lib/lambda';
+    fs.writeFileSync(entryFile, `import { api, errors } from '${PACKAGE_NAME}/lib/lambda';
 import { operations } from '../generated/rest.${this.options.apiName.toLowerCase()}-model.generated';
 
 export const handler = ${factoryCall}

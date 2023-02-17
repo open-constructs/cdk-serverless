@@ -14,6 +14,8 @@ export class Datastore extends pj.Component {
     super(app);
 
     app.addDeps('dynamodb-onetable');
+    app.addDeps('@aws-sdk/client-dynamodb');
+    app.addDeps('@aws-sdk/lib-dynamodb');
 
     const model = JSON.parse(fs.readFileSync(options.definitionFile).toString()) as OneSchema;
 
@@ -24,12 +26,11 @@ export class Datastore extends pj.Component {
   protected createModelFile(fileName: string, model: OneSchema) {
 
     fs.writeFileSync(fileName, `import { Model, Table, Entity } from 'dynamodb-onetable';
+import { env } from 'process';
+import { Dynamo } from 'dynamodb-onetable/Dynamo';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
-const agent = new https.Agent({
-  keepAlive: true,
-});
-export const dynamoClient: DynamoDB.DocumentClient = new DynamoDB.DocumentClient({ httpOptions: { agent } });
-
+export const dynamoClient = new Dynamo({ client: new DynamoDBClient({}) })
 export const TABLE_NAME: string = env.TABLE!;
 
 ${Object.entries(model.indexes).map(([idx, data]) => `export const Index_${idx}_Name = '${idx}';

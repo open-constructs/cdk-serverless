@@ -42,20 +42,18 @@ jobs:
     needs: upgrade
     runs-on: ubuntu-latest
     permissions:
-      contents: write
-      pull-requests: write
+      contents: read
     if: ${{ needs.upgrade.outputs.patch_created }}
     steps:
       - name: Generate token
         id: generate_token
-        uses: tibdex/github-app-token@7ce9ffdcdeb2ba82b01b51d6584a6a85872336d4
+        uses: tibdex/github-app-token@021a2405c7f990db57f5eae5397423dcc554159c
         with:
           app_id: ${{ secrets.PROJEN_APP_ID }}
           private_key: ${{ secrets.PROJEN_APP_PRIVATE_KEY }}
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          token: ${{ steps.generate_token.outputs.token }}
           ref: v2
       - name: Download patch
         uses: actions/download-artifact@v3
