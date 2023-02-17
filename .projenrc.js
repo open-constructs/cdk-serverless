@@ -23,6 +23,8 @@ const project = new TaimosTypescriptLibrary({
   ],
   keywords: [
     'aws',
+    'cdk',
+    'serverless',
     'lambda',
     'dynamodb',
   ],
@@ -37,5 +39,14 @@ const project = new TaimosTypescriptLibrary({
     },
   },
 });
+
+project.addDevDeps('typedoc');
+
+const docgen = project.addTask('docgen', {
+  description: 'Generate TypeScript API reference',
+  exec: `typedoc ${project.srcdir}/constructs --disableSources --out ${project.docsDirectory}constructs/`,
+});
+docgen.exec(`typedoc ${project.srcdir}/projen --disableSources --out ${project.docsDirectory}projen/`);
+project.postCompileTask.spawn(docgen);
 
 project.synth();

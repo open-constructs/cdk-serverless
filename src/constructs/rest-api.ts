@@ -12,7 +12,6 @@ import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
-import { SingleTableDatastore } from './table';
 
 export interface RestApiProps<OPS> extends BaseApiProps {
 
@@ -50,8 +49,6 @@ export interface RestApiProps<OPS> extends BaseApiProps {
    * @default -
    */
   lambdaOptionsByOperation?: { [operationId in keyof OPS]?: LambdaOptions };
-
-  singleTableDatastore?: SingleTableDatastore;
 
   definitionFileName: string;
 }
@@ -155,6 +152,8 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
     this.patchSecurity(this.apiSpec);
 
+    // TODO patch spec for Cognito user pool
+
     this.api = new aws_apigateway.SpecRestApi(this, 'Resource', {
       restApiName: `${props.apiName} [${props.stageName}]`,
       domainName: customDomainName,
@@ -196,10 +195,17 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   }
 
   /**
-   * getFunctionForOperation
+   * return the generated Lambda function for the specified API operation
    */
   public getFunctionForOperation(operationId: keyof OPS): LambdaFunction {
     return this._functions[operationId as string];
+  }
+
+  /**
+   * return a list of all generated Lambda functions
+   */
+  public getFunctions(): LambdaFunction[] {
+    return Object.values(this._functions);
   }
 
   public addRestResource<P extends keyof PATHS>(path: P, method: keyof PATHS[P]) {
@@ -236,17 +242,17 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       },
       entry: entryFile,
       description: `[${this.props.stageName}] ${description}`,
-      // ...this.authentication && {
-      //   userPool: this.authentication?.userpool,
-      // },
+      ...this.props.authentication && {
+        userPool: this.props.authentication.userpool,
+      },
       ...this.props.singleTableDatastore && {
         table: this.props.singleTableDatastore.table,
         tableWrites: this.tableWriteAccessForMethod(method),
       },
-      // ...this.assetCdn && {
-      //   assetDomainName: this.assetCdn.assetDomainName,
-      //   assetBucket: this.assetCdn.assetBucket,
-      // },
+      ...this.props.assetCdn && {
+        assetDomainName: this.props.assetCdn.assetDomainName,
+        assetBucket: this.props.assetCdn.assetBucket,
+      },
       lambdaOptions,
       lambdaTracing: this.props.lambdaTracing,
     });
