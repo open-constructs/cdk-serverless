@@ -107,7 +107,7 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
               name: '${data.sort}',
               type: AttributeType.STRING,
             },` : ''}
-            projectionType: ProjectionType.${typeof data.project === 'string' ? data.project : 'INCLUDE'},
+            projectionType: ProjectionType.${typeof data.project === 'string' ? data.project.toUpperCase() : 'INCLUDE'},
             ${Array.isArray(data.project) ? `nonKeyAttributes: [${data.project.map(e => `'${e}'`).join(',')}],` : ''}
           }`).join(',\n')}
         ],
