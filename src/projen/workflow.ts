@@ -32,7 +32,10 @@ export class Workflow extends pj.Component {
   }
 
   protected createConstructFile(fileName: string, matchedVariables: VariableDefinition[]) {
-    fs.writeFileSync(fileName, `import * as constructs from 'constructs';
+    fs.writeFileSync(fileName, `/* eslint-disable */
+import * as constructs from 'constructs';
+import { ITable } from 'aws-cdk-lib/aws-dynamodb';
+import { IFunction } from 'aws-cdk-lib/aws-lambda';
 import * as sls from '${PACKAGE_NAME}/lib/constructs';
 
 export interface ${this.options.workflowName}WorkflowProps extends Omit<sls.WorkflowProps, 'definitionFileName' | 'definitionSubstitutions'> {
@@ -51,8 +54,6 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
         ${matchedVariables.map(v => this.renderDefinitionSubstitution(v)).join('\n')}
       }
     });
-
-    ${matchedVariables.map(v => this.renderPermissions(v)).join('\n')}
   }
 
 }`, {
@@ -63,9 +64,9 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
   protected renderStateConfigDefinition(def: VariableDefinition): string {
     switch (def.type) {
       case 'DynamoDBTable':
-        return `readonly ${def.name}: sls.DynamoDBStateConfig;`;
+        return `readonly ${def.name}: ITable;`;
       case 'LambdaFunction':
-        return `readonly ${def.name}: sls.LambdaStateConfig;`;
+        return `readonly ${def.name}: IFunction;`;
       case 'string':
       default:
         return `readonly ${def.name}: string;`;
@@ -75,28 +76,12 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
   protected renderDefinitionSubstitution(def: VariableDefinition): string {
     switch (def.type) {
       case 'DynamoDBTable':
-        return `'${def.fullName}': props.stateConfig.${def.name}.table.tableName,`;
+        return `'${def.fullName}': props.stateConfig.${def.name}.tableName,`;
       case 'LambdaFunction':
-        return `'${def.fullName}': props.stateConfig.${def.name}.handler.functionArn,`;
+        return `'${def.fullName}': props.stateConfig.${def.name}.functionArn,`;
       case 'string':
       default:
         return `'${def.fullName}': props.stateConfig.${def.name},`;
-    }
-  }
-
-  protected renderPermissions(def: VariableDefinition): string {
-    switch (def.type) {
-      case 'DynamoDBTable':
-        return `if (props.stateConfig.table.writable ?? false) {
-  props.stateConfig.${def.name}.table.grantReadWriteData(this);
-} else {
-  props.stateConfig.${def.name}.table.grantReadData(this);
-}`;
-      case 'LambdaFunction':
-        return `props.stateConfig.${def.name}.handler.grantInvoke(this);`;
-      case 'string':
-      default:
-        return '';
     }
   }
 

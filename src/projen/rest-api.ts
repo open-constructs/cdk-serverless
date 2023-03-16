@@ -38,7 +38,8 @@ export class RestApi extends pj.Component {
 
   protected createConstructFile(fileName: string) {
 
-    fs.writeFileSync(fileName, `import { Construct } from 'constructs';
+    fs.writeFileSync(fileName, `/* eslint-disable */
+import { Construct } from 'constructs';
 import { RestApi, RestApiProps } from '${PACKAGE_NAME}/lib/constructs';
 import { operations, paths } from './rest.${this.options.apiName.toLowerCase()}-model.generated';
 

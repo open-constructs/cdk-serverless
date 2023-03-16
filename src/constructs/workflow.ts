@@ -1,17 +1,8 @@
-import * as fs from 'fs';
-import { ITable } from 'aws-cdk-lib/aws-dynamodb';
 import * as iam from 'aws-cdk-lib/aws-iam';
-import { IFunction } from 'aws-cdk-lib/aws-lambda';
+import { Asset } from 'aws-cdk-lib/aws-s3-assets';
 import * as sfn from 'aws-cdk-lib/aws-stepfunctions';
 import * as constructs from 'constructs';
 
-export interface LambdaStateConfig {
-  readonly handler: IFunction;
-}
-export interface DynamoDBStateConfig {
-  readonly table: ITable;
-  readonly writable?: boolean;
-}
 
 export interface WorkflowProps {
   readonly stateMachineType?: sfn.StateMachineType;
@@ -33,17 +24,22 @@ export class Workflow extends constructs.Construct implements iam.IGrantable {
   constructor(scope: constructs.Construct, id: string, props: WorkflowProps) {
     super(scope, id);
 
-    const definition = fs.readFileSync(props.definitionFileName).toString();
-
     this.role = new iam.Role(this, 'Role', {
       assumedBy: new iam.ServicePrincipal('states.amazonaws.com'),
     });
     this.grantPrincipal = this.role;
 
+    const definitionAsset = new Asset(this, 'DefinitionAsset', {
+      path: props.definitionFileName,
+    });
+
     const resource = new sfn.CfnStateMachine(this, 'Resource', {
       stateMachineType: props.stateMachineType ?? sfn.StateMachineType.STANDARD,
       roleArn: this.role.roleArn,
-      definitionString: definition,
+      definitionS3Location: {
+        bucket: definitionAsset.s3BucketName,
+        key: definitionAsset.s3ObjectKey,
+      },
       definitionSubstitutions: props.definitionSubstitutions,
       loggingConfiguration: props.loggingConfiguration,
       tracingConfiguration: props.tracingConfiguration,

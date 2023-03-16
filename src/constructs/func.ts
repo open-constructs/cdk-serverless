@@ -7,6 +7,7 @@ import {
   aws_lambda_nodejs as lambdaNodejs,
 } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
+import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
 
 export type LambdaOptions = Omit<lambdaNodejs.NodejsFunctionProps, 'entry' | 'handler' | 'description'>
@@ -104,6 +105,7 @@ export class LambdaFunction extends lambdaNodejs.NodejsFunction {
     super(scope, id, {
       ...props.lambdaOptions,
       entry: props.entry,
+      runtime: Runtime.NODEJS_18_X,
       bundling: {
         ...props.lambdaOptions?.bundling,
         externalModules: props.includeSDK ? [] : undefined,

@@ -25,7 +25,8 @@ export class Datastore extends pj.Component {
 
   protected createModelFile(fileName: string, model: OneSchema) {
 
-    fs.writeFileSync(fileName, `import { Model, Table, Entity } from 'dynamodb-onetable';
+    fs.writeFileSync(fileName, `/* eslint-disable */
+import { Model, Table, Entity } from 'dynamodb-onetable';
 import { env } from 'process';
 import { Dynamo } from 'dynamodb-onetable/Dynamo';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
@@ -75,7 +76,8 @@ export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Typ
 
   protected createConstructFile(fileName: string, model: OneSchema) {
 
-    fs.writeFileSync(fileName, `import { AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+    fs.writeFileSync(fileName, `/* eslint-disable */
+import { AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import { SingleTableDatastore, SingleTableDatastoreProps } from '${PACKAGE_NAME}/lib/constructs';
 
