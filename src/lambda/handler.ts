@@ -1,5 +1,5 @@
 import logger from 'lambda-log';
-import { ApiGatewayv1CognitoAuthorizer, AppSyncCognitoAuthorizer, CognitoAuthorizer } from './auth';
+import { ApiGatewayv1CognitoAuthorizer, AppSyncCognitoAuthorizer, CognitoAuthorizer, JwtAuthorizer } from './auth';
 import * as errors from './errors';
 
 
@@ -24,7 +24,7 @@ export interface HttpHandlerContext {
   lambdaContext: AWSLambda.Context;
   logger: logger.LambdaLog;
   response: HttpResponseContext;
-  cognitoAuth: CognitoAuthorizer;
+  auth: JwtAuthorizer;
 }
 
 /**
@@ -94,7 +94,7 @@ export const createHttpHandler =
         lambdaContext: context,
         logger: logger as unknown as logger.LambdaLog,
         response: { headers: {}, json: true },
-        cognitoAuth: new ApiGatewayv1CognitoAuthorizer(event, logger as unknown as logger.LambdaLog),
+        auth: new ApiGatewayv1CognitoAuthorizer(event, logger as unknown as logger.LambdaLog),
       };
       // Add the request ID to the logging metadata, and enable debug logging if the DEBUG environment variable is set to "true"
       ctx.logger.options.meta.requestId = context.awsRequestId;
@@ -105,7 +105,7 @@ export const createHttpHandler =
 
       try {
         // Authenticate the user using the Cognito authorizer
-        await ctx.cognitoAuth.authenticate();
+        await ctx.auth.authenticate();
 
         // Call the user-defined handler function, passing in the request context object and the parsed request body
         const res = await handler(ctx, parseBody(event));

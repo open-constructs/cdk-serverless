@@ -33,11 +33,9 @@ interface MapOfKidToPublicKey {
 }
 
 let cacheKeys: MapOfKidToPublicKey | undefined;
-const getPublicKeys = async (): Promise<MapOfKidToPublicKey> => {
+const getPublicKeys = async (jwksUrl: string): Promise<MapOfKidToPublicKey> => {
   if (!cacheKeys) {
-    const url = `${cognitoIssuer}/.well-known/jwks.json`;
-
-    const publicKeys: PublicKeys = (await Axios.get<PublicKeys>(url)).data;
+    const publicKeys: PublicKeys = (await Axios.get<PublicKeys>(jwksUrl)).data;
     cacheKeys = publicKeys.keys.reduce((agg, current) => {
       const pem = jwkToPem(current as jwkToPem.JWK);
       agg[current.kid] = { instance: current, pem };
@@ -49,16 +47,16 @@ const getPublicKeys = async (): Promise<MapOfKidToPublicKey> => {
   }
 };
 
-const promisedVerify = (token: string): Promise<{ [name: string]: string }> => {
+const promisedVerify = (token: string, issuerUrl: string, jwksUrl: string): Promise<{ [name: string]: string }> => {
   return new Promise((resolve, reject) => {
     verify(token, (header: JwtHeader, cb: SigningKeyCallback) => {
       if (!header.kid) {
         cb(new Error('no key id found'));
       }
-      getPublicKeys().then((keys) => {
+      getPublicKeys(jwksUrl).then((keys) => {
         cb(null, keys[header.kid!].pem);
       }, cb);
-    }, { issuer: cognitoIssuer }, (err, decoded) => {
+    }, { issuer: issuerUrl }, (err, decoded) => {
       if (err) {
         reject(err);
       } else {
@@ -68,16 +66,36 @@ const promisedVerify = (token: string): Promise<{ [name: string]: string }> => {
   });
 };
 
-/**
- * CognitoAuthorizer is an abstract class representing an authorizer
- * that can be used to authenticate and authorize a user through Cognito.
- */
-export abstract class CognitoAuthorizer {
+export abstract class JwtAuthorizer {
 
   /**
    * The claims of the authenticated user.
    */
   protected claims?: { [name: string]: string | number | boolean | string[] };
+
+  protected constructor(protected issuerUrl: string, protected groupClaim: string, protected adminClaim: string) {
+
+  }
+
+  /**
+   * Returns an array of groups the user belongs to, or an empty array if the user
+   * is not authenticated or has no groups.
+   */
+  public getGroups(): string[] {
+    if (!this.isAuthenticated() || !this.claims!.hasOwnProperty(this.groupClaim)) {
+      return [];
+    }
+    return this.claims![this.groupClaim] as unknown as string[];
+  }
+
+  /**
+   * Returns true if the user belongs to the specified group, false otherwise.
+   * @param group The name of the group to check.
+   */
+  public hasGroup(group: string): boolean {
+    // 'cognito:groups': [ 'admin' ],
+    return this.getGroups().includes(group);
+  }
 
   /**
    * Authenticates the user and sets the claims.
@@ -101,26 +119,6 @@ export abstract class CognitoAuthorizer {
   }
 
   /**
-   * Returns an array of groups the user belongs to, or an empty array if the user
-   * is not authenticated or has no groups.
-   */
-  public getGroups(): string[] {
-    if (!this.isAuthenticated() || !this.claims!.hasOwnProperty('cognito:groups')) {
-      return [];
-    }
-    return this.claims!['cognito:groups'] as unknown as string[];
-  }
-
-  /**
-   * Returns true if the user belongs to the specified group, false otherwise.
-   * @param group The name of the group to check.
-   */
-  public hasGroup(group: string): boolean {
-    // 'cognito:groups': [ 'admin' ],
-    return this.getGroups().includes(group);
-  }
-
-  /**
    * Throws a ForbiddenError if the user is not authenticated or does not belong
    * to the specified group.
    * @param group The name of the group to check.
@@ -136,14 +134,14 @@ export abstract class CognitoAuthorizer {
    * Returns true if the user belongs to the 'admin' group, false otherwise.
    */
   public isAdmin(): boolean {
-    return this.hasGroup('admin');
+    return this.hasGroup(this.adminClaim);
   }
 
   /**
    * Throws a ForbiddenError if the user is not authenticated or is not an admin.
    */
   public assertAdmin(): void {
-    this.assertGroup('admin');
+    this.assertGroup(this.adminClaim);
   }
 
   /**
@@ -174,6 +172,60 @@ export abstract class CognitoAuthorizer {
 }
 
 /**
+ * CognitoAuthorizer is an abstract class representing an authorizer
+ * that can be used to authenticate and authorize a user through Cognito.
+ */
+export abstract class CognitoAuthorizer extends JwtAuthorizer {
+
+  protected constructor(protected issuerUrl: string) {
+    super(issuerUrl, 'cognito:groups', 'admin');
+  }
+}
+
+export class ApiGatewayv1JwtAuthorizer extends JwtAuthorizer {
+
+  constructor(
+    protected event: AWSLambda.APIGatewayProxyEvent, //FIXME: Learn about possible requestContext.authorizer sources in API gateway
+    protected issuerUrl: string,
+    protected jwksUrl: string,
+    groupClam: string,
+    adminClaim: string,
+    private _logger: logger.LambdaLog,
+  ) {
+    super(issuerUrl, groupClam, adminClaim);
+  }
+
+  public async authenticate(): Promise<void> {
+
+    // Could be almost the exact same code as Cognito if we can specify our own Authorizer in the event's request context
+    if (this.event.requestContext.authorizer && this.event.requestContext.authorizer.claims) {
+      this.claims = this.event.requestContext.authorizer.claims;
+    }
+
+    if (this.claims) {
+      return;
+    }
+
+    const authHeader = this.event.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return;
+    }
+    const token = authHeader.substring('Bearer '.length);
+
+    // Verify the token and set the claims on the event and this object
+    try {
+      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, `${this.issuerUrl}/.well-known/jwks.json`);
+      this._logger.debug(JSON.stringify(claims));
+
+      this.event.requestContext.authorizer = { claims };
+      this.claims = claims;
+    } catch (err: any) {
+      this._logger.error(err);
+    }
+  }
+}
+
+/**
  * ApiGatewayv1CognitoAuthorizer is a class that extends CognitoAuthorizer
  * and implements authentication logic for API Gateway v1 requests with a
  * Cognito authorizer.
@@ -184,7 +236,7 @@ export class ApiGatewayv1CognitoAuthorizer extends CognitoAuthorizer {
    * The event that triggered the authorization check.
    */
   constructor(protected event: AWSLambda.APIGatewayProxyWithCognitoAuthorizerEvent, private _logger: logger.LambdaLog) {
-    super();
+    super(`${cognitoIssuer}/.well-known/jwks.json`);
   }
 
   /**
@@ -209,7 +261,8 @@ export class ApiGatewayv1CognitoAuthorizer extends CognitoAuthorizer {
 
     // Verify the token and set the claims on the event and this object
     try {
-      const claims: { [name: string]: string } = await promisedVerify(token);
+      const jwksUrl = `${this.issuerUrl}/.well-known/jwks.json`;
+      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, jwksUrl);
       this._logger.debug(JSON.stringify(claims));
 
       this.event.requestContext.authorizer = { claims };
@@ -232,7 +285,7 @@ export class ApiGatewayv2CognitoAuthorizer extends CognitoAuthorizer {
    * The event that triggered the authorization check.
    */
   constructor(protected event: AWSLambda.APIGatewayProxyEventV2WithJWTAuthorizer, private _logger: logger.LambdaLog) {
-    super();
+    super(`${cognitoIssuer}/.well-known/jwks.json`);
   }
 
   /**
@@ -257,7 +310,8 @@ export class ApiGatewayv2CognitoAuthorizer extends CognitoAuthorizer {
 
     // Verify the token and set the claims on the event and this object
     try {
-      const claims: { [name: string]: string } = await promisedVerify(token);
+      const jwksUrl = `${cognitoIssuer}/.well-known/jwks.json`;
+      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, jwksUrl);
       this._logger.debug(JSON.stringify(claims));
 
       this.event.requestContext.authorizer = {
@@ -287,7 +341,7 @@ export class AppSyncCognitoAuthorizer extends CognitoAuthorizer {
    * The event that triggered the authorization check.
    */
   constructor(protected event: AWSLambda.AppSyncResolverEvent<any>) {
-    super();
+    super(`${cognitoIssuer}/.well-known/jwks.json`);
   }
 
   /**
