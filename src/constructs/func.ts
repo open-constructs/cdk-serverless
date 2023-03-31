@@ -9,6 +9,7 @@ import {
 import * as cdk from 'aws-cdk-lib';
 import { Runtime } from 'aws-cdk-lib/aws-lambda';
 import { Construct } from 'constructs';
+import { IJwtAuthentication } from './authentication';
 
 export type LambdaOptions = Omit<lambdaNodejs.NodejsFunctionProps, 'entry' | 'handler' | 'description'>
 
@@ -61,6 +62,11 @@ export interface LambdaFunctionProps {
    * The name of the pool is available as process.env.USER_POOL_ID
    */
   userPool?: cognito.IUserPool;
+
+  /**
+   * JwtAuthentication settings
+   */
+  jwt? : IJwtAuthentication;
 
   /**
    * Bucket that is used for assets and published using the asset CDN
@@ -121,6 +127,15 @@ export class LambdaFunction extends lambdaNodejs.NodejsFunction {
         },
         ...props.table && {
           TABLE: props.table.tableName,
+        },
+        ...props.jwt && {
+          JWT_ISSUER_URL: props.jwt.issuerUrl,
+        },
+        ...props.jwt?.jwksUrl && {
+          JWT_JWKS_URL: props.jwt.jwksUrl,
+        },
+        ...props.jwt?.audience && {
+          JWT_AUDIENCE_URL: props.jwt.audience.join('||'),
         },
         ...props.userPool && {
           USER_POOL_ID: props.userPool.userPoolId,

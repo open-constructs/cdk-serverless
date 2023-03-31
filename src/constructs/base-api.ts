@@ -1,6 +1,6 @@
 import { Construct } from 'constructs';
 import { AssetCdn } from './asset-cdn';
-import { IAuthentication } from './authentication';
+import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { LambdaOptions, LambdaTracingOptions } from './func';
 import { SingleTableDatastore } from './table';
 
@@ -33,7 +33,7 @@ export interface BaseApiProps {
    *
    * @default none
    */
-  authentication?: IAuthentication;
+  authentication?: IJwtAuthentication | ICognitoAuthentication;
 
   /**
    * Configure a content delivery network for static assets

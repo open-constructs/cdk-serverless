@@ -8,8 +8,11 @@ import { ForbiddenError, UnauthenticatedError } from './errors';
 
 const cognitoPoolId = env.USER_POOL_ID ?? '';
 const cognitoPoolRegion = env.USER_POOL_REGION ?? env.AWS_REGION ?? 'eu-central-1';
-const cognitoIssuer = `https://cognito-idp.${cognitoPoolRegion}.amazonaws.com/${cognitoPoolId}`;
 
+const jwtIssuerUrl = cognitoPoolId ? `https://cognito-idp.${cognitoPoolRegion}.amazonaws.com/${cognitoPoolId}` : (env.JWT_ISSUER_URL ?? '');
+const jwtJwksUrl = cognitoPoolId ? `${jwtIssuerUrl}/.well-known/jwks.json` : env.JWT_JWKS_URL;
+const jwtGroupClaim = cognitoPoolId ? 'cognito:groups' : (env.JWT_GROUP_CLAIM ?? '');
+const jwtAudience = (env.JWT_AUDIENCE_URL && env.JWT_AUDIENCE_URL.length > 0) ? env.JWT_AUDIENCE_URL.split('||') : undefined;
 interface PublicKey {
   alg: string;
   e: string;
@@ -26,6 +29,11 @@ interface PublicKeyMeta {
 
 interface PublicKeys {
   keys: PublicKey[];
+}
+
+interface IssuerMetadata {
+  jwks_uri?: string;
+  [key: string]: unknown;
 }
 
 interface MapOfKidToPublicKey {
@@ -47,16 +55,28 @@ const getPublicKeys = async (jwksUrl: string): Promise<MapOfKidToPublicKey> => {
   }
 };
 
-const promisedVerify = (token: string, issuerUrl: string, jwksUrl: string): Promise<{ [name: string]: string }> => {
+const getJwksUri = async (discoveryUri: string, jwksUri?: string): Promise<string> => {
+  if (jwksUri) {
+    return jwksUri;
+  }
+  const wellKnownUri = `${discoveryUri}/.well-known`;
+  const issuerMetadata = (await Axios.get<IssuerMetadata>(wellKnownUri)).data;
+  if (!issuerMetadata.jwks_uri) {
+    throw new Error('Issuer does not offer JWKS endpoint');
+  }
+  return issuerMetadata.jwks_uri;
+};
+
+const promisedVerify = (token: string, issuerUri: string, jwksUri?: string): Promise<{ [name: string]: string }> => {
   return new Promise((resolve, reject) => {
     verify(token, (header: JwtHeader, cb: SigningKeyCallback) => {
       if (!header.kid) {
         cb(new Error('no key id found'));
       }
-      getPublicKeys(jwksUrl).then((keys) => {
+      getJwksUri(issuerUri, jwksUri).then(getPublicKeys).then((keys) => {
         cb(null, keys[header.kid!].pem);
       }, cb);
-    }, { issuer: issuerUrl }, (err, decoded) => {
+    }, { issuer: issuerUri, audience: jwtAudience }, (err, decoded) => {
       if (err) {
         reject(err);
       } else {
@@ -73,8 +93,12 @@ export abstract class JwtAuthorizer {
    */
   protected claims?: { [name: string]: string | number | boolean | string[] };
 
-  protected constructor(protected issuerUrl: string, protected groupClaim: string, protected adminClaim: string) {
-
+  protected constructor(
+    protected issuerUrl: string,
+    protected groupClaim: string,
+    protected adminClaim: string,
+    protected jwksUrl?: string,
+  ) {
   }
 
   /**
@@ -177,22 +201,19 @@ export abstract class JwtAuthorizer {
  */
 export abstract class CognitoAuthorizer extends JwtAuthorizer {
 
-  protected constructor(protected issuerUrl: string) {
-    super(issuerUrl, 'cognito:groups', 'admin');
+  protected constructor() {
+    super(jwtIssuerUrl, jwtGroupClaim, 'admin');
   }
 }
 
 export class ApiGatewayv1JwtAuthorizer extends JwtAuthorizer {
 
   constructor(
-    protected event: AWSLambda.APIGatewayProxyEvent, //FIXME: Learn about possible requestContext.authorizer sources in API gateway
-    protected issuerUrl: string,
-    protected jwksUrl: string,
-    groupClam: string,
+    protected event: AWSLambda.APIGatewayProxyWithCognitoAuthorizerEvent, //FIXME: Learn about possible requestContext.authorizer sources in API gateway
     adminClaim: string,
-    private _logger: logger.LambdaLog,
+    protected _logger: logger.LambdaLog,
   ) {
-    super(issuerUrl, groupClam, adminClaim);
+    super(jwtIssuerUrl, jwtGroupClaim, adminClaim, jwtJwksUrl);
   }
 
   public async authenticate(): Promise<void> {
@@ -214,7 +235,7 @@ export class ApiGatewayv1JwtAuthorizer extends JwtAuthorizer {
 
     // Verify the token and set the claims on the event and this object
     try {
-      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, `${this.issuerUrl}/.well-known/jwks.json`);
+      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, this.jwksUrl);
       this._logger.debug(JSON.stringify(claims));
 
       this.event.requestContext.authorizer = { claims };
@@ -225,67 +246,9 @@ export class ApiGatewayv1JwtAuthorizer extends JwtAuthorizer {
   }
 }
 
-/**
- * ApiGatewayv1CognitoAuthorizer is a class that extends CognitoAuthorizer
- * and implements authentication logic for API Gateway v1 requests with a
- * Cognito authorizer.
- */
-export class ApiGatewayv1CognitoAuthorizer extends CognitoAuthorizer {
-
-  /**
-   * The event that triggered the authorization check.
-   */
-  constructor(protected event: AWSLambda.APIGatewayProxyWithCognitoAuthorizerEvent, private _logger: logger.LambdaLog) {
-    super(`${cognitoIssuer}/.well-known/jwks.json`);
-  }
-
-  /**
-   * Authenticates the user using the claims provided by the API Gateway event or
-   * by decoding a JWT token from the 'Authorization' header.
-   */
-  public async authenticate(): Promise<void> {
-    // Try to get the claims from the event
-    this.claims = this.event.requestContext.authorizer?.claims;
-
-    // If no pool ID is defined or claims exist, return early
-    if (!cognitoPoolId || this.claims) {
-      return;
-    }
-
-    // Extract the token from the Authorization header
-    const authHeader = this.event.headers.authorization;
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return;
-    }
-    const token = authHeader.substring('Bearer '.length);
-
-    // Verify the token and set the claims on the event and this object
-    try {
-      const jwksUrl = `${this.issuerUrl}/.well-known/jwks.json`;
-      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, jwksUrl);
-      this._logger.debug(JSON.stringify(claims));
-
-      this.event.requestContext.authorizer = { claims };
-      this.claims = claims;
-    } catch (err: any) {
-      this._logger.error(err);
-    }
-  }
-
-}
-
-/**
- * ApiGatewayv2CognitoAuthorizer is a class that extends CognitoAuthorizer
- * and implements authentication logic for API Gateway v2 requests with a
- * JWT authorizer.
- */
-export class ApiGatewayv2CognitoAuthorizer extends CognitoAuthorizer {
-
-  /**
-   * The event that triggered the authorization check.
-   */
-  constructor(protected event: AWSLambda.APIGatewayProxyEventV2WithJWTAuthorizer, private _logger: logger.LambdaLog) {
-    super(`${cognitoIssuer}/.well-known/jwks.json`);
+export class ApiGatewayv2JwtAuthorizer extends JwtAuthorizer {
+  constructor(protected event: AWSLambda.APIGatewayProxyEventV2WithJWTAuthorizer, protected _logger: logger.LambdaLog) {
+    super(jwtIssuerUrl, 'cognito:groups', 'admin', jwtJwksUrl);
   }
 
   /**
@@ -310,8 +273,7 @@ export class ApiGatewayv2CognitoAuthorizer extends CognitoAuthorizer {
 
     // Verify the token and set the claims on the event and this object
     try {
-      const jwksUrl = `${cognitoIssuer}/.well-known/jwks.json`;
-      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, jwksUrl);
+      const claims: { [name: string]: string } = await promisedVerify(token, this.issuerUrl, this.jwksUrl);
       this._logger.debug(JSON.stringify(claims));
 
       this.event.requestContext.authorizer = {
@@ -327,7 +289,36 @@ export class ApiGatewayv2CognitoAuthorizer extends CognitoAuthorizer {
       this._logger.error(err);
     }
   }
+}
 
+/**
+ * ApiGatewayv1CognitoAuthorizer is a specialization of an ApiGatewayv1JwtAuthorizer
+ * and implements authentication logic for API Gateway v1 requests with a
+ * Cognito authorizer.
+ */
+export class ApiGatewayv1CognitoAuthorizer extends ApiGatewayv1JwtAuthorizer {
+
+  /**
+   * The event that triggered the authorization check.
+   */
+  constructor(protected event: AWSLambda.APIGatewayProxyWithCognitoAuthorizerEvent, protected _logger: logger.LambdaLog) {
+    super(event, 'admin', _logger);
+  }
+}
+
+/**
+ * ApiGatewayv2CognitoAuthorizer is a class that extends CognitoAuthorizer
+ * and implements authentication logic for API Gateway v2 requests with a
+ * JWT authorizer.
+ */
+export class ApiGatewayv2CognitoAuthorizer extends ApiGatewayv2JwtAuthorizer {
+
+  /**
+   * The event that triggered the authorization check.
+   */
+  constructor(protected event: AWSLambda.APIGatewayProxyEventV2WithJWTAuthorizer, protected _logger: logger.LambdaLog) {
+    super(event, _logger);
+  }
 }
 
 /**
@@ -341,7 +332,7 @@ export class AppSyncCognitoAuthorizer extends CognitoAuthorizer {
    * The event that triggered the authorization check.
    */
   constructor(protected event: AWSLambda.AppSyncResolverEvent<any>) {
-    super(`${cognitoIssuer}/.well-known/jwks.json`);
+    super();
   }
 
   /**
