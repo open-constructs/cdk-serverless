@@ -13,6 +13,7 @@ const jwtIssuerUrl = cognitoPoolId ? `https://cognito-idp.${cognitoPoolRegion}.a
 const jwtJwksUrl = cognitoPoolId ? `${jwtIssuerUrl}/.well-known/jwks.json` : env.JWT_JWKS_URL;
 const jwtGroupClaim = cognitoPoolId ? 'cognito:groups' : (env.JWT_GROUP_CLAIM ?? '');
 const jwtAudience = (env.JWT_AUDIENCE_URL && env.JWT_AUDIENCE_URL.length > 0) ? env.JWT_AUDIENCE_URL.split('||') : undefined;
+
 interface PublicKey {
   alg: string;
   e: string;
@@ -41,6 +42,7 @@ interface MapOfKidToPublicKey {
 }
 
 let cacheKeys: MapOfKidToPublicKey | undefined;
+
 const getPublicKeys = async (jwksUrl: string): Promise<MapOfKidToPublicKey> => {
   if (!cacheKeys) {
     const publicKeys: PublicKeys = (await Axios.get<PublicKeys>(jwksUrl)).data;

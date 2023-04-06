@@ -1,5 +1,12 @@
-import logger from 'lambda-log';
-import { ApiGatewayv1CognitoAuthorizer, AppSyncCognitoAuthorizer, CognitoAuthorizer, JwtAuthorizer } from './auth';
+import { env } from 'process';
+import logger, { LambdaLog } from 'lambda-log';
+import {
+  ApiGatewayv1CognitoAuthorizer,
+  ApiGatewayv1JwtAuthorizer,
+  AppSyncCognitoAuthorizer,
+  CognitoAuthorizer,
+  JwtAuthorizer,
+} from './auth';
 import * as errors from './errors';
 
 
@@ -82,6 +89,14 @@ export const createOpenApiHandler = <OP extends Operation, SC extends number = 2
   return createHttpHandler(handler);
 };
 
+function createAuthorizer(event: AWSLambda.APIGatewayProxyEventBase<AWSLambda.APIGatewayProxyCognitoAuthorizer>, log: LambdaLog) {
+  if (env.USER_POOL_ID) {
+    return new ApiGatewayv1CognitoAuthorizer(event, log);
+  } else {
+    return new ApiGatewayv1JwtAuthorizer(event, 'admin', log);
+  }
+}
+
 /**
  * A factory function that creates an HTTP request handler.
  */
@@ -89,12 +104,13 @@ export const createHttpHandler =
   <T, R>(handler: HttpHandler<T, R>): APIGatewayv1Handler => {
     return async (event, context) => {
       // Create an object to hold the context for this HTTP request
+      const auth = createAuthorizer(event, logger as unknown as logger.LambdaLog);
       const ctx: HttpHandlerContext = {
         event,
+        auth,
         lambdaContext: context,
         logger: logger as unknown as logger.LambdaLog,
         response: { headers: {}, json: true },
-        auth: new ApiGatewayv1CognitoAuthorizer(event, logger as unknown as logger.LambdaLog),
       };
       // Add the request ID to the logging metadata, and enable debug logging if the DEBUG environment variable is set to "true"
       ctx.logger.options.meta.requestId = context.awsRequestId;
