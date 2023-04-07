@@ -1,7 +1,6 @@
 import { env } from 'process';
 import Axios from 'axios';
 import { verify, JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
-// import jwkToPem = require('jwk-to-pem');
 import jwkToPem from 'jwk-to-pem';
 import logger from 'lambda-log';
 import { ForbiddenError, UnauthenticatedError } from './errors';
@@ -57,6 +56,7 @@ const getPublicKeys = async (jwksUrl: string): Promise<MapOfKidToPublicKey> => {
   }
 };
 
+// Grab the JWKS URI from the JWT issuer's metadata
 const getJwksUri = async (discoveryUri: string, jwksUri?: string): Promise<string> => {
   if (jwksUri) {
     return jwksUri;
@@ -88,6 +88,11 @@ const promisedVerify = (token: string, issuerUri: string, jwksUri?: string): Pro
   });
 };
 
+/**
+ * A generic JWT authorizer base class, presupposing the presence of an issuer, a number of authorization claims, an
+ * admin permission claim and optionally a separate URL to a JWKS to use if the issuers well-known URL does not
+ * point to it in its metadata.
+ */
 export abstract class JwtAuthorizer {
 
   /**
@@ -208,6 +213,9 @@ export abstract class CognitoAuthorizer extends JwtAuthorizer {
   }
 }
 
+/**
+ * Implements authorization on API Gateway v1 (Rest API) using JWT.
+ */
 export class ApiGatewayv1JwtAuthorizer extends JwtAuthorizer {
 
   constructor(
@@ -218,6 +226,10 @@ export class ApiGatewayv1JwtAuthorizer extends JwtAuthorizer {
     super(jwtIssuerUrl, jwtGroupClaim, adminClaim, jwtJwksUrl);
   }
 
+  /**
+   * Authenticates the user using the claims provided by the API Gateway event or
+   * by decoding a JWT token from the 'Authorization' header.
+   */
   public async authenticate(): Promise<void> {
 
     // Could be almost the exact same code as Cognito if we can specify our own Authorizer in the event's request context
@@ -248,6 +260,9 @@ export class ApiGatewayv1JwtAuthorizer extends JwtAuthorizer {
   }
 }
 
+/**
+ * Implements JWT Authorization on API Gateway v2 (HTTP API).
+ */
 export class ApiGatewayv2JwtAuthorizer extends JwtAuthorizer {
   constructor(protected event: AWSLambda.APIGatewayProxyEventV2WithJWTAuthorizer, protected _logger: logger.LambdaLog) {
     super(jwtIssuerUrl, 'cognito:groups', 'admin', jwtJwksUrl);
@@ -295,8 +310,7 @@ export class ApiGatewayv2JwtAuthorizer extends JwtAuthorizer {
 
 /**
  * ApiGatewayv1CognitoAuthorizer is a specialization of an ApiGatewayv1JwtAuthorizer
- * and implements authentication logic for API Gateway v1 requests with a
- * Cognito authorizer.
+ * and implements authentication logic for API Gateway v1 requests when using Cognito..
  */
 export class ApiGatewayv1CognitoAuthorizer extends ApiGatewayv1JwtAuthorizer {
 

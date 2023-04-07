@@ -17,7 +17,7 @@ export interface IJwtAuthentication {
    */
   readonly issuerUrl: string;
   /**
-   * The endpoints audience. Will only be checked if present.
+   * The endpoint's audience. Will only be checked if present.
    */
   readonly audience?: string[];
   /**

@@ -29,7 +29,9 @@ export interface BaseApiProps {
   singleTableDatastore?: SingleTableDatastore;
 
   /**
-   * Use a Cognito user pool for authorization
+   * Use a Cognito user pool for authorization.
+   * Alternatively supply a JWT issuer and audience
+   * to use any other JWT-based authorization service.
    *
    * @default none
    */

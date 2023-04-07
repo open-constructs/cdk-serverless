@@ -89,13 +89,18 @@ export const createOpenApiHandler = <OP extends Operation, SC extends number = 2
   return createHttpHandler(handler);
 };
 
-function createAuthorizer(event: AWSLambda.APIGatewayProxyEventBase<AWSLambda.APIGatewayProxyCognitoAuthorizer>, log: LambdaLog) {
+/**
+ * Create an authorizer for the authentication method chosen (JWT or Cognito).
+ */
+const createAuthorizer = (event: AWSLambda.APIGatewayProxyEventBase<AWSLambda.APIGatewayProxyCognitoAuthorizer>, log: LambdaLog) => {
+  // If Cognito is used, USER_POOL_ID is injected into the function's environment. Currently assumes JWT otherwise.
   if (env.USER_POOL_ID) {
     return new ApiGatewayv1CognitoAuthorizer(event, log);
   } else {
+    // This might need to get more sophisticated if more authorization methods need to be supported.
     return new ApiGatewayv1JwtAuthorizer(event, 'admin', log);
   }
-}
+};
 
 /**
  * A factory function that creates an HTTP request handler.
