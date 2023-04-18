@@ -6,12 +6,27 @@ import {
 import { Construct } from 'constructs';
 import { LambdaFunction } from './func';
 
-export interface IAuthentication {
-  /** The Cognito user pool that hols user information */
+export interface ICognitoAuthentication {
+  /** The Cognito user pool that holds user information */
   readonly userpool: cognito.IUserPool;
 }
 
-export interface AuthenticationProps {
+export interface IJwtAuthentication {
+  /**
+   * The JWT issuer endpoint URL
+   */
+  readonly issuerUrl: string;
+  /**
+   * The endpoint's audience. Will only be checked if present.
+   */
+  readonly audience?: string[];
+  /**
+   * The JWT endpoints JWKS store. Unless this is provided, OIDC discovery will be used to find this.
+   */
+  readonly jwksUrl?: string;
+}
+
+export interface CognitoAuthenticationProps {
 
   /** Name for the Cognito user pool */
   readonly userPoolName: string;
@@ -72,13 +87,13 @@ export interface AuthenticationProps {
   };
 }
 
-export class Authentication extends Construct implements IAuthentication {
+export class CognitoAuthentication extends Construct implements ICognitoAuthentication {
 
   public readonly userpool: cognito.UserPool;
   public readonly customMessageFunction?: LambdaFunction;
   public readonly preTokenGenerationFunction?: LambdaFunction;
 
-  constructor(scope: Construct, id: string, props: AuthenticationProps) {
+  constructor(scope: Construct, id: string, props: CognitoAuthenticationProps) {
     super(scope, id);
 
     this.userpool = new cognito.UserPool(this, 'UserPool', {

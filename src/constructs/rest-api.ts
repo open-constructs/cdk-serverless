@@ -10,6 +10,7 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
+import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
 
@@ -232,6 +233,10 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       ...additionalLambdaOptions,
     };
 
+    const authentication = this.props.authentication && (this.props.authentication.hasOwnProperty('userpool')
+      ? { userPool: (this.props.authentication as ICognitoAuthentication).userpool }
+      : { jwt: this.props.authentication as IJwtAuthentication });
+
     const fn = new LambdaFunction(this, `Fn${operation.operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: {
@@ -242,9 +247,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       },
       entry: entryFile,
       description: `[${this.props.stageName}] ${description}`,
-      ...this.props.authentication && {
-        userPool: this.props.authentication.userpool,
-      },
+      ...authentication,
       ...this.props.singleTableDatastore && {
         table: this.props.singleTableDatastore.table,
         tableWrites: this.tableWriteAccessForMethod(method),

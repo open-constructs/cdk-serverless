@@ -33,6 +33,9 @@ export class RestApi extends pj.Component {
         }
       }
     }
+    if (!fs.existsSync('./src/generated')) {
+      fs.mkdirSync('./src/generated');
+    }
     this.createConstructFile(`./src/generated/rest.${options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
@@ -70,6 +73,9 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
 
     const entryFile = `./src/lambda/rest.${this.options.apiName.toLowerCase()}.${operationId}.ts`;
     if (!fs.existsSync(entryFile)) {
+      if (!fs.existsSync('./src/lambda')) {
+        fs.mkdirSync('./src/lambda');
+      }
       this.createEntryFile(entryFile, method, operationId);
     }
   }

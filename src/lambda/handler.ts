@@ -1,5 +1,12 @@
-import logger from 'lambda-log';
-import { ApiGatewayv1CognitoAuthorizer, AppSyncCognitoAuthorizer, CognitoAuthorizer } from './auth';
+import { env } from 'process';
+import logger, { LambdaLog } from 'lambda-log';
+import {
+  ApiGatewayv1CognitoAuthorizer,
+  ApiGatewayv1JwtAuthorizer,
+  AppSyncCognitoAuthorizer,
+  CognitoAuthorizer,
+  JwtAuthorizer,
+} from './auth';
 import * as errors from './errors';
 
 
@@ -24,7 +31,7 @@ export interface HttpHandlerContext {
   lambdaContext: AWSLambda.Context;
   logger: logger.LambdaLog;
   response: HttpResponseContext;
-  cognitoAuth: CognitoAuthorizer;
+  auth: JwtAuthorizer;
 }
 
 /**
@@ -83,18 +90,32 @@ export const createOpenApiHandler = <OP extends Operation, SC extends number = 2
 };
 
 /**
+ * Create an authorizer for the authentication method chosen (JWT or Cognito).
+ */
+const createAuthorizer = (event: AWSLambda.APIGatewayProxyEventBase<AWSLambda.APIGatewayProxyCognitoAuthorizer>, log: LambdaLog) => {
+  // If Cognito is used, USER_POOL_ID is injected into the function's environment. Currently assumes JWT otherwise.
+  if (env.USER_POOL_ID) {
+    return new ApiGatewayv1CognitoAuthorizer(event, log);
+  } else {
+    // This might need to get more sophisticated if more authorization methods need to be supported.
+    return new ApiGatewayv1JwtAuthorizer(event, 'admin', log);
+  }
+};
+
+/**
  * A factory function that creates an HTTP request handler.
  */
 export const createHttpHandler =
   <T, R>(handler: HttpHandler<T, R>): APIGatewayv1Handler => {
     return async (event, context) => {
       // Create an object to hold the context for this HTTP request
+      const auth = createAuthorizer(event, logger as unknown as logger.LambdaLog);
       const ctx: HttpHandlerContext = {
         event,
+        auth,
         lambdaContext: context,
         logger: logger as unknown as logger.LambdaLog,
         response: { headers: {}, json: true },
-        cognitoAuth: new ApiGatewayv1CognitoAuthorizer(event, logger as unknown as logger.LambdaLog),
       };
       // Add the request ID to the logging metadata, and enable debug logging if the DEBUG environment variable is set to "true"
       ctx.logger.options.meta.requestId = context.awsRequestId;
@@ -105,7 +126,7 @@ export const createHttpHandler =
 
       try {
         // Authenticate the user using the Cognito authorizer
-        await ctx.cognitoAuth.authenticate();
+        await ctx.auth.authenticate();
 
         // Call the user-defined handler function, passing in the request context object and the parsed request body
         const res = await handler(ctx, parseBody(event));
