@@ -295,7 +295,7 @@ to never expire even if it was configured with a different value.</p>
 <div class="tsd-comment tsd-typography"><p>Defines an alias for this function.</p>
 <p>The alias will automatically be updated to point to the latest version of
 the function as it is being updated during a deployment.</p>
-<pre><code class="language-ts"><span class="hl-3">declare</span><span class="hl-0"> </span><span class="hl-3">const</span><span class="hl-0"> </span><span class="hl-4">fn</span><span class="hl-0">: </span><span class="hl-8">lambda</span><span class="hl-0">.</span><span class="hl-8">Function</span><span class="hl-0">;</span><br/><br/><span class="hl-6">fn</span><span class="hl-0">.</span><span class="hl-5">addAlias</span><span class="hl-0">(</span><span class="hl-1">&#39;Live&#39;</span><span class="hl-0">);</span><br/><br/><span class="hl-2">// Is equivalent to</span><br/><br/><span class="hl-3">new</span><span class="hl-0"> </span><span class="hl-6">lambda</span><span class="hl-0">.</span><span class="hl-5">Alias</span><span class="hl-0">(</span><span class="hl-3">this</span><span class="hl-0">, </span><span class="hl-1">&#39;AliasLive&#39;</span><span class="hl-0">, {</span><br/><span class="hl-0">  </span><span class="hl-6">aliasName:</span><span class="hl-0"> </span><span class="hl-1">&#39;Live&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-6">version:</span><span class="hl-0"> </span><span class="hl-6">fn</span><span class="hl-0">.</span><span class="hl-6">currentVersion</span><span class="hl-0">,</span><br/><span class="hl-0">});</span>
+<pre><code class="language-ts"><span class="hl-2">declare</span><span class="hl-0"> </span><span class="hl-2">const</span><span class="hl-0"> </span><span class="hl-3">fn</span><span class="hl-0">: </span><span class="hl-4">lambda</span><span class="hl-0">.</span><span class="hl-4">Function</span><span class="hl-0">;</span><br/><br/><span class="hl-5">fn</span><span class="hl-0">.</span><span class="hl-6">addAlias</span><span class="hl-0">(</span><span class="hl-1">&#39;Live&#39;</span><span class="hl-0">);</span><br/><br/><span class="hl-7">// Is equivalent to</span><br/><br/><span class="hl-2">new</span><span class="hl-0"> </span><span class="hl-5">lambda</span><span class="hl-0">.</span><span class="hl-6">Alias</span><span class="hl-0">(</span><span class="hl-2">this</span><span class="hl-0">, </span><span class="hl-1">&#39;AliasLive&#39;</span><span class="hl-0">, {</span><br/><span class="hl-0">  </span><span class="hl-5">aliasName:</span><span class="hl-0"> </span><span class="hl-1">&#39;Live&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-5">version:</span><span class="hl-0"> </span><span class="hl-5">fn</span><span class="hl-0">.</span><span class="hl-5">currentVersion</span><span class="hl-0">,</span><br/><span class="hl-0">});</span>
 </code></pre>
 </div>
 <div class="tsd-parameters">
@@ -891,7 +891,7 @@ within this stack.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Metric for the number of concurrent executions across all Lambdas</p>
 
-<h3>Default</h3><pre><code class="language-ts"><span class="hl-6">max</span><span class="hl-0"> </span><span class="hl-6">over</span><span class="hl-0"> </span><span class="hl-9">5</span><span class="hl-0"> </span><span class="hl-6">minutes</span>
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-5">max</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
 </code></pre>
 </div>
 <div class="tsd-parameters">
@@ -908,7 +908,7 @@ within this stack.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Metric for the Duration executing all Lambdas</p>
 
-<h3>Default</h3><pre><code class="language-ts"><span class="hl-6">average</span><span class="hl-0"> </span><span class="hl-6">over</span><span class="hl-0"> </span><span class="hl-9">5</span><span class="hl-0"> </span><span class="hl-6">minutes</span>
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-5">average</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
 </code></pre>
 </div>
 <div class="tsd-parameters">
@@ -925,7 +925,7 @@ within this stack.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Metric for the number of Errors executing all Lambdas</p>
 
-<h3>Default</h3><pre><code class="language-ts"><span class="hl-6">sum</span><span class="hl-0"> </span><span class="hl-6">over</span><span class="hl-0"> </span><span class="hl-9">5</span><span class="hl-0"> </span><span class="hl-6">minutes</span>
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-5">sum</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
 </code></pre>
 </div>
 <div class="tsd-parameters">
@@ -942,7 +942,7 @@ within this stack.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Metric for the number of invocations of all Lambdas</p>
 
-<h3>Default</h3><pre><code class="language-ts"><span class="hl-6">sum</span><span class="hl-0"> </span><span class="hl-6">over</span><span class="hl-0"> </span><span class="hl-9">5</span><span class="hl-0"> </span><span class="hl-6">minutes</span>
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-5">sum</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
 </code></pre>
 </div>
 <div class="tsd-parameters">
@@ -959,7 +959,7 @@ within this stack.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Metric for the number of throttled invocations of all Lambdas</p>
 
-<h3>Default</h3><pre><code class="language-ts"><span class="hl-6">sum</span><span class="hl-0"> </span><span class="hl-6">over</span><span class="hl-0"> </span><span class="hl-9">5</span><span class="hl-0"> </span><span class="hl-6">minutes</span>
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-5">sum</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
 </code></pre>
 </div>
 <div class="tsd-parameters">
@@ -976,7 +976,7 @@ within this stack.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Metric for the number of unreserved concurrent executions across all Lambdas</p>
 
-<h3>Default</h3><pre><code class="language-ts"><span class="hl-6">max</span><span class="hl-0"> </span><span class="hl-6">over</span><span class="hl-0"> </span><span class="hl-9">5</span><span class="hl-0"> </span><span class="hl-6">minutes</span>
+<h3>Default</h3><pre><code class="language-ts"><span class="hl-5">max</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
 </code></pre>
 </div>
 <div class="tsd-parameters">

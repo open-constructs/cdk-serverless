@@ -12,11 +12,11 @@
 <div class="col-content">
 <div class="tsd-page-title">
 <h2>cdk-serverless</h2></div>
-<div class="tsd-panel tsd-typography"><a id="md:this-is-the-v2-branch-which-is-a-complete-rewrite-and-currently-in-alpha" class="tsd-anchor"></a><h2><a href="#$this-is-the-v2-branch-which-is-a-complete-rewrite-and-currently-in-alpha" style="color:inherit;text-decoration:none">This is the v2 branch, which is a complete rewrite and currently in alpha</a></h2><a id="md:cdk-serverless" class="tsd-anchor"></a><h1><a href="#$cdk-serverless" style="color:inherit;text-decoration:none">CDK Serverless</a></h1><p><a href="https://badge.fury.io/js/@taimos/cdk-serverless-v2"><img src="https://badge.fury.io/js/@taimos/cdk-serverless-v2.svg" alt="npm version"></a></p>
+<div class="tsd-panel tsd-typography"><a id="md:cdk-serverless" class="tsd-anchor"></a><h1><a href="#$cdk-serverless" style="color:inherit;text-decoration:none">CDK Serverless</a></h1><p><a href="https://badge.fury.io/js/cdk-serverless"><img src="https://badge.fury.io/js/cdk-serverless.svg" alt="npm version"></a></p>
 <p>CDK Serverless is a tool suite to facilitate the use of the AWS Cloud Development Kit (CDK) in serverless architectures. It provides project management features to configure your TypeScript CDK app and also higher-level (L3) constructs for different APIs and resources needed for serverless applications. Additionally, it leverages utility libraries to write Lambda functions and do live updates to Lambda function code during development.</p>
 <a id="md:features" class="tsd-anchor"></a><h3><a href="#$features" style="color:inherit;text-decoration:none">Features</a></h3><ul>
 <li>Projen helper classes to configure certain use cases easily</li>
-<li>AWS CDK L3-construct for HttpApi and GraphQlApi</li>
+<li>AWS CDK L3-construct for RestApi and GraphQlApi</li>
 <li>Zero-config for Lambda functions and VTL templates</li>
 <li>Live update to Lambda function code using cdk-watch</li>
 <li>Automatic DynamoDB SingleTable infrastructure</li>
@@ -24,7 +24,7 @@
 <li>Full features of CDK usable to implement your special use cases</li>
 <li>Fully typed auto-completion for routes, resolvers, etc.</li>
 </ul>
-<p>Short intro video: <a href="https://www.youtube.com/watch?v=GGc0eg3E9MM">https://www.youtube.com/watch?v=GGc0eg3E9MM</a></p>
+<p>Video about the idea behind it: <a href="https://www.youtube.com/watch?v=k5L8U39_16k">https://www.youtube.com/watch?v=k5L8U39_16k</a></p>
 <a id="md:quick-start" class="tsd-anchor"></a><h2><a href="#$quick-start" style="color:inherit;text-decoration:none">Quick Start</a></h2><p>To start a new project we recommend using projen. To use CDK Serverless you can create any projen CDK Typescript app and then add the appropriate aspect provided by this toolkit.</p>
 <pre><code class="language-bash"><span class="hl-0">$ </span><span class="hl-1">npx</span><span class="hl-0"> </span><span class="hl-1">projen</span><span class="hl-0"> </span><span class="hl-1">new</span><span class="hl-0"> </span><span class="hl-1">awscdk-app-ts</span>
 </code></pre>
@@ -33,40 +33,6 @@
 <li>Add &#39;cdk-serverless&#39; as a dependency to your project</li>
 <li>Run <code>npx projen</code> to install it</li>
 </ol>
-<p>You can then add the &#39;GraphQlApiAspect&#39; or the &#39;HttpApiAspect&#39; depending on your desired API type.</p>
-<p><code>.projenrc.js</code>:</p>
-<pre><code class="language-ts"><span class="hl-2">// Import cdk-serverless projen aspects</span><br/><span class="hl-3">const</span><span class="hl-0"> { </span><span class="hl-4">HttpApiAspect</span><span class="hl-0"> } = </span><span class="hl-5">require</span><span class="hl-0">(</span><span class="hl-1">&#39;cdk-serverless/lib/projen&#39;</span><span class="hl-0">);</span><br/><span class="hl-3">const</span><span class="hl-0"> { </span><span class="hl-4">AwsCdkTypeScriptApp</span><span class="hl-0"> } = </span><span class="hl-5">require</span><span class="hl-0">(</span><span class="hl-1">&#39;projen&#39;</span><span class="hl-0">);</span><br/><br/><span class="hl-3">const</span><span class="hl-0"> </span><span class="hl-4">project</span><span class="hl-0"> = </span><span class="hl-3">new</span><span class="hl-0"> </span><span class="hl-5">AwsCdkTypeScriptApp</span><span class="hl-0">({</span><br/><span class="hl-0">  </span><span class="hl-6">cdkVersion:</span><span class="hl-0"> </span><span class="hl-1">&#39;1.91.0&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-6">cdkVersionPinning:</span><span class="hl-0"> </span><span class="hl-3">true</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-6">defaultReleaseBranch:</span><span class="hl-0"> </span><span class="hl-1">&#39;main&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-6">name:</span><span class="hl-0"> </span><span class="hl-1">&#39;cdk-serverless-demo&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-6">deps:</span><span class="hl-0"> [</span><br/><span class="hl-0">    </span><span class="hl-2">// Add cdk-serverless as dependency</span><br/><span class="hl-0">    </span><span class="hl-1">&#39;cdk-serverless&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  ],</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-2">// Add HTTP API Support</span><br/><span class="hl-3">new</span><span class="hl-0"> </span><span class="hl-5">HttpApiAspect</span><span class="hl-0">(</span><span class="hl-6">project</span><span class="hl-0">, {</span><br/><span class="hl-0">  </span><span class="hl-6">cdkWatch:</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-2">// Add live update scripts using CDK Watch</span><br/><span class="hl-0">    </span><span class="hl-6">dev:</span><span class="hl-0"> </span><span class="hl-1">&#39;my-http-stack-dev/**&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  },</span><br/><span class="hl-0">});</span><br/><br/><span class="hl-6">project</span><span class="hl-0">.</span><span class="hl-5">synth</span><span class="hl-0">();</span>
-</code></pre>
-<p>This will install all the necessary dependencies and register some scripts like <code>generate:api</code> to generate type definitions from the <code>openapi.yaml</code> and <code>live:dev</code> to watch for code changes and redeploy the Lambda function code.</p>
-<p>Replace the content of file <code>openapi.yaml</code> with your OpenAPI definition and run <code>yarn generate:api</code> to generate type definitions. An <a href="https://github.com/taimos/cdk-serverless-demo-http/blob/main/openapi.yaml">example OpenAPI file</a> is available in the <a href="https://github.com/taimos/cdk-serverless-demo-http">demo project</a>.</p>
-<blockquote>
-<p><strong>IMPORTANT! cdk-serverless needs an operationId field on every operation in the openapi.yaml</strong></p>
-<p>OpenAPI 3.0 or higher is supported in <code>openapi.yaml</code>. The content type for request- and response-body is currently limited to <code>application/json</code>.</p>
-</blockquote>
-<p>After this you can add the selected L3 construct to your CDK app and configure it depending on your needs.</p>
-<p><code>src/main.js</code>:</p>
-<pre><code class="language-ts"><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-6">HttpApi</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;cdk-serverless/lib/constructs&#39;</span><span class="hl-0">;</span><br/><span class="hl-2">// Import the generated Path and Operation information</span><br/><span class="hl-7">import</span><span class="hl-0"> { </span><span class="hl-6">paths</span><span class="hl-0">, </span><span class="hl-6">operations</span><span class="hl-0"> } </span><span class="hl-7">from</span><span class="hl-0"> </span><span class="hl-1">&#39;./lambda/types.generated&#39;</span><span class="hl-0">;</span><br/><br/><span class="hl-2">// Create a new HTTP API</span><br/><span class="hl-3">const</span><span class="hl-0"> </span><span class="hl-4">api</span><span class="hl-0"> = </span><span class="hl-3">new</span><span class="hl-0"> </span><span class="hl-5">HttpApi</span><span class="hl-0">&lt;</span><span class="hl-8">paths</span><span class="hl-0">, </span><span class="hl-8">operations</span><span class="hl-0">&gt;(</span><span class="hl-3">this</span><span class="hl-0">, </span><span class="hl-1">&#39;Api&#39;</span><span class="hl-0">, {</span><br/><span class="hl-0">  </span><span class="hl-2">// Name of the API in the AWS console</span><br/><span class="hl-0">  </span><span class="hl-6">apiName:</span><span class="hl-0"> </span><span class="hl-1">&#39;testapi&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-2">// This will be prefixed with &#39;api.&#39; by default and will lead to https://api.taimos.de</span><br/><span class="hl-0">  </span><span class="hl-6">domainName:</span><span class="hl-0"> </span><span class="hl-1">&#39;taimos.de&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-2">// Name of the stage in a multi-stage deployment</span><br/><span class="hl-0">  </span><span class="hl-6">stageName:</span><span class="hl-0"> </span><span class="hl-1">&#39;dev&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-2">// Automatically create a DynamoDB table and configure a global secondary index</span><br/><span class="hl-0">  </span><span class="hl-2">// HashKey will be &#39;PK&#39; and SortKey will be &#39;SK&#39;</span><br/><span class="hl-0">  </span><span class="hl-6">singleTableDatastore:</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-6">design:</span><span class="hl-0"> {</span><br/><span class="hl-0">      </span><span class="hl-2">// Create an inverted GSI with &#39;SK&#39; as HashKey and &#39;PK&#39; as SortKey</span><br/><span class="hl-0">      </span><span class="hl-6">reverseGSI:</span><span class="hl-0"> </span><span class="hl-3">true</span><span class="hl-0">,</span><br/><span class="hl-0">    },</span><br/><span class="hl-0">  },</span><br/><span class="hl-0">  </span><span class="hl-2">// Add a Cognito user pool with two groups and a trigger to customize welcome e-mails</span><br/><span class="hl-0">  </span><span class="hl-6">authentication:</span><span class="hl-0"> {</span><br/><span class="hl-0">    </span><span class="hl-6">groups:</span><span class="hl-0"> {</span><br/><span class="hl-0">      </span><span class="hl-6">admin:</span><span class="hl-0"> </span><span class="hl-1">&#39;Admins&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">      </span><span class="hl-6">moderators:</span><span class="hl-0"> </span><span class="hl-1">&#39;Mods&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">    },</span><br/><span class="hl-0">    </span><span class="hl-6">triggers:</span><span class="hl-0"> {</span><br/><span class="hl-0">      </span><span class="hl-6">customMessages:</span><span class="hl-0"> </span><span class="hl-3">true</span><span class="hl-0">,</span><br/><span class="hl-0">    },</span><br/><span class="hl-0">  },</span><br/><span class="hl-0">  </span><span class="hl-2">// automatically generate lambda functions for all routes in openapi.yaml (true by default)</span><br/><span class="hl-0">  </span><span class="hl-6">autoGenerateRoutes:</span><span class="hl-0"> </span><span class="hl-3">true</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-2">// Create a CloudWatch Dashboard to monitor the API and all Lambda functions (true by default)</span><br/><span class="hl-0">  </span><span class="hl-6">monitoring:</span><span class="hl-0"> </span><span class="hl-3">true</span><span class="hl-0">,</span><br/><span class="hl-0">});</span>
-</code></pre>
-<p>On the first <code>cdk synth</code> this will automatically bootstrap all lambda code files that are not yet existing. If you want to modify Lambda function definitions you can access them by calling:</p>
-<pre><code class="language-ts"><span class="hl-6">api</span><span class="hl-0">.</span><span class="hl-5">getFunctionForOperation</span><span class="hl-0">(</span><span class="hl-1">&#39;operationId&#39;</span><span class="hl-0">).</span><span class="hl-5">doSomething</span><span class="hl-0">()</span>
-</code></pre>
-<p>This operation id supports autocompletion using the generated type definitions.</p>
-<p><img src="img/autocomplete.gif" alt="Autocomplete"></p>
-<a id="md:dynamodb-singletable" class="tsd-anchor"></a><h2><a href="#$dynamodb-singletable" style="color:inherit;text-decoration:none">DynamoDB SingleTable</a></h2><p>If enabled a <a href="https://www.alexdebrie.com/posts/dynamodb-single-table/">Single-Table Design</a> DynamoDB table will be created.</p>
-<a id="md:permissions" class="tsd-anchor"></a><h3><a href="#$permissions" style="color:inherit;text-decoration:none">Permissions</a></h3><p>All functions have read permissions, regardless of which operation they are bound to. Only functions bound to a <code>DELETE</code>, <code>POST</code>, <code>PUT</code> or <code>PATCH</code> operation will have write permissions.</p>
-<a id="md:docs-links" class="tsd-anchor"></a><h2><a href="#$docs-links" style="color:inherit;text-decoration:none">Docs Links</a></h2><ul>
-<li><a href="FAQ.md">FAQ</a></li>
-<li><a href="https://github.com/taimos/cdk-serverless/issues">Issues / Features</a></li>
-<li><a href="https://github.com/taimos/cdk-serverless/projects">Roadmap</a></li>
-</ul>
-<a id="md:constructs" class="tsd-anchor"></a><h2><a href="#$constructs" style="color:inherit;text-decoration:none">Constructs</a></h2><ul>
-<li><a href="./src/projen">Projen</a></li>
-<li><a href="./src/constructs">CDK L3</a></li>
-</ul>
-<a id="md:tools" class="tsd-anchor"></a><h3><a href="#$tools" style="color:inherit;text-decoration:none">Tools</a></h3><ul>
-<li><a href="https://github.com/taimos/lambda-toolbox">Lambda Toolbox</a></li>
-<li><a href="https://github.com/teamplanes/cdk-watch">CDK Watch</a></li>
-</ul>
 <a id="md:contribute" class="tsd-anchor"></a><h2><a href="#$contribute" style="color:inherit;text-decoration:none">Contribute</a></h2><a id="md:how-to-contribute-to-cdk-serverless" class="tsd-anchor"></a><h3><a href="#$how-to-contribute-to-cdk-serverless" style="color:inherit;text-decoration:none">How to contribute to CDK Serverless</a></h3><a id="md:did-you-find-a-bug" class="tsd-anchor"></a><h4><a href="#$did-you-find-a-bug" style="color:inherit;text-decoration:none"><strong>Did you find a bug?</strong></a></h4><ul>
 <li><p><strong>Ensure the bug was not already reported</strong> by searching on GitHub under <a href="https://github.com/taimos/cdk-serverless/issues">Issues</a>.</p>
 </li>
@@ -112,21 +78,11 @@
 <ul>
 <li>
 <ul>
-<li><a href="#md:this-is-the-v2-branch-which-is-a-complete-rewrite-and-currently-in-alpha"><span>This is the v2 branch, which is a complete rewrite and currently in alpha</span></a></li>
 <li><a href="#md:cdk-serverless"><span>CDK <wbr/>Serverless</span></a></li>
 <li>
 <ul>
 <li><a href="#md:features"><span>Features</span></a></li>
 <li><a href="#md:quick-start"><span>Quick <wbr/>Start</span></a></li>
-<li><a href="#md:dynamodb-singletable"><span>DynamoDB <wbr/>Single<wbr/>Table</span></a></li>
-<li>
-<ul>
-<li><a href="#md:permissions"><span>Permissions</span></a></li></ul></li>
-<li><a href="#md:docs-links"><span>Docs <wbr/>Links</span></a></li>
-<li><a href="#md:constructs"><span>Constructs</span></a></li>
-<li>
-<ul>
-<li><a href="#md:tools"><span>Tools</span></a></li></ul></li>
 <li><a href="#md:contribute"><span>Contribute</span></a></li>
 <li>
 <ul>
