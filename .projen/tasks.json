@@ -174,11 +174,12 @@
       "name": "pre-compile",
       "description": "Prepare the project for compilation"
     },
-    "release:v2": {
-      "name": "release:v2",
-      "description": "Prepare a release from \"v2\" branch",
+    "release": {
+      "name": "release",
+      "description": "Prepare a release from \"main\" branch",
       "env": {
-        "RELEASE": "true"
+        "RELEASE": "true",
+        "MIN_MAJOR": "2"
       },
       "steps": [
         {

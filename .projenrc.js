@@ -1,7 +1,7 @@
 const { TaimosTypescriptLibrary } = require('@taimos/projen');
 
 const project = new TaimosTypescriptLibrary({
-  name: '@taimos/cdk-serverless-v2',
+  name: 'cdk-serverless',
   deps: [
     'date-fns',
     'js-yaml',
@@ -12,7 +12,8 @@ const project = new TaimosTypescriptLibrary({
     'uuid',
     'lambda-log',
   ],
-  defaultReleaseBranch: 'v2',
+  defaultReleaseBranch: 'main',
+  minMajorVersion: '2',
   docgen: false,
   devDeps: [
     '@types/aws-lambda',
