@@ -12,9 +12,9 @@
 <div class="col-content">
 <div class="tsd-page-title">
 <h2>cdk-serverless</h2></div>
-<div class="tsd-panel tsd-typography"><a id="md:cdk-serverless" class="tsd-anchor"></a><h1><a href="#$cdk-serverless" style="color:inherit;text-decoration:none">CDK Serverless</a></h1><p><a href="https://badge.fury.io/js/cdk-serverless"><img src="https://badge.fury.io/js/cdk-serverless.svg" alt="npm version"></a></p>
+<div class="tsd-panel tsd-typography"><a id="md:cdk-serverless" class="tsd-anchor"></a><h1><a href="#md:cdk-serverless">CDK Serverless</a></h1><p><a href="https://badge.fury.io/js/cdk-serverless"><img src="https://badge.fury.io/js/cdk-serverless.svg" alt="npm version"></a></p>
 <p>CDK Serverless is a tool suite to facilitate the use of the AWS Cloud Development Kit (CDK) in serverless architectures. It provides project management features to configure your TypeScript CDK app and also higher-level (L3) constructs for different APIs and resources needed for serverless applications. Additionally, it leverages utility libraries to write Lambda functions and do live updates to Lambda function code during development.</p>
-<a id="md:features" class="tsd-anchor"></a><h3><a href="#$features" style="color:inherit;text-decoration:none">Features</a></h3><ul>
+<a id="md:features" class="tsd-anchor"></a><h3><a href="#md:features">Features</a></h3><ul>
 <li>Projen helper classes to configure certain use cases easily</li>
 <li>AWS CDK L3-construct for RestApi and GraphQlApi</li>
 <li>Zero-config for Lambda functions and VTL templates</li>
@@ -25,37 +25,37 @@
 <li>Fully typed auto-completion for routes, resolvers, etc.</li>
 </ul>
 <p>Video about the idea behind it: <a href="https://www.youtube.com/watch?v=k5L8U39_16k">https://www.youtube.com/watch?v=k5L8U39_16k</a></p>
-<a id="md:quick-start" class="tsd-anchor"></a><h2><a href="#$quick-start" style="color:inherit;text-decoration:none">Quick Start</a></h2><p>To start a new project we recommend using projen. To use CDK Serverless you can create any projen CDK Typescript app and then add the appropriate aspect provided by this toolkit.</p>
+<a id="md:quick-start" class="tsd-anchor"></a><h2><a href="#md:quick-start">Quick Start</a></h2><p>To start a new project we recommend using projen. To use CDK Serverless you can create any projen CDK Typescript app and then add the appropriate aspect provided by this toolkit.</p>
 <pre><code class="language-bash"><span class="hl-0">$ </span><span class="hl-1">npx</span><span class="hl-0"> </span><span class="hl-1">projen</span><span class="hl-0"> </span><span class="hl-1">new</span><span class="hl-0"> </span><span class="hl-1">awscdk-app-ts</span>
-</code></pre>
+</code><button>Copy</button></pre>
 <p>Adding CDK Serverless is a two step process:</p>
 <ol>
 <li>Add &#39;cdk-serverless&#39; as a dependency to your project</li>
 <li>Run <code>npx projen</code> to install it</li>
 </ol>
-<a id="md:contribute" class="tsd-anchor"></a><h2><a href="#$contribute" style="color:inherit;text-decoration:none">Contribute</a></h2><a id="md:how-to-contribute-to-cdk-serverless" class="tsd-anchor"></a><h3><a href="#$how-to-contribute-to-cdk-serverless" style="color:inherit;text-decoration:none">How to contribute to CDK Serverless</a></h3><a id="md:did-you-find-a-bug" class="tsd-anchor"></a><h4><a href="#$did-you-find-a-bug" style="color:inherit;text-decoration:none"><strong>Did you find a bug?</strong></a></h4><ul>
+<a id="md:contribute" class="tsd-anchor"></a><h2><a href="#md:contribute">Contribute</a></h2><a id="md:how-to-contribute-to-cdk-serverless" class="tsd-anchor"></a><h3><a href="#md:how-to-contribute-to-cdk-serverless">How to contribute to CDK Serverless</a></h3><a id="md:did-you-find-a-bug" class="tsd-anchor"></a><h4><a href="#md:did-you-find-a-bug"><strong>Did you find a bug?</strong></a></h4><ul>
 <li><p><strong>Ensure the bug was not already reported</strong> by searching on GitHub under <a href="https://github.com/taimos/cdk-serverless/issues">Issues</a>.</p>
 </li>
 <li><p>If you&#39;re unable to find an open issue addressing the problem, <a href="https://github.com/taimos/cdk-serverless/issues/new">open a new one</a>. Be sure to include a <strong>title and clear description</strong>, as much relevant information as possible, and a <strong>code sample</strong> or an <strong>executable test case</strong> demonstrating the expected behavior that is not occurring.</p>
 </li>
 </ul>
-<a id="md:did-you-write-a-patch-that-fixes-a-bug" class="tsd-anchor"></a><h4><a href="#$did-you-write-a-patch-that-fixes-a-bug" style="color:inherit;text-decoration:none"><strong>Did you write a patch that fixes a bug?</strong></a></h4><ul>
+<a id="md:did-you-write-a-patch-that-fixes-a-bug" class="tsd-anchor"></a><h4><a href="#md:did-you-write-a-patch-that-fixes-a-bug"><strong>Did you write a patch that fixes a bug?</strong></a></h4><ul>
 <li><p>Open a new GitHub pull request with the patch.</p>
 </li>
 <li><p>Ensure the PR description clearly describes the problem and solution. Include the relevant issue number if applicable.</p>
 </li>
 </ul>
-<a id="md:did-you-fix-whitespace-format-code-or-make-a-purely-cosmetic-patch" class="tsd-anchor"></a><h4><a href="#$did-you-fix-whitespace-format-code-or-make-a-purely-cosmetic-patch" style="color:inherit;text-decoration:none"><strong>Did you fix whitespace, format code, or make a purely cosmetic patch?</strong></a></h4><p>Changes that are cosmetic in nature and do not add anything substantial to the stability, functionality, or testability will normally not be accepted.</p>
-<a id="md:do-you-intend-to-add-a-new-feature-or-change-an-existing-one" class="tsd-anchor"></a><h4><a href="#$do-you-intend-to-add-a-new-feature-or-change-an-existing-one" style="color:inherit;text-decoration:none"><strong>Do you intend to add a new feature or change an existing one?</strong></a></h4><ul>
+<a id="md:did-you-fix-whitespace-format-code-or-make-a-purely-cosmetic-patch" class="tsd-anchor"></a><h4><a href="#md:did-you-fix-whitespace-format-code-or-make-a-purely-cosmetic-patch"><strong>Did you fix whitespace, format code, or make a purely cosmetic patch?</strong></a></h4><p>Changes that are cosmetic in nature and do not add anything substantial to the stability, functionality, or testability will normally not be accepted.</p>
+<a id="md:do-you-intend-to-add-a-new-feature-or-change-an-existing-one" class="tsd-anchor"></a><h4><a href="#md:do-you-intend-to-add-a-new-feature-or-change-an-existing-one"><strong>Do you intend to add a new feature or change an existing one?</strong></a></h4><ul>
 <li><p>Suggest your change under <a href="https://github.com/taimos/cdk-serverless/issues">Issues</a>.</p>
 </li>
 <li><p>Do not open a pull request on GitHub until you have collected positive feedback about the change.</p>
 </li>
 </ul>
-<a id="md:do-you-want-to-contribute-to-the-cdk-serverless-documentation" class="tsd-anchor"></a><h4><a href="#$do-you-want-to-contribute-to-the-cdk-serverless-documentation" style="color:inherit;text-decoration:none"><strong>Do you want to contribute to the CDK Serverless documentation?</strong></a></h4><ul>
+<a id="md:do-you-want-to-contribute-to-the-cdk-serverless-documentation" class="tsd-anchor"></a><h4><a href="#md:do-you-want-to-contribute-to-the-cdk-serverless-documentation"><strong>Do you want to contribute to the CDK Serverless documentation?</strong></a></h4><ul>
 <li>Just file a PR with your recommended changes</li>
 </ul>
-<a id="md:authors" class="tsd-anchor"></a><h2><a href="#$authors" style="color:inherit;text-decoration:none">Authors</a></h2><p>Brought to you by <a href="https://taimos.de">Taimos</a></p>
+<a id="md:authors" class="tsd-anchor"></a><h2><a href="#md:authors">Authors</a></h2><p>Brought to you by <a href="https://taimos.de">Taimos</a></p>
 </div></div>
 <div class="col-sidebar">
 <div class="page-menu">
