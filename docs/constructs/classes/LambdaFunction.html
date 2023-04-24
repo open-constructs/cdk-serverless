@@ -296,7 +296,7 @@ to never expire even if it was configured with a different value.</p>
 <p>The alias will automatically be updated to point to the latest version of
 the function as it is being updated during a deployment.</p>
 <pre><code class="language-ts"><span class="hl-2">declare</span><span class="hl-0"> </span><span class="hl-2">const</span><span class="hl-0"> </span><span class="hl-3">fn</span><span class="hl-0">: </span><span class="hl-4">lambda</span><span class="hl-0">.</span><span class="hl-4">Function</span><span class="hl-0">;</span><br/><br/><span class="hl-5">fn</span><span class="hl-0">.</span><span class="hl-6">addAlias</span><span class="hl-0">(</span><span class="hl-1">&#39;Live&#39;</span><span class="hl-0">);</span><br/><br/><span class="hl-7">// Is equivalent to</span><br/><br/><span class="hl-2">new</span><span class="hl-0"> </span><span class="hl-5">lambda</span><span class="hl-0">.</span><span class="hl-6">Alias</span><span class="hl-0">(</span><span class="hl-2">this</span><span class="hl-0">, </span><span class="hl-1">&#39;AliasLive&#39;</span><span class="hl-0">, {</span><br/><span class="hl-0">  </span><span class="hl-5">aliasName:</span><span class="hl-0"> </span><span class="hl-1">&#39;Live&#39;</span><span class="hl-0">,</span><br/><span class="hl-0">  </span><span class="hl-5">version:</span><span class="hl-0"> </span><span class="hl-5">fn</span><span class="hl-0">.</span><span class="hl-5">currentVersion</span><span class="hl-0">,</span><br/><span class="hl-0">});</span>
-</code></pre>
+</code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -823,11 +823,9 @@ within this stack.</p>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="isConstruct" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>is<wbr/>Construct</span><a href="#isConstruct" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
-<li class="tsd-signature tsd-anchor-link" id="isConstruct.isConstruct-1"><span class="tsd-kind-call-signature">is<wbr/>Construct</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">x</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Construct</span><a href="#isConstruct.isConstruct-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="isConstruct.isConstruct-1"><span class="tsd-kind-call-signature">is<wbr/>Construct</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Construct</span><a href="#isConstruct.isConstruct-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>(deprecated) Checks if <code>x</code> is a construct.</p>
-
-<h3>Returns</h3><p>true if <code>x</code> is an object created from a class which extends <code>Construct</code>.</p>
 
 <h3>Deprecated</h3><p>use <code>x instanceof Construct</code> instead</p>
 </div>
@@ -838,7 +836,8 @@ within this stack.</p>
 <h5><span class="tsd-kind-parameter">x</span>: <span class="tsd-signature-type">any</span></h5>
 <div class="tsd-comment tsd-typography"><p>Any object.</p>
 </div></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">x</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Construct</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Construct</span></h4><p>true if <code>x</code> is an object created from a class which extends <code>Construct</code>.</p>
+<aside class="tsd-sources">
 <p>Inherited from lambdaNodejs.NodejsFunction.isConstruct</p></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="isOwnedResource" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>is<wbr/>Owned<wbr/>Resource</span><a href="#isOwnedResource" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
@@ -857,7 +856,7 @@ within this stack.</p>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="isResource" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>is<wbr/>Resource</span><a href="#isResource" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
-<li class="tsd-signature tsd-anchor-link" id="isResource.isResource-1"><span class="tsd-kind-call-signature">is<wbr/>Resource</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">construct</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">construct</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Resource</span><a href="#isResource.isResource-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-signature tsd-anchor-link" id="isResource.isResource-1"><span class="tsd-kind-call-signature">is<wbr/>Resource</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">construct</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-kind-parameter">construct</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Resource</span><a href="#isResource.isResource-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Check whether the given construct is a Resource</p>
 </div>
@@ -866,7 +865,7 @@ within this stack.</p>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">construct</span>: <span class="tsd-signature-type ">IConstruct</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">construct</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Resource</span></h4><aside class="tsd-sources">
+<h4 class="tsd-returns-title">Returns <span class="tsd-kind-parameter">construct</span><span class="tsd-signature-symbol"> is </span><span class="tsd-signature-type ">Resource</span></h4><aside class="tsd-sources">
 <p>Inherited from lambdaNodejs.NodejsFunction.isResource</p></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="metricAll" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>metric<wbr/>All</span><a href="#metricAll" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
@@ -892,7 +891,7 @@ within this stack.</p>
 <div class="tsd-comment tsd-typography"><p>Metric for the number of concurrent executions across all Lambdas</p>
 
 <h3>Default</h3><pre><code class="language-ts"><span class="hl-5">max</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
-</code></pre>
+</code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -909,7 +908,7 @@ within this stack.</p>
 <div class="tsd-comment tsd-typography"><p>Metric for the Duration executing all Lambdas</p>
 
 <h3>Default</h3><pre><code class="language-ts"><span class="hl-5">average</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
-</code></pre>
+</code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -926,7 +925,7 @@ within this stack.</p>
 <div class="tsd-comment tsd-typography"><p>Metric for the number of Errors executing all Lambdas</p>
 
 <h3>Default</h3><pre><code class="language-ts"><span class="hl-5">sum</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
-</code></pre>
+</code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -943,7 +942,7 @@ within this stack.</p>
 <div class="tsd-comment tsd-typography"><p>Metric for the number of invocations of all Lambdas</p>
 
 <h3>Default</h3><pre><code class="language-ts"><span class="hl-5">sum</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
-</code></pre>
+</code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -960,7 +959,7 @@ within this stack.</p>
 <div class="tsd-comment tsd-typography"><p>Metric for the number of throttled invocations of all Lambdas</p>
 
 <h3>Default</h3><pre><code class="language-ts"><span class="hl-5">sum</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
-</code></pre>
+</code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -977,7 +976,7 @@ within this stack.</p>
 <div class="tsd-comment tsd-typography"><p>Metric for the number of unreserved concurrent executions across all Lambdas</p>
 
 <h3>Default</h3><pre><code class="language-ts"><span class="hl-5">max</span><span class="hl-0"> </span><span class="hl-5">over</span><span class="hl-0"> </span><span class="hl-8">5</span><span class="hl-0"> </span><span class="hl-5">minutes</span>
-</code></pre>
+</code><button>Copy</button></pre>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
