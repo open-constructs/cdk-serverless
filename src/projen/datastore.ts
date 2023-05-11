@@ -50,9 +50,9 @@ export const table = new Table({
   hidden: false,
 });
 
-${Object.entries(model.models).map(([typeName, _]) => `export type ${typeName}Type = Entity<typeof Schema.models.${typeName}>
+${Object.entries(model.models).map(([typeName, _]) => `export type ${typeName}Type = Entity<typeof Schema.models.${typeName}>;
 export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Type>('${typeName}');
-`)}
+`).join('\n')}
 
 `, {
       encoding: 'utf-8',
