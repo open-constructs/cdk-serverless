@@ -209,6 +209,18 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     return Object.values(this._functions);
   }
 
+  /**
+   * Visitor method to modify the given functions
+   *
+   * @param operationIds the list of functions to visit
+   * @param op the function to call for every function
+   */
+  public modifyOperationFunctions(operationIds: (keyof OPS)[], op: (fn: LambdaFunction) => void) {
+    for (const operationId of operationIds) {
+      op(this.getFunctionForOperation(operationId));
+    }
+  }
+
   public addRestResource<P extends keyof PATHS>(path: P, method: keyof PATHS[P]) {
     const oaPath = this.apiSpec.paths![path as string];
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;

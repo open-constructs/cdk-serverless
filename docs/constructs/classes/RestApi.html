@@ -52,6 +52,7 @@
 <a href="RestApi.html#cleanupSpec" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>cleanup<wbr/>Spec</span></a>
 <a href="RestApi.html#getFunctionForOperation" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Function<wbr/>For<wbr/>Operation</span></a>
 <a href="RestApi.html#getFunctions" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Functions</span></a>
+<a href="RestApi.html#modifyOperationFunctions" class="tsd-index-link"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>modify<wbr/>Operation<wbr/>Functions</span></a>
 <a href="RestApi.html#patchSecurity" class="tsd-index-link tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>patch<wbr/>Security</span></a>
 <a href="RestApi.html#tableWriteAccessForMethod" class="tsd-index-link tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>table<wbr/>Write<wbr/>Access<wbr/>For<wbr/>Method</span></a>
 <a href="RestApi.html#toString" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>to<wbr/>String</span></a>
@@ -184,6 +185,36 @@
 <div class="tsd-comment tsd-typography"><p>return a list of all generated Lambda functions</p>
 </div>
 <h4 class="tsd-returns-title">Returns <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a><span class="tsd-signature-symbol">[]</span></h4></li></ul></section>
+<section class="tsd-panel tsd-member"><a id="modifyOperationFunctions" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>modify<wbr/>Operation<wbr/>Functions</span><a href="#modifyOperationFunctions" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
+<ul class="tsd-signatures">
+<li class="tsd-signature tsd-anchor-link" id="modifyOperationFunctions.modifyOperationFunctions-1"><span class="tsd-kind-call-signature">modify<wbr/>Operation<wbr/>Functions</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">operationIds</span>, <span class="tsd-kind-parameter">op</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#modifyOperationFunctions.modifyOperationFunctions-1" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Visitor method to modify the given functions</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">operationIds</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">keyof </span><span class="tsd-signature-type tsd-kind-type-parameter">OPS</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">[]</span></h5>
+<div class="tsd-comment tsd-typography"><p>the list of functions to visit</p>
+</div></li>
+<li>
+<h5><span class="tsd-kind-parameter">op</span>: <span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">fn</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">void</span><span class="tsd-signature-symbol">)</span></h5>
+<div class="tsd-comment tsd-typography"><p>the function to call for every function</p>
+</div>
+<ul class="tsd-parameters">
+<li class="tsd-parameter-signature">
+<ul class="tsd-signatures">
+<li class="tsd-signature"><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">fn</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span></li>
+<li class="tsd-description">
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">fn</span>: <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></li></ul></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="patchSecurity" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>patch<wbr/>Security</span><a href="#patchSecurity" aria-label="Permalink" class="tsd-anchor-icon"><svg class="icon icon-tabler icon-tabler-link" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" fill="none" stroke-linecap="round" stroke-linejoin="round"><use href="#icon-anchor-a"></use><use href="#icon-anchor-b"></use><use href="#icon-anchor-c"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
@@ -274,6 +305,7 @@ THIS DOES NOT HAPPEN ON AWS. IT JUST ALWAYS USES THE GLOBAL SETTING!</p>
 <li><a href="#cleanupSpec" class="tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>cleanup<wbr/>Spec</span></a></li>
 <li><a href="#getFunctionForOperation" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Function<wbr/>For<wbr/>Operation</span></a></li>
 <li><a href="#getFunctions" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>get<wbr/>Functions</span></a></li>
+<li><a href="#modifyOperationFunctions" class=""><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>modify<wbr/>Operation<wbr/>Functions</span></a></li>
 <li><a href="#patchSecurity" class="tsd-is-protected"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>patch<wbr/>Security</span></a></li>
 <li><a href="#tableWriteAccessForMethod" class="tsd-is-private"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>table<wbr/>Write<wbr/>Access<wbr/>For<wbr/>Method</span></a></li>
 <li><a href="#toString" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" width="24" height="24" viewBox="0 0 24 24"><use href="#icon-2048-path"></use><use href="#icon-2048-text"></use></svg><span>to<wbr/>String</span></a></li>
