@@ -52,6 +52,8 @@ export interface RestApiProps<OPS> extends BaseApiProps {
   lambdaOptionsByOperation?: { [operationId in keyof OPS]?: LambdaOptions };
 
   definitionFileName: string;
+
+  cors: boolean;
 }
 
 export class RestApi<PATHS, OPS> extends BaseApi {
@@ -150,6 +152,48 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         },
       },
     };
+
+    if (props.cors) {
+      this.apiSpec.paths!['/{proxy+}'] = {
+        options: {
+          'summary': 'CORS support',
+          'description': 'Enable CORS by returning correct headers',
+          'tags': ['CORS'],
+          'responses': {
+            200: {
+              description: 'Default response for CORS method',
+              headers: {
+                'Access-Control-Allow-Origin': { schema: { type: 'string' } },
+                'Access-Control-Allow-Methods': { schema: { type: 'string' } },
+                'Access-Control-Allow-Credentials': { schema: { type: 'string' } },
+                'Access-Control-Allow-Headers': { schema: { type: 'string' } },
+              },
+              content: {},
+            },
+          },
+          'x-amazon-apigateway-integration': {
+            type: 'mock',
+            requestTemplates: {
+              'application/json': '#set($context.requestOverride.header.origin = $method.request.header.origin)\n{\n  "statusCode" : 200\n}\n',
+            },
+            responses: {
+              default: {
+                statusCode: '200',
+                responseParameters: {
+                  'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'",
+                  'method.response.header.Access-Control-Allow-Credentials': "'true'",
+                  'method.response.header.Access-Control-Allow-Methods': "'*'",
+                  'method.response.header.Access-Control-Allow-Origin': 'context.requestOverride.header.origin',
+                },
+                responseTemplates: {
+                  'application/json': '{}',
+                },
+              },
+            },
+          },
+        },
+      };
+    }
 
     this.patchSecurity(this.apiSpec);
 
