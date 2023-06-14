@@ -13,9 +13,15 @@ export class Datastore extends pj.Component {
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: DatastoreOptions) {
     super(app);
 
-    app.addDeps('dynamodb-onetable');
-    app.addDeps('@aws-sdk/client-dynamodb');
-    app.addDeps('@aws-sdk/lib-dynamodb');
+    app.addDeps(
+      'dynamodb-onetable',
+      '@aws-sdk/client-dynamodb',
+      '@aws-sdk/lib-dynamodb',
+      'uuid',
+    );
+    app.addDevDeps(
+      '@types/uuid',
+    );
 
     const model = JSON.parse(fs.readFileSync(options.definitionFile).toString()) as OneSchema;
 

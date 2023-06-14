@@ -14,6 +14,16 @@ export class RestApi extends pj.Component {
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: RestApiOptions) {
     super(app);
 
+    app.addDevDeps(
+      '@types/aws-lambda',
+      '@types/lambda-log',
+    );
+    app.addDeps(
+      'esbuild',
+      'js-yaml',
+      'openapi-typescript',
+    );
+
     const generateTask = app.addTask(`generate:api:${options.apiName.toLowerCase()}`, {
       exec: `openapi-typescript ${options.definitionFile} --output src/generated/rest.${options.apiName.toLowerCase()}-model.generated.ts`,
       description: 'Generate Types from the OpenAPI specification',

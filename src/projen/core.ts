@@ -17,7 +17,6 @@ export class ServerlessProject extends pj.awscdk.AwsCdkTypeScriptApp {
         'uuid',
         'esbuild',
         'js-yaml',
-        'openapi-typescript',
       ],
       devDeps: [
         ...options.devDeps ?? [],
