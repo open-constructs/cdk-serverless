@@ -64,7 +64,7 @@ import { Construct } from 'constructs';
 import { GraphQlApi, GraphQlApiProps } from '${PACKAGE_NAME}/lib/constructs';
 import { Resolvers } from './graphql.${this.options.apiName.toLowerCase()}-model.generated';
 
-export interface ${this.options.apiName}GraphQlApiProps extends Omit<GraphQlApiProps<Resolvers>, 'definitionFileName' | 'apiName'> {
+export interface ${this.options.apiName}GraphQlApiProps extends Omit<GraphQlApiProps, 'definitionFileName' | 'apiName'> {
   //
 }
 
