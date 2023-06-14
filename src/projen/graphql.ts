@@ -41,7 +41,7 @@ export class GraphQlApi extends pj.Component {
         },
       },
       generates: {
-        [`./src/generated/graphql-${options.apiName.toLowerCase()}-model.generated.ts`]: {
+        [`./src/generated/graphql.${options.apiName.toLowerCase()}-model.generated.ts`]: {
           plugins: ['typescript', 'typescript-resolvers'],
         },
       },
@@ -54,7 +54,7 @@ export class GraphQlApi extends pj.Component {
     if (!fs.existsSync('./src/generated')) {
       fs.mkdirSync('./src/generated');
     }
-    this.createConstructFile(`./src/generated/rest.${options.apiName.toLowerCase()}-api.generated.ts`);
+    this.createConstructFile(`./src/generated/graphql.${options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
   protected createConstructFile(fileName: string) {
