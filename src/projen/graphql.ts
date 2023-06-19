@@ -23,6 +23,7 @@ export class GraphQlApi extends pj.Component {
       'graphql',
       '@aws-appsync/utils',
       'esbuild',
+      '@aws-cdk/aws-cognito-identitypool-alpha',
     );
 
     const codegenConfigFileName = `graphql-codegen.${options.apiName.toLowerCase()}.yml`;

@@ -76,13 +76,16 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       domainName: customDomainName,
       ...cognitoAuth && {
         authorizationConfig: {
-          additionalAuthorizationModes: [{
-            authorizationType: aws_appsync.AuthorizationType.USER_POOL,
-            userPoolConfig: {
-              userPool: cognitoAuth.userpool,
-              defaultAction: aws_appsync.UserPoolDefaultAction.DENY,
+          additionalAuthorizationModes: [
+            {
+              authorizationType: aws_appsync.AuthorizationType.USER_POOL,
+              userPoolConfig: {
+                userPool: cognitoAuth.userpool,
+                defaultAction: aws_appsync.UserPoolDefaultAction.DENY,
+              },
             },
-          }],
+            ...cognitoAuth.identityPool ? [{ authorizationType: aws_appsync.AuthorizationType.IAM }] : [],
+          ],
         },
       },
     });

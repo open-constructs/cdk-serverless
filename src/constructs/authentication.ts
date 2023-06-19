@@ -1,4 +1,5 @@
 import * as fs from 'fs';
+import * as identitypool from '@aws-cdk/aws-cognito-identitypool-alpha';
 import {
   aws_cognito as cognito, CfnOutput, Duration, Stack,
 
@@ -85,11 +86,18 @@ export interface CognitoAuthenticationProps {
   readonly groups?: {
     readonly [name: string]: string;
   };
+
+  /** Create a new Cognito Identity Pool for the User pool */
+  readonly identityPool: {
+    /** configuration of the identity pool */
+    readonly poolConfig?: identitypool.IdentityPoolProps;
+  };
 }
 
 export class CognitoAuthentication extends Construct implements ICognitoAuthentication {
 
   public readonly userpool: cognito.UserPool;
+  public readonly identityPool?: identitypool.IdentityPool;
   public readonly customMessageFunction?: LambdaFunction;
   public readonly preTokenGenerationFunction?: LambdaFunction;
 
@@ -203,6 +211,21 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
     }
 
     new CfnOutput(this, 'UserPoolId', { value: this.userpool.userPoolId });
+
+    if (props.identityPool) {
+      this.identityPool = new identitypool.IdentityPool(this, 'IdentityPool', {
+        allowUnauthenticatedIdentities: true,
+        identityPoolName: props.userPoolName + '-identity',
+        ...props.identityPool.poolConfig,
+        authenticationProviders: {
+          userPools: [new identitypool.UserPoolAuthenticationProvider({ userPool: this.userpool })],
+          ...props.identityPool.poolConfig?.authenticationProviders,
+        },
+      });
+      new CfnOutput(this, 'IdentityPoolId', { value: this.identityPool.identityPoolId });
+      new CfnOutput(this, 'IdentityPoolAuthRoleArn', { value: this.identityPool.authenticatedRole.roleArn });
+      new CfnOutput(this, 'IdentityPoolUnAuthRoleArn', { value: this.identityPool.unauthenticatedRole.roleArn });
+    }
   }
 
 }
