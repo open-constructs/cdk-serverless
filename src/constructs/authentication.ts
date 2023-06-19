@@ -88,7 +88,7 @@ export interface CognitoAuthenticationProps {
   };
 
   /** Create a new Cognito Identity Pool for the User pool */
-  readonly identityPool: {
+  readonly identityPool?: {
     /** configuration of the identity pool */
     readonly poolConfig?: identitypool.IdentityPoolProps;
   };
