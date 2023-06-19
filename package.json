@@ -35,7 +35,7 @@
     "@aws-cdk/aws-cognito-identitypool-alpha": "2.60.0-alpha.0",
     "@hapi/boom": "^10.0.1",
     "@taimos/projen": "^0.0.187",
-    "@types/aws-lambda": "^8.10.118",
+    "@types/aws-lambda": "^8.10.119",
     "@types/jest": "^29.5.2",
     "@types/js-yaml": "^4.0.5",
     "@types/jsonwebtoken": "^9.0.2",
@@ -55,8 +55,8 @@
     "jest": "^29.5.0",
     "jest-junit": "^15",
     "npm-check-updates": "^16",
-    "openapi-typescript": "6.2.1",
-    "projen": "^0.71.22",
+    "openapi-typescript": "6.2.8",
+    "projen": "^0.71.100",
     "standard-version": "^9",
     "ts-jest": "^29.1.0",
     "ts-node": "^10.9.1",
@@ -68,7 +68,7 @@
     "aws-cdk-lib": "^2.60.0",
     "constructs": "^10.0.5",
     "dynamodb-onetable": "^2.6.2",
-    "openapi-typescript": "^6.2.1"
+    "openapi-typescript": "^6.2.8"
   },
   "dependencies": {
     "axios": "^1.4.0",
@@ -77,7 +77,7 @@
     "jsonwebtoken": "^9.0.0",
     "jwk-to-pem": "^2.0.5",
     "lambda-log": "^3.1.0",
-    "projen": "^0.71.22",
+    "projen": "^0.71.100",
     "uuid": "^9.0.0"
   },
   "keywords": [
