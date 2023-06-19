@@ -156,6 +156,8 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     }
   }
 
+  //TODO api.api.grantXXX() methods
+
   /**
    * getFunctionForOperation
    */
