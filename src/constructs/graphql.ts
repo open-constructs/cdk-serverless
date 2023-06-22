@@ -1,6 +1,9 @@
 /* eslint-disable max-len */
+import { SpawnSyncOptions, spawnSync } from 'child_process';
 import * as fs from 'fs';
-import { Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
+import * as os from 'os';
+import { join } from 'path';
+import { AssetHashType, DockerImage, FileSystem, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
@@ -267,9 +270,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     const operationId = `${typeName as string}.${fieldName as String}`;
     const description = `Type ${typeName as string} Field ${fieldName as String} Resolver`;
 
-    const entryFile = `./src/js-resolver/${operationId}.js`;
+    const resolverDir = './src/js-resolver/';
+    const entryFile = `${resolverDir}/${operationId}.ts`;
     if (!fs.existsSync(entryFile)) {
-      fs.mkdirSync('./src/js-resolver/', { recursive: true });
+      fs.mkdirSync(resolverDir, { recursive: true });
       this.createJSResolverFile(entryFile, typeName as string, fieldName as string);
     }
 
@@ -278,7 +282,35 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       name: operationId.replace(/\./g, ''),
       description,
       dataSource,
-      code: aws_appsync.Code.fromAsset(entryFile),
+      code: aws_appsync.Code.fromAsset('.', {
+        assetHashType: AssetHashType.CUSTOM,
+        assetHash: FileSystem.fingerprint(entryFile),
+        bundling: {
+          image: DockerImage.fromRegistry('dummy'), // Will never be used due to local bundling
+          local: {
+            tryBundle(outputDir) {
+              const osPlatform = os.platform();
+              exec(
+                osPlatform === 'win32' ? 'cmd' : 'bash',
+                [
+                  osPlatform === 'win32' ? '/c' : '-c',
+                  `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=${join(outputDir, resolverDir)} ${entryFile}`,
+                ],
+                {
+                  env: { ...process.env },
+                  stdio: [ // show output
+                    'ignore', // ignore stdio
+                    process.stderr, // redirect stdout to stderr
+                    'inherit', // inherit stderr
+                  ],
+                  windowsVerbatimArguments: osPlatform === 'win32',
+                });
+
+              return true;
+            },
+          },
+        },
+      }),
       runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
     });
 
@@ -324,7 +356,6 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       dataSource: options.dataSource,
       requestMappingTemplate: aws_appsync.MappingTemplate.fromString(this.substVariables(fs.readFileSync(mappingReqFile).toString('utf-8'), options.variables)),
       responseMappingTemplate: aws_appsync.MappingTemplate.fromString(this.substVariables(fs.readFileSync(mappingResFile).toString('utf-8'), options.variables)),
-
     });
   }
 
@@ -341,11 +372,11 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
 
   private createEntryFile(entryFile: string, typeName: string, fieldName: string) {
     fs.writeFileSync(entryFile, `import { api } from 'cdk-serverless/lib/lambda';
+import { ${typeName} } from '../generated/graphql.${this.props.apiName.toLowerCase()}-model.generated';
 
 // TODO: Replace QUERYTYPE with the input type of the field ${typeName}.${fieldName}
-// TODO: Replace RETURNTYPE with the return type of the field ${typeName}.${fieldName}
 
-export const handler = api.createAppSyncHandler<QUERYTYPE, RETURNTYPE>(async (ctx) => {
+export const handler = api.createAppSyncHandler<QUERYTYPE, ${typeName}['${fieldName}']>(async (ctx) => {
   ctx.logger.info(JSON.stringify(ctx.event));
   throw new Error('Not yet implemented');
 });`, {
@@ -354,12 +385,13 @@ export const handler = api.createAppSyncHandler<QUERYTYPE, RETURNTYPE>(async (ct
   }
 
   private createJSResolverFile(entryFile: string, typeName: string, fieldName: string) {
-    fs.writeFileSync(entryFile, `import { util } from '@aws-appsync/utils';
+    fs.writeFileSync(entryFile, `import { Context, util } from '@aws-appsync/utils';
+import { ${typeName} } from '../generated/graphql.${this.props.apiName.toLowerCase()}-model.generated';
 
 /**
  * Request for ${typeName}.${fieldName}
  */
-export function request(ctx) {
+export function request(ctx: Context): any {
   console.log(ctx);
   return {};
 }
@@ -367,11 +399,33 @@ export function request(ctx) {
 /**
  * Response for ${typeName}.${fieldName}
  */
-export function response(ctx) {
+export function response(ctx: Context): ${typeName}['${fieldName}'] {
   console.log(ctx);
   return ctx.result.items;
 }`, {
       encoding: 'utf-8',
     });
   }
+
+}
+
+/**
+ * Copied from https://github.com/aws/aws-cdk/blob/main/packages/aws-cdk-lib/aws-lambda-nodejs/lib/util.ts
+ * as it is not exported by aws-cdk-lib
+ */
+function exec(cmd: string, args: string[], options?: SpawnSyncOptions) {
+  const proc = spawnSync(cmd, args, options);
+
+  if (proc.error) {
+    throw proc.error;
+  }
+
+  if (proc.status !== 0) {
+    if (proc.stdout || proc.stderr) {
+      throw new Error(`[Status ${proc.status}] stdout: ${proc.stdout?.toString().trim()}\n\n\nstderr: ${proc.stderr?.toString().trim()}`);
+    }
+    throw new Error(`${cmd} ${args.join(' ')} ${options?.cwd ? `run in directory ${options.cwd}` : ''} exited with status ${proc.status}`);
+  }
+
+  return proc;
 }
