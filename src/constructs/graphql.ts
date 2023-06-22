@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import * as fs from 'fs';
-import { Tags, aws_appsync, aws_certificatemanager, aws_logs, aws_route53 } from 'aws-cdk-lib';
+import { Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
@@ -44,11 +44,12 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   public readonly tableDataSource?: aws_appsync.DynamoDbDataSource;
 
   private _functions: { [operationId: string]: LambdaFunction } = {};
+  private cognitoAuth: CognitoAuthentication;
 
   constructor(scope: Construct, id: string, private props: GraphQlApiProps) {
     super(scope, id, props);
 
-    const cognitoAuth = props.authentication as CognitoAuthentication;
+    this.cognitoAuth = props.authentication as CognitoAuthentication;
 
     let customDomainName: aws_appsync.DomainOptions | undefined;
     let hostedZone: aws_route53.IHostedZone | undefined;
@@ -74,17 +75,17 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       },
       schema: aws_appsync.SchemaFile.fromAsset(props.definitionFileName),
       domainName: customDomainName,
-      ...cognitoAuth && {
+      ...this.cognitoAuth && {
         authorizationConfig: {
           additionalAuthorizationModes: [
             {
               authorizationType: aws_appsync.AuthorizationType.USER_POOL,
               userPoolConfig: {
-                userPool: cognitoAuth.userpool,
+                userPool: this.cognitoAuth.userpool,
                 defaultAction: aws_appsync.UserPoolDefaultAction.DENY,
               },
             },
-            ...cognitoAuth.identityPool ? [{ authorizationType: aws_appsync.AuthorizationType.IAM }] : [],
+            ...this.cognitoAuth.identityPool ? [{ authorizationType: aws_appsync.AuthorizationType.IAM }] : [],
           ],
         },
       },
@@ -156,7 +157,33 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     }
   }
 
-  //TODO api.api.grantXXX() methods
+  /**
+   *
+   */
+  public grantAccess<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(grantee: aws_iam.IGrantable, typeName: TYPE, ...fieldNames: (keyof FIELDTYPE)[]): void {
+    this.api.grant(grantee, aws_appsync.IamResource.ofType(typeName as string, ...fieldNames as string[]), 'appsync:GraphQL');
+  }
+
+  /**
+   *
+   */
+  public grantAccessUnAuth<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, ...fieldNames: (keyof FIELDTYPE)[]): void {
+    if (!this.cognitoAuth.identityPool) {
+      throw new Error('Cannot grant to Cognito identity pool as none is provided');
+    }
+    this.grantAccess(this.cognitoAuth.identityPool.unauthenticatedRole, typeName, ...fieldNames);
+  }
+
+  /**
+   *
+   */
+  public grantAccessAuth<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, ...fieldNames: (keyof FIELDTYPE)[]): void {
+    if (!this.cognitoAuth.identityPool) {
+      throw new Error('Cannot grant to Cognito identity pool as none is provided');
+    }
+    this.grantAccess(this.cognitoAuth.identityPool.authenticatedRole, typeName, ...fieldNames);
+  }
+
 
   /**
    * getFunctionForOperation
