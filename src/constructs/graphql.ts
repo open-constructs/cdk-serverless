@@ -3,7 +3,7 @@ import { SpawnSyncOptions, spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
 import { join } from 'path';
-import { AssetHashType, DockerImage, FileSystem, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
+import { AssetHashType, BundlingOutput, DockerImage, FileSystem, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
@@ -287,6 +287,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
         assetHash: FileSystem.fingerprint(entryFile),
         bundling: {
           image: DockerImage.fromRegistry('dummy'), // Will never be used due to local bundling
+          outputType: BundlingOutput.ARCHIVED, // TODO create single file asset upstream to fix this
           local: {
             tryBundle(outputDir) {
               const osPlatform = os.platform();
@@ -294,7 +295,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
                 osPlatform === 'win32' ? 'cmd' : 'bash',
                 [
                   osPlatform === 'win32' ? '/c' : '-c',
-                  `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=${outputDir} ${entryFile}`,
+                  `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --out-extension:.js=.jar --outdir=${outputDir} ${entryFile}`,
                 ],
                 {
                   env: { ...process.env },
