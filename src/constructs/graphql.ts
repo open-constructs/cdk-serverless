@@ -294,7 +294,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
                 osPlatform === 'win32' ? 'cmd' : 'bash',
                 [
                   osPlatform === 'win32' ? '/c' : '-c',
-                  `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=${join(outputDir, resolverDir)} ${entryFile}`,
+                  `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=${outputDir} ${entryFile}`,
                 ],
                 {
                   env: { ...process.env },
