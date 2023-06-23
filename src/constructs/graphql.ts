@@ -2,7 +2,6 @@
 import { SpawnSyncOptions, spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
-import { join } from 'path';
 import { AssetHashType, BundlingOutput, DockerImage, FileSystem, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';
