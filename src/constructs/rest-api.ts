@@ -182,7 +182,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
                 responseParameters: {
                   'method.response.header.Access-Control-Allow-Headers': "'Content-Type,X-Amz-Date,Authorization,X-Api-Key'",
                   'method.response.header.Access-Control-Allow-Credentials': "'true'",
-                  'method.response.header.Access-Control-Allow-Methods': "'*'",
+                  'method.response.header.Access-Control-Allow-Methods': "'PUT,GET,POST,DELETE,PATCH,HEAD,OPTIONS'",
                   'method.response.header.Access-Control-Allow-Origin': 'context.requestOverride.header.origin',
                 },
                 responseTemplates: {
