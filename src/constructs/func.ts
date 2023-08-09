@@ -225,6 +225,7 @@ export class LambdaFunction extends lambdaNodejs.NodejsFunction {
     this.grantPrincipal.addToPrincipalPolicy(new iam.PolicyStatement({
       actions: [
         'cognito-idp:ListUsers',
+        'cognito-idp:ListUsersInGroup',
         'cognito-idp:AdminGetUser',
         'cognito-idp:AdminListGroupsForUser',
       ],
