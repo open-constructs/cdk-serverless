@@ -1,3 +1,4 @@
+import { aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { AssetCdn } from './asset-cdn';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
@@ -61,12 +62,54 @@ export interface BaseApiProps {
    */
   lambdaTracing?: LambdaTracingOptions;
 
+  /**
+   * Domain name of the API (e.g. example.com)
+   *
+   * only one of hostedZone and domainName can be specified
+   *
+   * @default - No custom domain is configured
+   */
+  domainName?: string;
+  /**
+   * Hosted Zone of the API (e.g. example.com)
+   *
+   * only one of hostedZone and domainName can be specified
+   *
+   * @default - No custom domain is configured
+   */
+  hostedZone?: aws_route53.IHostedZone;
+
+  /**
+   * Hostname of the API if a domain name is specified
+   *
+   * @default api
+   */
+  apiHostname?: string;
 }
 
 export abstract class BaseApi extends Construct {
 
-  constructor(scope: Construct, id: string, _props: BaseApiProps) {
+  protected readonly hostedZone?: aws_route53.IHostedZone;
+  protected readonly apiHostName?: string;
+  protected readonly apiDomainName?: string;
+  protected readonly apiFQDN?: string;
+
+  constructor(scope: Construct, id: string, props: BaseApiProps) {
     super(scope, id);
+
+    if (props.hostedZone && props.domainName) {
+      throw new Error('Cannot specify hostedZone and domainName at the same time');
+    }
+
+    this.hostedZone = props.hostedZone;
+    if (props.domainName) {
+      this.hostedZone = aws_route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
+    }
+    this.apiDomainName = this.hostedZone?.zoneName;
+    this.apiHostName = props.apiHostname ?? 'api';
+    if (this.apiDomainName && this.apiHostName) {
+      this.apiFQDN = `${this.apiHostName}.${this.apiDomainName}`;
+    }
 
   }
 

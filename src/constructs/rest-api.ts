@@ -17,20 +17,6 @@ import { LambdaFunction, LambdaOptions } from './func';
 export interface RestApiProps<OPS> extends BaseApiProps {
 
   /**
-   * Domain name of the API (e.g. example.com)
-   *
-   * @default - No custom domain is configured
-   */
-  domainName?: string;
-
-  /**
-   * Hostname of the API if a domain name is specified
-   *
-   * @default api
-   */
-  apiHostname?: string;
-
-  /**
    * Generate routes for all endpoints configured in the openapi.yaml file
    *
    * @default true
@@ -69,15 +55,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     this.apiSpec = yaml.load(fs.readFileSync(props.definitionFileName).toString()) as OpenAPI3;
 
     let customDomainName: aws_apigateway.DomainNameOptions | undefined;
-    let hostedZone: aws_route53.IHostedZone | undefined;
-    if (props.domainName) {
-      hostedZone = aws_route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
-      const apiDomainName = `${props.apiHostname ?? 'api'}.${props.domainName}`;
+    if (this.apiFQDN) {
       customDomainName = {
-        domainName: apiDomainName,
+        domainName: this.apiFQDN,
         certificate: new aws_certificatemanager.Certificate(this, 'Cert', {
-          domainName: apiDomainName,
-          validation: aws_certificatemanager.CertificateValidation.fromDns(hostedZone),
+          domainName: this.apiFQDN,
+          validation: aws_certificatemanager.CertificateValidation.fromDns(this.hostedZone),
         }),
       };
     }
@@ -217,7 +200,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
     if (customDomainName && this.api.domainName) {
       new aws_route53.ARecord(this, 'DnsRecord', {
-        zone: hostedZone!,
+        zone: this.hostedZone!,
         recordName: customDomainName.domainName,
         target: aws_route53.RecordTarget.fromAlias(
           new aws_route53_targets.ApiGatewayDomain(this.api.domainName),
@@ -266,7 +249,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   }
 
   public addRestResource<P extends keyof PATHS>(path: P, method: keyof PATHS[P]) {
-    const oaPath = this.apiSpec.paths![path as string];
+    const oaPath = this.apiSpec.paths![path as string] as PathItemObject;
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;
     const operationId = operation.operationId!;
     const description = `${method as string} ${path as string} - ${operation.summary}`;
@@ -378,7 +361,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
             continue; // Skip if not http method definition
           }
 
-          const specMethod = specPath[key as keyof PathItemObject]!;
+          const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]!;
           if (!('security' in specMethod)) {
             specMethod.security = spec.security;
           }

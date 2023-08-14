@@ -9,20 +9,6 @@ import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction } from './func';
 
 export interface GraphQlApiProps extends BaseApiProps {
-  /**
-   * Domain name of the API (e.g. example.com)
-   *
-   * @default - No custom domain is configured
-   */
-  domainName?: string;
-
-  /**
-   * Hostname of the API if a domain name is specified
-   *
-   * @default api
-   */
-  apiHostname?: string;
-
   definitionFileName: string;
 }
 
@@ -54,17 +40,14 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     this.cognitoAuth = props.authentication as CognitoAuthentication;
 
     let customDomainName: aws_appsync.DomainOptions | undefined;
-    let hostedZone: aws_route53.IHostedZone | undefined;
-    if (props.domainName) {
-      hostedZone = aws_route53.HostedZone.fromLookup(this, 'Zone', { domainName: props.domainName });
-      const apiDomainName = `${props.apiHostname ?? 'api'}.${props.domainName}`;
+    if (this.apiFQDN) {
       customDomainName = {
-        domainName: apiDomainName,
+        domainName: this.apiFQDN,
         certificate: new aws_certificatemanager.DnsValidatedCertificate(this, 'Cert', {
-          hostedZone,
+          hostedZone: this.hostedZone!,
           region: 'us-east-1',
-          domainName: apiDomainName,
-          validation: aws_certificatemanager.CertificateValidation.fromDns(hostedZone),
+          domainName: this.apiFQDN,
+          validation: aws_certificatemanager.CertificateValidation.fromDns(this.hostedZone),
         }),
       };
     }
@@ -94,7 +77,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     });
     if (customDomainName && this.api.appSyncDomainName) {
       new aws_route53.CnameRecord(this, 'DnsRecord', {
-        zone: hostedZone!,
+        zone: this.hostedZone!,
         recordName: customDomainName.domainName,
         domainName: this.api.appSyncDomainName,
       });
@@ -433,3 +416,4 @@ function exec(cmd: string, args: string[], options?: SpawnSyncOptions) {
 
   return proc;
 }
+

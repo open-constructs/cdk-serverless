@@ -248,25 +248,13 @@
           "exec": "yarn upgrade npm-check-updates"
         },
         {
-          "exec": "npm-check-updates --dep dev --upgrade --target=minor --reject='@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,constructs'"
-        },
-        {
-          "exec": "npm-check-updates --dep optional --upgrade --target=minor --reject='@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,constructs'"
-        },
-        {
-          "exec": "npm-check-updates --dep peer --upgrade --target=minor --reject='@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,constructs'"
-        },
-        {
-          "exec": "npm-check-updates --dep prod --upgrade --target=minor --reject='@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,constructs'"
-        },
-        {
-          "exec": "npm-check-updates --dep bundle --upgrade --target=minor --reject='@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,constructs'"
+          "exec": "npm-check-updates --upgrade --target=minor --filter=@hapi/boom,@taimos/projen,@types/aws-lambda,@types/jest,@types/js-yaml,@types/jsonwebtoken,@types/jwk-to-pem,@types/lambda-log,@types/node,@types/uuid,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,dynamodb-onetable,eslint-import-resolver-node,eslint-import-resolver-typescript,eslint-plugin-import,eslint,jest,jest-junit,npm-check-updates,openapi-typescript,projen,standard-version,ts-jest,ts-node,typedoc,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,constructs,axios,date-fns,js-yaml,jsonwebtoken,jwk-to-pem,lambda-log,uuid"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade"
+          "exec": "yarn upgrade @hapi/boom @taimos/projen @types/aws-lambda @types/jest @types/js-yaml @types/jsonwebtoken @types/jwk-to-pem @types/lambda-log @types/node @types/uuid @typescript-eslint/eslint-plugin @typescript-eslint/parser dynamodb-onetable eslint-import-resolver-node eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit npm-check-updates openapi-typescript projen standard-version ts-jest ts-node typedoc typescript @aws-cdk/aws-cognito-identitypool-alpha aws-cdk-lib constructs axios date-fns js-yaml jsonwebtoken jwk-to-pem lambda-log uuid"
         },
         {
           "exec": "npx projen"

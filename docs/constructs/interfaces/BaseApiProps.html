@@ -30,9 +30,12 @@
 <section class="tsd-index-section">
 <h3 class="tsd-index-heading">Properties</h3>
 <div class="tsd-index-list"><a href="BaseApiProps.html#additionalEnv" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><g id="icon-1024"><rect fill="var(--color-icon-background)" stroke="#FF984D" stroke-width="1.5" x="1" y="1" width="22" height="22" rx="12"></rect><path d="M9.354 16V7.24H12.174C12.99 7.24 13.638 7.476 14.118 7.948C14.606 8.412 14.85 9.036 14.85 9.82C14.85 10.604 14.606 11.232 14.118 11.704C13.638 12.168 12.99 12.4 12.174 12.4H10.434V16H9.354ZM10.434 11.428H12.174C12.646 11.428 13.022 11.284 13.302 10.996C13.59 10.7 13.734 10.308 13.734 9.82C13.734 9.324 13.59 8.932 13.302 8.644C13.022 8.356 12.646 8.212 12.174 8.212H10.434V11.428Z" fill="var(--color-text)"></path></g></svg><span>additional<wbr/>Env?</span></a>
+<a href="BaseApiProps.html#apiHostname" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>api<wbr/>Hostname?</span></a>
 <a href="BaseApiProps.html#apiName" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>api<wbr/>Name</span></a>
 <a href="BaseApiProps.html#assetCdn" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>asset<wbr/>Cdn?</span></a>
 <a href="BaseApiProps.html#authentication" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>authentication?</span></a>
+<a href="BaseApiProps.html#domainName" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>domain<wbr/>Name?</span></a>
+<a href="BaseApiProps.html#hostedZone" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>hosted<wbr/>Zone?</span></a>
 <a href="BaseApiProps.html#lambdaOptions" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>lambda<wbr/>Options?</span></a>
 <a href="BaseApiProps.html#lambdaTracing" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>lambda<wbr/>Tracing?</span></a>
 <a href="BaseApiProps.html#monitoring" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>monitoring?</span></a>
@@ -52,6 +55,15 @@
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">key</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-type">string</span></h5></li></ul></div>
 <div class="tsd-comment tsd-typography"></div></section>
+<section class="tsd-panel tsd-member"><a id="apiHostname" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>api<wbr/>Hostname</span><a href="#apiHostname" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">api<wbr/>Hostname</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Hostname of the API if a domain name is specified</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-6">api</span>
+</code><button>Copy</button></pre>
+</div></section>
 <section class="tsd-panel tsd-member"><a id="apiName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>api<wbr/>Name</span><a href="#apiName" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">api<wbr/>Name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
@@ -76,6 +88,26 @@ to use any other JWT-based authorization service.</p>
 </div>
 <div class="tsd-comment tsd-typography">
 <h4>Default</h4><pre><code class="language-ts"><span class="hl-6">none</span>
+</code><button>Copy</button></pre>
+</div></section>
+<section class="tsd-panel tsd-member"><a id="domainName" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>domain<wbr/>Name</span><a href="#domainName" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">domain<wbr/>Name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>Domain name of the API (e.g. example.com)</p>
+<p>only one of hostedZone and domainName can be specified</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-6">No</span><span class="hl-1"> </span><span class="hl-6">custom</span><span class="hl-1"> </span><span class="hl-6">domain</span><span class="hl-1"> </span><span class="hl-6">is</span><span class="hl-1"> </span><span class="hl-6">configured</span>
+</code><button>Copy</button></pre>
+</div></section>
+<section class="tsd-panel tsd-member"><a id="hostedZone" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <span>hosted<wbr/>Zone</span><a href="#hostedZone" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">hosted<wbr/>Zone</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">IHostedZone</span></div>
+<div class="tsd-comment tsd-typography"><p>Hosted Zone of the API (e.g. example.com)</p>
+<p>only one of hostedZone and domainName can be specified</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-6">No</span><span class="hl-1"> </span><span class="hl-6">custom</span><span class="hl-1"> </span><span class="hl-6">domain</span><span class="hl-1"> </span><span class="hl-6">is</span><span class="hl-1"> </span><span class="hl-6">configured</span>
 </code><button>Copy</button></pre>
 </div></section>
 <section class="tsd-panel tsd-member"><a id="lambdaOptions" class="tsd-anchor"></a>
@@ -132,9 +164,12 @@ to use any other JWT-based authorization service.</p>
 <div class="tsd-accordion-details">
 <ul>
 <li><a href="#additionalEnv" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>additional<wbr/>Env</span></a></li>
+<li><a href="#apiHostname" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>api<wbr/>Hostname</span></a></li>
 <li><a href="#apiName" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>api<wbr/>Name</span></a></li>
 <li><a href="#assetCdn" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>asset<wbr/>Cdn</span></a></li>
 <li><a href="#authentication" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>authentication</span></a></li>
+<li><a href="#domainName" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>domain<wbr/>Name</span></a></li>
+<li><a href="#hostedZone" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>hosted<wbr/>Zone</span></a></li>
 <li><a href="#lambdaOptions" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>lambda<wbr/>Options</span></a></li>
 <li><a href="#lambdaTracing" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>lambda<wbr/>Tracing</span></a></li>
 <li><a href="#monitoring" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>monitoring</span></a></li>
