@@ -371,12 +371,11 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   }
 
   private createEntryFile(entryFile: string, typeName: string, fieldName: string) {
+    const argType = `${typeName}${uppercaseFirst(fieldName)}Args`;
     fs.writeFileSync(entryFile, `import { api } from 'cdk-serverless/lib/lambda';
-import { ${typeName} } from '../generated/graphql.${this.props.apiName.toLowerCase()}-model.generated';
+import { ${typeName}, ${argType} } from '../generated/graphql.${this.props.apiName.toLowerCase()}-model.generated';
 
-// TODO: Replace QUERYTYPE with the input type of the field ${typeName}.${fieldName}
-
-export const handler = api.createAppSyncHandler<QUERYTYPE, ${typeName}['${fieldName}']>(async (ctx) => {
+export const handler = api.createAppSyncHandler<${argType}, ${typeName}['${fieldName}']>(async (ctx) => {
   ctx.logger.info(JSON.stringify(ctx.event));
   throw new Error('Not yet implemented');
 });`, {
@@ -385,13 +384,14 @@ export const handler = api.createAppSyncHandler<QUERYTYPE, ${typeName}['${fieldN
   }
 
   private createJSResolverFile(entryFile: string, typeName: string, fieldName: string) {
+    const argType = `${typeName}${uppercaseFirst(fieldName)}Args`;
     fs.writeFileSync(entryFile, `import { Context, util } from '@aws-appsync/utils';
-import { ${typeName} } from '../generated/graphql.${this.props.apiName.toLowerCase()}-model.generated';
+import { ${typeName}, ${argType} } from '../generated/graphql.${this.props.apiName.toLowerCase()}-model.generated';
 
 /**
  * Request for ${typeName}.${fieldName}
  */
-export function request(ctx: Context): any {
+export function request(ctx: Context<${argType}>): any {
   console.log(ctx);
   return {};
 }
@@ -399,7 +399,7 @@ export function request(ctx: Context): any {
 /**
  * Response for ${typeName}.${fieldName}
  */
-export function response(ctx: Context): ${typeName}['${fieldName}'] {
+export function response(ctx: Context<${argType}>): ${typeName}['${fieldName}'] {
   console.log(ctx);
   return ctx.result.items;
 }`, {
@@ -407,6 +407,10 @@ export function response(ctx: Context): ${typeName}['${fieldName}'] {
     });
   }
 
+}
+
+function uppercaseFirst(value: string): string {
+  return value.substring(0, 1).toUpperCase() + value.substring(1);
 }
 
 /**
