@@ -26,6 +26,30 @@ export interface VtlResolverOptions {
   variables?: { [name: string]: string };
 }
 
+export interface JsResolverOptions {
+  /**
+   * Variables that will be put into the "stash" of the resolver pipeline
+   *
+   * @default none
+   */
+  readonly stashValues?: { [key: string]: string };
+
+  /**
+   * name of the pipeline steps to create
+   *
+   * @default - only a default step will be created
+   */
+  readonly pipelineStepNames?: string[];
+}
+
+interface JsResolverConfig {
+  name: string;
+  index: number;
+  stepCount: number;
+  entryFile: string;
+  functionId: string;
+}
+
 export class GraphQlApi<RESOLVERS> extends BaseApi {
 
   public readonly api: aws_appsync.GraphqlApi;
@@ -241,72 +265,103 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     });
   }
 
-  public addDynamoDbJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE): void {
+  public addDynamoDbJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE, options?: JsResolverOptions): void {
     if (!this.tableDataSource) {
       throw new Error('DynamoDB is not initialized');
     }
-    this.addJSResolver(typeName, fieldName, this.tableDataSource);
+    this.addJSResolver(typeName, fieldName, this.tableDataSource, {
+      ...options,
+      stashValues: {
+        ...options?.stashValues ?? {},
+        table: this.props.singleTableDatastore!.table.tableName,
+      },
+    });
   }
 
-  public addJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE, dataSource: aws_appsync.BaseDataSource): void {
+  public addJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE, dataSource: aws_appsync.BaseDataSource, options?: JsResolverOptions): void {
     const operationId = `${typeName as string}.${fieldName as String}`;
     const description = `Type ${typeName as string} Field ${fieldName as String} Resolver`;
 
     const resolverDir = './src/js-resolver/';
-    const entryFile = `${resolverDir}/${operationId}.ts`;
-    if (!fs.existsSync(entryFile)) {
-      fs.mkdirSync(resolverDir, { recursive: true });
-      this.createJSResolverFile(entryFile, typeName as string, fieldName as string);
+    const functions: JsResolverConfig[] = [];
+
+    if (!options || !options.pipelineStepNames || options.pipelineStepNames.length == 0) {
+      functions.push({
+        name: 'default',
+        index: 0,
+        stepCount: 1,
+        entryFile: `${resolverDir}/${operationId}.ts`,
+        functionId: `JSFunction${operationId}`,
+      });
+    } else {
+      functions.push(...options.pipelineStepNames.map((name, index) => ({
+        name,
+        index,
+        stepCount: options.pipelineStepNames!.length,
+        entryFile: `${resolverDir}/${operationId}.${name}.ts`,
+        functionId: `JSFunction${operationId}${name}`,
+      })));
     }
 
-    const jsFunction = new aws_appsync.AppsyncFunction(this, `JSFunction${operationId}`, {
-      api: this.api,
-      name: operationId.replace(/\./g, ''),
-      description,
-      dataSource,
-      code: aws_appsync.Code.fromAsset('.', {
-        assetHashType: AssetHashType.CUSTOM,
-        assetHash: FileSystem.fingerprint(entryFile),
-        bundling: {
-          image: DockerImage.fromRegistry('dummy'), // Will never be used due to local bundling
-          outputType: BundlingOutput.ARCHIVED, // TODO create single file asset upstream to fix this
-          local: {
-            tryBundle(outputDir) {
-              const osPlatform = os.platform();
-              exec(
-                osPlatform === 'win32' ? 'cmd' : 'bash',
-                [
-                  osPlatform === 'win32' ? '/c' : '-c',
-                  `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --out-extension:.js=.jar --outdir=${outputDir} ${entryFile}`,
-                ],
-                {
-                  env: { ...process.env },
-                  stdio: [ // show output
-                    'ignore', // ignore stdio
-                    process.stderr, // redirect stdout to stderr
-                    'inherit', // inherit stderr
-                  ],
-                  windowsVerbatimArguments: osPlatform === 'win32',
-                });
+    const pipelineConfig = [];
 
-              return true;
+    for (const fn of functions) {
+      if (!fs.existsSync(fn.entryFile)) {
+        fs.mkdirSync(resolverDir, { recursive: true });
+        this.createJSResolverFile(fn, typeName as string, fieldName as string);
+      }
+
+      const jsFunction = new aws_appsync.AppsyncFunction(this, fn.functionId, {
+        api: this.api,
+        name: operationId.replace(/\./g, ''),
+        description,
+        dataSource,
+        code: aws_appsync.Code.fromAsset('.', {
+          assetHashType: AssetHashType.CUSTOM,
+          assetHash: FileSystem.fingerprint(fn.entryFile),
+          bundling: {
+            image: DockerImage.fromRegistry('dummy'), // Will never be used due to local bundling
+            outputType: BundlingOutput.ARCHIVED, // TODO create single file asset upstream to fix this
+            local: {
+              tryBundle(outputDir) {
+                const osPlatform = os.platform();
+                exec(
+                  osPlatform === 'win32' ? 'cmd' : 'bash',
+                  [
+                    osPlatform === 'win32' ? '/c' : '-c',
+                    `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --out-extension:.js=.jar --outdir=${outputDir} ${fn.entryFile}`,
+                  ],
+                  {
+                    env: { ...process.env },
+                    stdio: [ // show output
+                      'ignore', // ignore stdio
+                      process.stderr, // redirect stdout to stderr
+                      'inherit', // inherit stderr
+                    ],
+                    windowsVerbatimArguments: osPlatform === 'win32',
+                  });
+
+                return true;
+              },
             },
           },
-        },
-      }),
-      runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
-    });
+        }),
+        runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
+      });
+      pipelineConfig.push(jsFunction);
+    }
 
     new aws_appsync.Resolver(this, `Resolver${operationId}`, {
       api: this.api,
       typeName: typeName as string,
       fieldName: fieldName as string,
       runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
-      pipelineConfig: [jsFunction],
+      pipelineConfig,
       code: aws_appsync.Code.fromInline(`
     // The before step
-    export function request(...args) {
-      console.log(args);
+    export function request(ctx) {
+      console.log(ctx);
+${Object.entries(options?.stashValues ?? []).map(val => `      ctx.stash.${val[0]} = '${val[1]}'`).join('\n')}
       return {}
     }
 
@@ -366,13 +421,15 @@ export const handler = api.createAppSyncHandler<${argType}, ${typeName}['${field
     });
   }
 
-  private createJSResolverFile(entryFile: string, typeName: string, fieldName: string) {
+  private createJSResolverFile(fn: JsResolverConfig, typeName: string, fieldName: string) {
     const argType = `${typeName}${uppercaseFirst(fieldName)}Args`;
-    fs.writeFileSync(entryFile, `import { Context, util } from '@aws-appsync/utils';
+    const returnType = (fn.index == (fn.stepCount - 1)) ? `${typeName}['${fieldName}']` : 'any';
+
+    fs.writeFileSync(fn.entryFile, `import { Context, util } from '@aws-appsync/utils';
 import { ${typeName}, ${argType} } from '../generated/graphql.${this.props.apiName.toLowerCase()}-model.generated';
 
 /**
- * Request for ${typeName}.${fieldName}
+ * Request for ${typeName}.${fieldName} (Step: ${fn.name} ${fn.index + 1}/${fn.stepCount})
  */
 export function request(ctx: Context<${argType}>): any {
   console.log(ctx);
@@ -380,9 +437,9 @@ export function request(ctx: Context<${argType}>): any {
 }
 
 /**
- * Response for ${typeName}.${fieldName}
+ * Response for ${typeName}.${fieldName} (Step: ${fn.name} ${fn.index + 1}/${fn.stepCount})
  */
-export function response(ctx: Context<${argType}>): ${typeName}['${fieldName}'] {
+export function response(ctx: Context<${argType}>): ${returnType} {
   console.log(ctx);
   return ctx.result.items;
 }`, {
