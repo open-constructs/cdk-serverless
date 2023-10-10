@@ -53,6 +53,14 @@ export interface CognitoAuthenticationProps {
      * @default false
      */
     readonly preTokenGeneration?: boolean;
+    /**
+     * Attaches a lambda function to the pre sign-up trigger
+     *
+     * Code has to reside in './src/lambda/cognito.pre-signup.ts' with a method 'handler'
+     *
+     * @default false
+     */
+    readonly preSignUp?: boolean;
   };
 
   /**
@@ -98,7 +106,9 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
 
   public readonly userpool: cognito.UserPool;
   public readonly identityPool?: identitypool.IdentityPool;
+
   public readonly customMessageFunction?: LambdaFunction;
+  public readonly preSignUpFunction?: LambdaFunction;
   public readonly preTokenGenerationFunction?: LambdaFunction;
 
   constructor(scope: Construct, id: string, props: CognitoAuthenticationProps) {
@@ -189,6 +199,41 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
         entry: entryFile,
       });
       this.userpool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION, this.preTokenGenerationFunction);
+    }
+
+    if (props.triggers?.preSignUp) {
+      const entryFile = './src/lambda/cognito.pre-signup.ts';
+
+      if (!fs.existsSync(entryFile)) {
+        fs.writeFileSync(entryFile, `export async function handler(event: AWSLambda.PreSignUpTriggerEvent): Promise<AWSLambda.PreSignUpTriggerEvent> {
+  console.log(JSON.stringify(event));
+
+  // Confirm the user
+  // event.response.autoConfirmUser = true;
+
+  // Set the email as verified if it is in the request
+  // if (event.request.userAttributes.hasOwnProperty('email')) {
+  //   event.response.autoVerifyEmail = true;
+  // }
+
+  // Set the phone number as verified if it is in the request
+  // if (event.request.userAttributes.hasOwnProperty('phone_number')) {
+  //   event.response.autoVerifyPhone = true;
+  // }
+
+  return event;
+}`, {
+          encoding: 'utf-8',
+        });
+      }
+
+      this.preSignUpFunction = new LambdaFunction(this, 'PreSignUpFunction', {
+        lambdaOptions: {
+          timeout: Duration.seconds(5),
+        },
+        entry: entryFile,
+      });
+      this.userpool.addTrigger(cognito.UserPoolOperation.PRE_SIGN_UP, this.preSignUpFunction);
     }
 
     if (props.sesEmailSender) {
