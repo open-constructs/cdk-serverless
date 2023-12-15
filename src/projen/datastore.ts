@@ -140,10 +140,43 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
 
   public synthesize() {
     super.synthesize();
+    if (!fs.existsSync(this.definitionFile)) {
+      fs.writeFileSync(this.definitionFile, JSON.stringify({
+        format: 'onetable:1.0.0',
+        version: '0.1.0',
+        indexes: {
+          primary: {
+            hash: 'PK',
+            sort: 'SK',
+          },
+        },
+        models: {
+          User: {
+            PK: {
+              type: 'string',
+              required: true,
+              value: 'User#${name}',
+            },
+            SK: {
+              type: 'string',
+              required: true,
+              value: 'User#${name}',
+            },
+            name: {
+              type: 'string',
+              required: true,
+            },
+          },
+        },
+      }));
+    }
     const model = JSON.parse(fs.readFileSync(this.definitionFile).toString()) as OneSchema;
 
-    this.createModelFile(`./src/generated/datastore.${this.modelName.toLowerCase()}-model.generated.ts`, model);
-    this.createConstructFile(`./src/generated/datastore.${this.modelName.toLowerCase()}-construct.generated.ts`, model);
+    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
+      fs.mkdirSync(`${this.project.outdir}/src/generated`);
+    }
+    this.createModelFile(`${this.project.outdir}/src/generated/datastore.${this.modelName.toLowerCase()}-model.generated.ts`, model);
+    this.createConstructFile(`${this.project.outdir}/src/generated/datastore.${this.modelName.toLowerCase()}-construct.generated.ts`, model);
   }
 
 }
