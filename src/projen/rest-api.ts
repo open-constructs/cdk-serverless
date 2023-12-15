@@ -69,10 +69,10 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
     const operationId = operation.operationId!;
     // const description = `${method as string} ${path as string} - ${operation.summary}`;
 
-    const entryFile = `./src/lambda/rest.${this.options.apiName.toLowerCase()}.${operationId}.ts`;
+    const entryFile = `${this.project.outdir}/src/lambda/rest.${this.options.apiName.toLowerCase()}.${operationId}.ts`;
     if (!fs.existsSync(entryFile)) {
-      if (!fs.existsSync('./src/lambda')) {
-        fs.mkdirSync('./src/lambda');
+      if (!fs.existsSync(`${this.project.outdir}/src/lambda`)) {
+        fs.mkdirSync(`${this.project.outdir}/src/lambda`);
       }
       this.createEntryFile(entryFile, method, operationId);
     }
@@ -112,6 +112,33 @@ export const handler = ${factoryCall}
 
   public synthesize() {
     super.synthesize();
+    if (!fs.existsSync(this.definitionFile)) {
+      fs.writeFileSync(this.definitionFile, yaml.dump({
+        openapi: '3.0.1',
+        paths: {
+          '/hello': {
+            get: {
+              operationId: 'helloWorld',
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        info: {
+          title: `${this.apiName} API definition`,
+          version: '1.0',
+        },
+      }));
+    }
     const apiSpec = yaml.load(fs.readFileSync(this.definitionFile).toString()) as OpenAPI3;
     for (const path in apiSpec.paths) {
       if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
@@ -125,10 +152,10 @@ export const handler = ${factoryCall}
         }
       }
     }
-    if (!fs.existsSync('./src/generated')) {
-      fs.mkdirSync('./src/generated');
+    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
+      fs.mkdirSync(`${this.project.outdir}/src/generated`);
     }
-    this.createConstructFile(`./src/generated/rest.${this.apiName.toLowerCase()}-api.generated.ts`);
+    this.createConstructFile(`${this.project.outdir}/src/generated/rest.${this.apiName.toLowerCase()}-api.generated.ts`);
   }
 
 }
