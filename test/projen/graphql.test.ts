@@ -48,8 +48,6 @@ type ExistingUser {
 
       const snap = synthSnapshot(project);
 
-      console.log(Object.keys(snap));
-
       expect(Object.keys(snap)).toContain('existingapi.graphql');
       expect(Object.keys(snap)).toContain('graphql-codegen.existinggraphql.yml');
       expect(Object.keys(snap)).toContain('src/generated/graphql.existinggraphql-api.generated.ts');

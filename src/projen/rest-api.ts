@@ -57,8 +57,44 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
     });
   }
 
+  protected validatePathRef(apiSpec: OpenAPI3, path: string, visited: string[] = []): boolean {
+    if (!path.startsWith('#')) {
+      throw new Error(`Unable to resolve ref '${path}' - Resolving references to paths from different files is currently not supported`);
+    }
+
+    const pathPrettySplit =
+      path
+        .split('/')
+        .slice(1)
+        .map(pathPart =>
+          pathPart
+            .replace('~1', '/')
+            .replace('~0', '~'),
+        );
+
+    if (visited.includes(pathPrettySplit[1])) {
+      throw new Error(`Cyclical reference exists between paths: ${visited.join(', ')}`);
+    }
+
+
+    const maybePath = pathPrettySplit.reduce((acc, pathPart) => {
+      if (Object.keys(acc).includes(pathPart)) {
+        return acc[pathPart];
+      }
+      return undefined;
+    }, apiSpec as any);
+    if (maybePath) {
+      if (Object.prototype.hasOwnProperty.call(maybePath, '$ref')) {
+        return this.validatePathRef(apiSpec, maybePath.$ref, [...visited, pathPrettySplit[1]]);
+      }
+      // Closest thing to making sure the ref actually is a path object
+      return ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].some(method => Object.keys(maybePath).indexOf(method) >= 0);
+    }
+    return false;
+  }
+
   protected addRestResource(apiSpec: OpenAPI3, path: string, method: string) {
-    const oaPath = apiSpec.paths![path];
+    const oaPath = apiSpec.paths![path] as PathItemObject;
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;
     const operationId = operation.operationId!;
     // const description = `${method as string} ${path as string} - ${operation.summary}`;
@@ -137,6 +173,11 @@ export const handler = ${factoryCall}
     for (const path in apiSpec.paths) {
       if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
         const pathItem = apiSpec.paths[path];
+        if (('$ref' in pathItem)) {
+          if (!this.validatePathRef(apiSpec, pathItem.$ref)) {
+            throw new Error(`Path '${path}' references '${pathItem.$ref}', which does not exist in this API specification`);
+          }
+        }
         for (const method in pathItem) {
           if (Object.prototype.hasOwnProperty.call(pathItem, method) &&
             ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].indexOf(method) >= 0) {
