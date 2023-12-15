@@ -10,8 +10,14 @@ export interface DatastoreOptions {
 
 export class Datastore extends pj.Component {
 
+  protected readonly definitionFile: string;
+  protected readonly modelName: string;
+
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: DatastoreOptions) {
     super(app);
+
+    this.definitionFile = options.definitionFile;
+    this.modelName = options.modelName;
 
     app.addDeps(
       'dynamodb-onetable',
@@ -22,11 +28,6 @@ export class Datastore extends pj.Component {
     app.addDevDeps(
       '@types/uuid',
     );
-
-    const model = JSON.parse(fs.readFileSync(options.definitionFile).toString()) as OneSchema;
-
-    this.createModelFile(`./src/generated/datastore.${options.modelName.toLowerCase()}-model.generated.ts`, model);
-    this.createConstructFile(`./src/generated/datastore.${options.modelName.toLowerCase()}-construct.generated.ts`, model);
   }
 
   protected createModelFile(fileName: string, model: OneSchema) {
@@ -135,6 +136,14 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
 }`, {
       encoding: 'utf-8',
     });
+  }
+
+  public synthesize() {
+    super.synthesize();
+    const model = JSON.parse(fs.readFileSync(this.definitionFile).toString()) as OneSchema;
+
+    this.createModelFile(`./src/generated/datastore.${this.modelName.toLowerCase()}-model.generated.ts`, model);
+    this.createConstructFile(`./src/generated/datastore.${this.modelName.toLowerCase()}-construct.generated.ts`, model);
   }
 
 }

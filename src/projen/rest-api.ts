@@ -11,8 +11,14 @@ export interface RestApiOptions {
 
 export class RestApi extends pj.Component {
 
+  protected readonly definitionFile: string;
+  protected readonly apiName: string;
+
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: RestApiOptions) {
     super(app);
+
+    this.definitionFile = options.definitionFile;
+    this.apiName = options.apiName;
 
     app.addDevDeps(
       '@types/aws-lambda',
@@ -29,24 +35,6 @@ export class RestApi extends pj.Component {
       description: 'Generate Types from the OpenAPI specification',
     });
     app.defaultTask!.spawn(generateTask);
-
-    const apiSpec = yaml.load(fs.readFileSync(options.definitionFile).toString()) as OpenAPI3;
-    for (const path in apiSpec.paths) {
-      if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
-        const pathItem = apiSpec.paths[path];
-        for (const method in pathItem) {
-          if (Object.prototype.hasOwnProperty.call(pathItem, method) &&
-            ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].indexOf(method) >= 0) {
-            // Add all operations
-            this.addRestResource(apiSpec, path, method);
-          }
-        }
-      }
-    }
-    if (!fs.existsSync('./src/generated')) {
-      fs.mkdirSync('./src/generated');
-    }
-    this.createConstructFile(`./src/generated/rest.${options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
   protected createConstructFile(fileName: string) {
@@ -120,6 +108,27 @@ export const handler = ${factoryCall}
 });`, {
       encoding: 'utf-8',
     });
+  }
+
+  public synthesize() {
+    super.synthesize();
+    const apiSpec = yaml.load(fs.readFileSync(this.definitionFile).toString()) as OpenAPI3;
+    for (const path in apiSpec.paths) {
+      if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
+        const pathItem = apiSpec.paths[path];
+        for (const method in pathItem) {
+          if (Object.prototype.hasOwnProperty.call(pathItem, method) &&
+            ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].indexOf(method) >= 0) {
+            // Add all operations
+            this.addRestResource(apiSpec, path, method);
+          }
+        }
+      }
+    }
+    if (!fs.existsSync('./src/generated')) {
+      fs.mkdirSync('./src/generated');
+    }
+    this.createConstructFile(`./src/generated/rest.${this.apiName.toLowerCase()}-api.generated.ts`);
   }
 
 }
