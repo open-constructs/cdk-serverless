@@ -69,6 +69,18 @@ export class ${this.options.apiName}GraphQlApi extends GraphQlApi<Resolvers> {
 
   public synthesize() {
     super.synthesize();
+
+    if (!fs.existsSync(this.definitionFile)) {
+      fs.writeFileSync(this.definitionFile, `type Query {
+   users: [User]
+}
+
+type User {
+   id: ID!
+   name: String
+}`);
+    }
+
     const codegenConfig = {
       schema: this.definitionFile,
       config: {
@@ -88,10 +100,10 @@ export class ${this.options.apiName}GraphQlApi extends GraphQlApi<Resolvers> {
       obj: codegenConfig,
     });
 
-    if (!fs.existsSync('./src/generated')) {
-      fs.mkdirSync('./src/generated');
+    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
+      fs.mkdirSync(`${this.project.outdir}/src/generated`);
     }
-    this.createConstructFile(`./src/generated/graphql.${this.apiName.toLowerCase()}-api.generated.ts`);
+    this.createConstructFile(`${this.project.outdir}/src/generated/graphql.${this.apiName.toLowerCase()}-api.generated.ts`);
   }
 
 }
