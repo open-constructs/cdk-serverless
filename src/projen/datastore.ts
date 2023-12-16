@@ -10,14 +10,8 @@ export interface DatastoreOptions {
 
 export class Datastore extends pj.Component {
 
-  protected readonly definitionFile: string;
-  protected readonly modelName: string;
-
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: DatastoreOptions) {
     super(app);
-
-    this.definitionFile = options.definitionFile;
-    this.modelName = options.modelName;
 
     app.addDeps(
       'dynamodb-onetable',
@@ -140,8 +134,8 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
 
   public synthesize() {
     super.synthesize();
-    if (!fs.existsSync(this.definitionFile)) {
-      fs.writeFileSync(this.definitionFile, JSON.stringify({
+    if (!fs.existsSync(this.options.definitionFile)) {
+      fs.writeFileSync(this.options.definitionFile, JSON.stringify({
         format: 'onetable:1.0.0',
         version: '0.1.0',
         indexes: {
@@ -170,13 +164,13 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
         },
       }));
     }
-    const model = JSON.parse(fs.readFileSync(this.definitionFile).toString()) as OneSchema;
+    const model = JSON.parse(fs.readFileSync(this.options.definitionFile).toString()) as OneSchema;
 
     if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
       fs.mkdirSync(`${this.project.outdir}/src/generated`);
     }
-    this.createModelFile(`${this.project.outdir}/src/generated/datastore.${this.modelName.toLowerCase()}-model.generated.ts`, model);
-    this.createConstructFile(`${this.project.outdir}/src/generated/datastore.${this.modelName.toLowerCase()}-construct.generated.ts`, model);
+    this.createModelFile(`${this.project.outdir}/src/generated/datastore.${this.options.modelName.toLowerCase()}-model.generated.ts`, model);
+    this.createConstructFile(`${this.project.outdir}/src/generated/datastore.${this.options.modelName.toLowerCase()}-construct.generated.ts`, model);
   }
 
 }

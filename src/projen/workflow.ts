@@ -15,14 +15,8 @@ interface VariableDefinition {
 
 export class Workflow extends pj.Component {
 
-  protected readonly definitionFile: string;
-  protected readonly workflowName: string;
-
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: WorkflowOptions) {
     super(app);
-
-    this.definitionFile = options.definitionFile;
-    this.workflowName = options.workflowName;
   }
 
   protected createConstructFile(fileName: string, matchedVariables: VariableDefinition[]) {
@@ -81,7 +75,7 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
 
   public synthesize() {
     super.synthesize();
-    const workflowDefinition = fs.readFileSync(this.definitionFile).toString();
+    const workflowDefinition = fs.readFileSync(this.options.definitionFile).toString();
     const matches = workflowDefinition.match(/\$\{[a-zA-Z0-9#]*\}/g)?.map(match => match.substring(2, match.length - 1));
     const variables: VariableDefinition[] = (matches ?? []).map(varName => {
       if (varName.indexOf('#') < 0) {
@@ -91,6 +85,6 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
       return { name, type, fullName: varName };
     });
 
-    this.createConstructFile(`./src/generated/workflow.${this.workflowName.toLowerCase()}.generated.ts`, variables);
+    this.createConstructFile(`./src/generated/workflow.${this.options.workflowName.toLowerCase()}.generated.ts`, variables);
   }
 }

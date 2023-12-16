@@ -11,14 +11,8 @@ export interface RestApiOptions {
 
 export class RestApi extends pj.Component {
 
-  protected readonly definitionFile: string;
-  protected readonly apiName: string;
-
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: RestApiOptions) {
     super(app);
-
-    this.definitionFile = options.definitionFile;
-    this.apiName = options.apiName;
 
     app.addDevDeps(
       '@types/aws-lambda',
@@ -112,8 +106,8 @@ export const handler = ${factoryCall}
 
   public synthesize() {
     super.synthesize();
-    if (!fs.existsSync(this.definitionFile)) {
-      fs.writeFileSync(this.definitionFile, yaml.dump({
+    if (!fs.existsSync(this.options.definitionFile)) {
+      fs.writeFileSync(this.options.definitionFile, yaml.dump({
         openapi: '3.0.1',
         paths: {
           '/hello': {
@@ -134,12 +128,12 @@ export const handler = ${factoryCall}
           },
         },
         info: {
-          title: `${this.apiName} API definition`,
+          title: `${this.options.apiName} API definition`,
           version: '1.0',
         },
       }));
     }
-    const apiSpec = yaml.load(fs.readFileSync(this.definitionFile).toString()) as OpenAPI3;
+    const apiSpec = yaml.load(fs.readFileSync(this.options.definitionFile).toString()) as OpenAPI3;
     for (const path in apiSpec.paths) {
       if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
         const pathItem = apiSpec.paths[path];
@@ -155,7 +149,7 @@ export const handler = ${factoryCall}
     if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
       fs.mkdirSync(`${this.project.outdir}/src/generated`);
     }
-    this.createConstructFile(`${this.project.outdir}/src/generated/rest.${this.apiName.toLowerCase()}-api.generated.ts`);
+    this.createConstructFile(`${this.project.outdir}/src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
 }

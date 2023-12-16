@@ -9,15 +9,11 @@ export interface GraphQlApiOptions {
 
 export class GraphQlApi extends pj.Component {
 
-  protected readonly definitionFile: string;
-  protected readonly apiName: string;
   protected readonly codegenConfigFileName: string;
 
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: GraphQlApiOptions) {
     super(app);
 
-    this.definitionFile = options.definitionFile;
-    this.apiName = options.apiName;
 
     app.addDevDeps(
       '@graphql-codegen/cli',
@@ -70,8 +66,8 @@ export class ${this.options.apiName}GraphQlApi extends GraphQlApi<Resolvers> {
   public synthesize() {
     super.synthesize();
 
-    if (!fs.existsSync(this.definitionFile)) {
-      fs.writeFileSync(this.definitionFile, `type Query {
+    if (!fs.existsSync(this.options.definitionFile)) {
+      fs.writeFileSync(this.options.definitionFile, `type Query {
    users: [User]
 }
 
@@ -82,7 +78,7 @@ type User {
     }
 
     const codegenConfig = {
-      schema: this.definitionFile,
+      schema: this.options.definitionFile,
       config: {
         scalars: {
           AWSDate: 'string',
@@ -90,7 +86,7 @@ type User {
         },
       },
       generates: {
-        [`./src/generated/graphql.${this.apiName.toLowerCase()}-model.generated.ts`]: {
+        [`./src/generated/graphql.${this.options.apiName.toLowerCase()}-model.generated.ts`]: {
           plugins: ['typescript', 'typescript-resolvers'],
         },
       },
@@ -103,7 +99,7 @@ type User {
     if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
       fs.mkdirSync(`${this.project.outdir}/src/generated`);
     }
-    this.createConstructFile(`${this.project.outdir}/src/generated/graphql.${this.apiName.toLowerCase()}-api.generated.ts`);
+    this.createConstructFile(`${this.project.outdir}/src/generated/graphql.${this.options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
 }
