@@ -152,6 +152,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       this.monitoring.monitorAppSyncApi({
         api: this.api,
       });
+      this.addOperationFunctionMonitoring(props.apiName, this._functions);
+      if (props.singleTableDatastore) {
+        this.addSingleTableMonitoring(props.singleTableDatastore);
+      }
     }
 
     if (customDomainName && this.api.appSyncDomainName) {

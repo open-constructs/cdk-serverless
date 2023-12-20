@@ -1,9 +1,11 @@
 import { aws_route53 } from 'aws-cdk-lib';
-import { MonitoringFacade } from 'cdk-monitoring-constructs';
+import { IFunction } from 'aws-cdk-lib/aws-lambda';
+import { DefaultDashboardFactory, MonitoringFacade } from 'cdk-monitoring-constructs';
 import { Construct } from 'constructs';
 import { AssetCdn } from './asset-cdn';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { LambdaOptions, LambdaTracingOptions } from './func';
+import { AggregatedFunctionMonitoring } from './monitoring/aggregated-function-monitoring';
 import { SingleTableDatastore } from './table';
 
 export interface BaseApiProps {
@@ -117,14 +119,30 @@ export abstract class BaseApi extends Construct {
     }
 
     if (props.monitoring ?? true) {
-      this.monitoring = new MonitoringFacade(this, 'Monitoring');
-      if (props.singleTableDatastore) {
-        this.monitoring.monitorDynamoTable({
-          table: props.singleTableDatastore.table,
-        });
-      }
+      this.monitoring = new MonitoringFacade(this, 'Monitoring', {
+        dashboardFactory: new DefaultDashboardFactory(this, 'DashboardFactory', {
+          dashboardNamePrefix: props.apiName,
+        }),
+      });
     }
 
+  }
+
+  protected addSingleTableMonitoring(dataStore: SingleTableDatastore) {
+    if (this.monitoring) {
+      this.monitoring.monitorDynamoTable({ table: dataStore.table });
+    }
+  }
+
+  protected addOperationFunctionMonitoring(apiName: string, functions: Record<string, IFunction>) {
+    if (this.monitoring && Object.keys(functions).length > 0) {
+      const functionMonitoring = new AggregatedFunctionMonitoring(this.monitoring, {
+        title: 'Lambda metrics',
+        apiName: apiName,
+        functions: functions,
+      });
+      this.monitoring.addSegment(functionMonitoring);
+    }
   }
 
 }

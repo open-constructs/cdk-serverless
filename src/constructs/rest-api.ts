@@ -223,6 +223,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       this.monitoring.monitorApiGateway({
         api: this.api,
       });
+
+      // FIXME This currently depends on the side effects of having generated the routes further above
+      this.addOperationFunctionMonitoring(props.apiName, this._functions);
+      if (props.singleTableDatastore) {
+        this.addSingleTableMonitoring(props.singleTableDatastore);
+      }
     }
 
     // add invoke permissions to Lambda functions
@@ -336,12 +342,6 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     });
     this._functions[operation.operationId!] = fn;
     cdk.Tags.of(fn).add('OpenAPI', description.replace(/[^\w\s\d_.:/=+\-@]/g, ''));
-
-    if (this.monitoring) {
-      this.monitoring.monitorLambdaFunction({
-        lambdaFunction: fn,
-      });
-    }
 
     const hasVersionConfig = lambdaOptions.currentVersionOptions != undefined;
 
