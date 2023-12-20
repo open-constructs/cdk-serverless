@@ -160,6 +160,10 @@
       "type": "runtime"
     },
     {
+      "name": "cdk-monitoring-constructs",
+      "type": "runtime"
+    },
+    {
       "name": "constructs",
       "type": "runtime"
     },

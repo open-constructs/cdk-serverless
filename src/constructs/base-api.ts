@@ -1,4 +1,5 @@
 import { aws_route53 } from 'aws-cdk-lib';
+import { MonitoringFacade } from 'cdk-monitoring-constructs';
 import { Construct } from 'constructs';
 import { AssetCdn } from './asset-cdn';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
@@ -96,6 +97,7 @@ export abstract class BaseApi extends Construct {
   protected readonly apiHostName?: string;
   protected readonly apiDomainName?: string;
   protected readonly apiFQDN?: string;
+  public readonly monitoring?: MonitoringFacade;
 
   constructor(scope: Construct, id: string, props: BaseApiProps) {
     super(scope, id);
@@ -112,6 +114,15 @@ export abstract class BaseApi extends Construct {
     this.apiHostName = props.apiHostname ?? 'api';
     if (this.apiDomainName && this.apiHostName) {
       this.apiFQDN = `${this.apiHostName}.${this.apiDomainName}`;
+    }
+
+    if (props.monitoring ?? true) {
+      this.monitoring = new MonitoringFacade(this, 'Monitoring');
+      if (props.singleTableDatastore) {
+        this.monitoring.monitorDynamoTable({
+          table: props.singleTableDatastore.table,
+        });
+      }
     }
 
   }
