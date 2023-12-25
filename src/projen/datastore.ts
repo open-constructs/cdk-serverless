@@ -22,11 +22,6 @@ export class Datastore extends pj.Component {
     app.addDevDeps(
       '@types/uuid',
     );
-
-    const model = JSON.parse(fs.readFileSync(options.definitionFile).toString()) as OneSchema;
-
-    this.createModelFile(`./src/generated/datastore.${options.modelName.toLowerCase()}-model.generated.ts`, model);
-    this.createConstructFile(`./src/generated/datastore.${options.modelName.toLowerCase()}-construct.generated.ts`, model);
   }
 
   protected createModelFile(fileName: string, model: OneSchema) {
@@ -135,6 +130,47 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
 }`, {
       encoding: 'utf-8',
     });
+  }
+
+  public synthesize() {
+    super.synthesize();
+    if (!fs.existsSync(this.options.definitionFile)) {
+      fs.writeFileSync(this.options.definitionFile, JSON.stringify({
+        format: 'onetable:1.0.0',
+        version: '0.1.0',
+        indexes: {
+          primary: {
+            hash: 'PK',
+            sort: 'SK',
+          },
+        },
+        models: {
+          User: {
+            PK: {
+              type: 'string',
+              required: true,
+              value: 'User#${name}',
+            },
+            SK: {
+              type: 'string',
+              required: true,
+              value: 'User#${name}',
+            },
+            name: {
+              type: 'string',
+              required: true,
+            },
+          },
+        },
+      }));
+    }
+    const model = JSON.parse(fs.readFileSync(this.options.definitionFile).toString()) as OneSchema;
+
+    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
+      fs.mkdirSync(`${this.project.outdir}/src/generated`);
+    }
+    this.createModelFile(`${this.project.outdir}/src/generated/datastore.${this.options.modelName.toLowerCase()}-model.generated.ts`, model);
+    this.createConstructFile(`${this.project.outdir}/src/generated/datastore.${this.options.modelName.toLowerCase()}-construct.generated.ts`, model);
   }
 
 }

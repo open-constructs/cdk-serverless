@@ -9,8 +9,11 @@ export interface GraphQlApiOptions {
 
 export class GraphQlApi extends pj.Component {
 
+  protected readonly codegenConfigFileName: string;
+
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: GraphQlApiOptions) {
     super(app);
+
 
     app.addDevDeps(
       '@graphql-codegen/cli',
@@ -26,36 +29,12 @@ export class GraphQlApi extends pj.Component {
       '@aws-cdk/aws-cognito-identitypool-alpha',
     );
 
-    const codegenConfigFileName = `graphql-codegen.${options.apiName.toLowerCase()}.yml`;
+    this.codegenConfigFileName = `graphql-codegen.${options.apiName.toLowerCase()}.yml`;
     const generateTask = app.addTask(`generate:api:${options.apiName.toLowerCase()}`, {
-      exec: `graphql-codegen -c ${codegenConfigFileName}`,
+      exec: `graphql-codegen -c ${this.codegenConfigFileName}`,
       description: 'Generate Types from the GraphQL specification',
     });
     app.preCompileTask.prependSpawn(generateTask);
-
-    const codegenConfig = {
-      schema: options.definitionFile,
-      config: {
-        scalars: {
-          AWSDate: 'string',
-          AWSURL: 'string',
-        },
-      },
-      generates: {
-        [`./src/generated/graphql.${options.apiName.toLowerCase()}-model.generated.ts`]: {
-          plugins: ['typescript', 'typescript-resolvers'],
-        },
-      },
-    };
-
-    new pj.YamlFile(app, codegenConfigFileName, {
-      obj: codegenConfig,
-    });
-
-    if (!fs.existsSync('./src/generated')) {
-      fs.mkdirSync('./src/generated');
-    }
-    this.createConstructFile(`./src/generated/graphql.${options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
   protected createConstructFile(fileName: string) {
@@ -82,6 +61,45 @@ export class ${this.options.apiName}GraphQlApi extends GraphQlApi<Resolvers> {
 }`, {
       encoding: 'utf-8',
     });
+  }
+
+  public synthesize() {
+    super.synthesize();
+
+    if (!fs.existsSync(this.options.definitionFile)) {
+      fs.writeFileSync(this.options.definitionFile, `type Query {
+   users: [User]
+}
+
+type User {
+   id: ID!
+   name: String
+}`);
+    }
+
+    const codegenConfig = {
+      schema: this.options.definitionFile,
+      config: {
+        scalars: {
+          AWSDate: 'string',
+          AWSURL: 'string',
+        },
+      },
+      generates: {
+        [`./src/generated/graphql.${this.options.apiName.toLowerCase()}-model.generated.ts`]: {
+          plugins: ['typescript', 'typescript-resolvers'],
+        },
+      },
+    };
+
+    new pj.YamlFile(this.project, this.codegenConfigFileName, {
+      obj: codegenConfig,
+    });
+
+    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
+      fs.mkdirSync(`${this.project.outdir}/src/generated`);
+    }
+    this.createConstructFile(`${this.project.outdir}/src/generated/graphql.${this.options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
 }

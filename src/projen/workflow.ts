@@ -17,18 +17,6 @@ export class Workflow extends pj.Component {
 
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: WorkflowOptions) {
     super(app);
-
-    const workflowDefinition = fs.readFileSync(options.definitionFile).toString();
-    const matches = workflowDefinition.match(/\$\{[a-zA-Z0-9#]*\}/g)?.map(match => match.substring(2, match.length - 1));
-    const variables: VariableDefinition[] = (matches ?? []).map(varName => {
-      if (varName.indexOf('#') < 0) {
-        return { name: varName, fullName: varName, type: 'string' };
-      }
-      const [name, type] = varName.split('#');
-      return { name, type, fullName: varName };
-    });
-
-    this.createConstructFile(`./src/generated/workflow.${options.workflowName.toLowerCase()}.generated.ts`, variables);
   }
 
   protected createConstructFile(fileName: string, matchedVariables: VariableDefinition[]) {
@@ -85,4 +73,36 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
     }
   }
 
+  public synthesize() {
+    super.synthesize();
+    if (!fs.existsSync(this.options.definitionFile)) {
+      fs.writeFileSync(this.options.definitionFile, JSON.stringify({
+        StartAt: 'Hello World',
+        States: {
+          'Hello World': {
+            Type: 'Pass',
+            Result: {
+              Hello: '${world}',
+            },
+            End: true,
+          },
+        },
+      }, undefined, 2));
+    }
+
+    const workflowDefinition = fs.readFileSync(this.options.definitionFile).toString();
+    const matches = workflowDefinition.match(/\$\{[a-zA-Z0-9#]*\}/g)?.map(match => match.substring(2, match.length - 1));
+    const variables: VariableDefinition[] = (matches ?? []).map(varName => {
+      if (varName.indexOf('#') < 0) {
+        return { name: varName, fullName: varName, type: 'string' };
+      }
+      const [name, type] = varName.split('#');
+      return { name, type, fullName: varName };
+    });
+
+    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
+      fs.mkdirSync(`${this.project.outdir}/src/generated`);
+    }
+    this.createConstructFile(`${this.project.outdir}/src/generated/workflow.${this.options.workflowName.toLowerCase()}.generated.ts`, variables);
+  }
 }

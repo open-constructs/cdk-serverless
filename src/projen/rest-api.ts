@@ -29,24 +29,6 @@ export class RestApi extends pj.Component {
       description: 'Generate Types from the OpenAPI specification',
     });
     app.defaultTask!.spawn(generateTask);
-
-    const apiSpec = yaml.load(fs.readFileSync(options.definitionFile).toString()) as OpenAPI3;
-    for (const path in apiSpec.paths) {
-      if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
-        const pathItem = apiSpec.paths[path];
-        for (const method in pathItem) {
-          if (Object.prototype.hasOwnProperty.call(pathItem, method) &&
-            ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].indexOf(method) >= 0) {
-            // Add all operations
-            this.addRestResource(apiSpec, path, method);
-          }
-        }
-      }
-    }
-    if (!fs.existsSync('./src/generated')) {
-      fs.mkdirSync('./src/generated');
-    }
-    this.createConstructFile(`./src/generated/rest.${options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
   protected createConstructFile(fileName: string) {
@@ -81,10 +63,10 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
     const operationId = operation.operationId!;
     // const description = `${method as string} ${path as string} - ${operation.summary}`;
 
-    const entryFile = `./src/lambda/rest.${this.options.apiName.toLowerCase()}.${operationId}.ts`;
+    const entryFile = `${this.project.outdir}/src/lambda/rest.${this.options.apiName.toLowerCase()}.${operationId}.ts`;
     if (!fs.existsSync(entryFile)) {
-      if (!fs.existsSync('./src/lambda')) {
-        fs.mkdirSync('./src/lambda');
+      if (!fs.existsSync(`${this.project.outdir}/src/lambda`)) {
+        fs.mkdirSync(`${this.project.outdir}/src/lambda`);
       }
       this.createEntryFile(entryFile, method, operationId);
     }
@@ -120,6 +102,54 @@ export const handler = ${factoryCall}
 });`, {
       encoding: 'utf-8',
     });
+  }
+
+  public synthesize() {
+    super.synthesize();
+    if (!fs.existsSync(this.options.definitionFile)) {
+      fs.writeFileSync(this.options.definitionFile, yaml.dump({
+        openapi: '3.0.1',
+        paths: {
+          '/hello': {
+            get: {
+              operationId: 'helloWorld',
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        info: {
+          title: `${this.options.apiName} API definition`,
+          version: '1.0',
+        },
+      }));
+    }
+    const apiSpec = yaml.load(fs.readFileSync(this.options.definitionFile).toString()) as OpenAPI3;
+    for (const path in apiSpec.paths) {
+      if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
+        const pathItem = apiSpec.paths[path];
+        for (const method in pathItem) {
+          if (Object.prototype.hasOwnProperty.call(pathItem, method) &&
+            ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].indexOf(method) >= 0) {
+            // Add all operations
+            this.addRestResource(apiSpec, path, method);
+          }
+        }
+      }
+    }
+    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
+      fs.mkdirSync(`${this.project.outdir}/src/generated`);
+    }
+    this.createConstructFile(`${this.project.outdir}/src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
   }
 
 }
