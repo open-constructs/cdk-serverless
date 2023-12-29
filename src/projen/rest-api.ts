@@ -64,14 +64,14 @@ export class RestApi extends pj.Component {
       fileGenerator: this.generateSampleHandlerFiles.bind(this),
     });
 
-    new pj.TextFile(this.project, `${this.project.outdir}/src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`, {
-      lines: [this.createConstructFile()],
-    });
+    const apiFile = new pj.TextFile(this.project, `${this.project.outdir}/src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
+    apiFile.addLine(this.createConstructFile(apiFile));
 
   }
 
-  protected createConstructFile(): string {
-    return `/* eslint-disable */
+  protected createConstructFile(file: pj.FileBase): string {
+    return `// ${file.marker}
+/* eslint-disable */
 import { Construct } from 'constructs';
 import { RestApi, RestApiProps } from '${PACKAGE_NAME}/lib/constructs';
 import { operations, paths } from './rest.${this.options.apiName.toLowerCase()}-model.generated';
@@ -160,8 +160,6 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
         logs = '';
         break;
     }
-
-    // Cannot use SampleFile here as the lifecycle to create new projen files is already over
 
     return `import { api, errors } from '${PACKAGE_NAME}/lib/lambda';
 import { operations } from '../generated/rest.${this.options.apiName.toLowerCase()}-model.generated';

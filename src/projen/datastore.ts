@@ -60,10 +60,11 @@ export class Datastore extends pj.Component {
     new LazyTextFile(this.project, `src/generated/datastore.${this.options.modelName.toLowerCase()}-construct.generated.ts`, { content: this.createConstructFile.bind(this) });
   }
 
-  protected createModelFile(): string {
+  protected createModelFile(file: pj.FileBase): string {
     const model = JSON.parse(fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString()) as OneSchema;
 
-    return `/* eslint-disable */
+    return `// ${file.marker}
+/* eslint-disable */
 import { Model, Table, Entity } from 'dynamodb-onetable';
 import { env } from 'process';
 import { Dynamo } from 'dynamodb-onetable/Dynamo';
@@ -110,10 +111,11 @@ export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Typ
       .replace(/"type": "string"/g, '"type": String');
   }
 
-  protected createConstructFile(): string {
+  protected createConstructFile(file: pj.FileBase): string {
     const model = JSON.parse(fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString()) as OneSchema;
 
-    return `/* eslint-disable */
+    return `// ${file.marker}
+/* eslint-disable */
 import { AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import { SingleTableDatastore, SingleTableDatastoreProps } from '${PACKAGE_NAME}/lib/constructs';

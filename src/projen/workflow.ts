@@ -38,7 +38,7 @@ export class Workflow extends pj.Component {
     new LazyTextFile(this.project, `src/generated/workflow.${this.options.workflowName.toLowerCase()}.generated.ts`, { content: this.createConstructFile.bind(this) });
   }
 
-  protected createConstructFile(): string {
+  protected createConstructFile(file: pj.FileBase): string {
     const workflowDefinition = fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString();
     const matches = workflowDefinition.match(/\$\{[a-zA-Z0-9#]*\}/g)?.map(match => match.substring(2, match.length - 1));
     const matchedVariables: VariableDefinition[] = (matches ?? []).map(varName => {
@@ -49,7 +49,8 @@ export class Workflow extends pj.Component {
       return { name, type, fullName: varName };
     });
 
-    return `/* eslint-disable */
+    return `// ${file.marker}
+/* eslint-disable */
 import * as constructs from 'constructs';
 import { ITable } from 'aws-cdk-lib/aws-dynamodb';
 import { IFunction } from 'aws-cdk-lib/aws-lambda';

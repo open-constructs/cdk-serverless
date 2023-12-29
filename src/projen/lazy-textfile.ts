@@ -1,16 +1,16 @@
 import { IConstruct } from 'constructs';
-import { FileBaseOptions, IResolver, TextFile } from 'projen';
+import { FileBase, FileBaseOptions, IResolver, TextFile } from 'projen';
 
 export interface LazyTextFileOptions extends FileBaseOptions {
   /**
    * The content provider for the file.
    */
-  readonly content: () => string;
+  readonly content: (file: FileBase) => string;
 }
 
 export class LazyTextFile extends TextFile {
 
-  private readonly content: () => string;
+  private readonly content: (file: FileBase) => string;
 
   /**
    * Defines a text file.
@@ -25,6 +25,6 @@ export class LazyTextFile extends TextFile {
   }
 
   protected synthesizeContent(_: IResolver): string | undefined {
-    return this.content();
+    return this.content(this);
   }
 }

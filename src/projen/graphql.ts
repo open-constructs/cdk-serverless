@@ -54,7 +54,8 @@ export class GraphQlApi extends pj.Component {
     });
 
     const constructFile = new pj.TextFile(this.project, `src/generated/graphql.${this.options.apiName.toLowerCase()}-api.generated.ts`);
-    constructFile.addLine(`/* eslint-disable */
+    constructFile.addLine(`// ${constructFile.marker}
+/* eslint-disable */
 import { Construct } from 'constructs';
 import { GraphQlApi, GraphQlApiProps } from '${PACKAGE_NAME}/lib/constructs';
 import { Resolvers } from './graphql.${this.options.apiName.toLowerCase()}-model.generated';
