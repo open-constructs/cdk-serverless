@@ -11,6 +11,7 @@ const project = new TaimosTypescriptLibrary({
     'axios',
     'uuid',
     'lambda-log',
+    'constructs',
   ],
   defaultReleaseBranch: 'main',
   minMajorVersion: '2',
@@ -24,13 +25,13 @@ const project = new TaimosTypescriptLibrary({
     '@types/jwk-to-pem',
     '@types/uuid',
     '@hapi/boom',
+    'typedoc',
   ],
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable',
     'aws-cdk-lib@^2.60.0',
     '@aws-cdk/aws-cognito-identitypool-alpha@^2.60.0-alpha.0',
-    'constructs@^10.0.5',
   ],
   keywords: [
     'aws',
@@ -50,8 +51,6 @@ const project = new TaimosTypescriptLibrary({
     },
   },
 });
-
-project.addDevDeps('typedoc');
 
 const docgen = project.addTask('docgen', {
   description: 'Generate TypeScript API reference',
