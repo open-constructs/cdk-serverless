@@ -22,7 +22,7 @@ export class LazySampleDir extends Component {
   private readonly options: LazySampleDirOptions;
 
   /**
-   * Create sample files in the given directory if the given directory does not exist
+   * Create sample files in the given directory
    * @param project Parent project to add files to.
    * @param dir directory to add files to. If directory already exists, nothing is added.
    * @param options options for which files to create.
