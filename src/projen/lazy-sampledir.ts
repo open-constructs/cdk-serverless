@@ -24,7 +24,7 @@ export class LazySampleDir extends Component {
   /**
    * Create sample files in the given directory
    * @param project Parent project to add files to.
-   * @param dir directory to add files to. If directory already exists, nothing is added.
+   * @param dir directory to add files to.
    * @param options options for which files to create.
    */
   constructor(project: Project, dir: string, options: LazySampleDirOptions) {
