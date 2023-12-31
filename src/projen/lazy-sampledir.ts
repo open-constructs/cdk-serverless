@@ -15,7 +15,7 @@ export interface LazySampleDirOptions {
 }
 
 /**
- * Renders the given files into the directory if the directory does not exist. Use this to create sample code files
+ * Renders the given files into the directory if the files do not exist. Use this to create sample code files
  */
 export class LazySampleDir extends Component {
   private readonly dir: string;
