@@ -2,7 +2,6 @@
 - [ ] The commit message describes your change
 - [ ] Tests for the changes have been added if possible (for bug fixes / features)
 - [ ] Docs have been added / updated (for bug fixes / features)
-- [ ] Changes are mentioned in the changelog (for bug fixes / features)
 
 
 * **What kind of change does this PR introduce?** (Bug fix, feature, docs update, ...)
