@@ -66,7 +66,7 @@ export interface LambdaFunctionProps {
   /**
    * JwtAuthentication settings
    */
-  jwt? : IJwtAuthentication;
+  jwt?: IJwtAuthentication;
 
   /**
    * Bucket that is used for assets and published using the asset CDN
@@ -215,6 +215,14 @@ export class LambdaFunction extends lambdaNodejs.NodejsFunction {
       throw new Error('No asset bucket configured');
     }
     this.props.assetBucket.grantDelete(this);
+    return this;
+  }
+
+  public grantReadAssets(): LambdaFunction {
+    if (!this.props.assetBucket) {
+      throw new Error('No asset bucket configured');
+    }
+    this.props.assetBucket.grantRead(this);
     return this;
   }
 
