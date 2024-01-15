@@ -25,7 +25,7 @@ const project = new TaimosTypescriptLibrary({
     '@types/jwk-to-pem',
     '@types/uuid',
     '@hapi/boom',
-    'typedoc',
+    'typedoc@0.25.0',
   ],
   peerDeps: [
     'openapi-typescript',
