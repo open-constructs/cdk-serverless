@@ -14,7 +14,7 @@ describe('A GraphQL projen component instance', () => {
 
       new GraphQlApi(project, {
         apiName: 'TestGraphQL',
-        definitionFile: `${project.outdir}/testapi.graphql`,
+        definitionFile: 'testapi.graphql',
       });
 
       const snap = synthSnapshot(project);
@@ -33,7 +33,7 @@ describe('A GraphQL projen component instance', () => {
 
       new GraphQlApi(project, {
         apiName: 'ExistingGraphQl',
-        definitionFile: `${project.outdir}/existingapi.graphql`,
+        definitionFile: 'existingapi.graphql',
       });
 
       const existingGraphQl = `type Query {

@@ -1,8 +1,10 @@
 import * as fs from 'fs';
+import { join } from 'path';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import * as pj from 'projen';
 import { PACKAGE_NAME } from './core';
+import { LazySampleDir } from './lazy-sampledir';
 
 export interface RestApiOptions {
   readonly apiName: string;
@@ -29,11 +31,47 @@ export class RestApi extends pj.Component {
       description: 'Generate Types from the OpenAPI specification',
     });
     app.defaultTask!.spawn(generateTask);
+
+    new pj.SampleFile(this.project, options.definitionFile, {
+      contents: yaml.dump({
+        openapi: '3.0.1',
+        paths: {
+          '/hello': {
+            get: {
+              operationId: 'helloWorld',
+              responses: {
+                200: {
+                  content: {
+                    'application/json': {
+                      schema: {
+                        type: 'string',
+                      },
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+        info: {
+          title: `${this.options.apiName} API definition`,
+          version: '1.0',
+        },
+      }),
+    });
+
+    new LazySampleDir(this.project, 'src/lambda', {
+      fileGenerator: this.generateSampleHandlerFiles.bind(this),
+    });
+
+    const apiFile = new pj.TextFile(this.project, `${this.project.outdir}/src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
+    apiFile.addLine(this.createConstructFile(apiFile));
+
   }
 
-  protected createConstructFile(fileName: string) {
-
-    fs.writeFileSync(fileName, `/* eslint-disable */
+  protected createConstructFile(file: pj.FileBase): string {
+    return `// ${file.marker}
+/* eslint-disable */
 import { Construct } from 'constructs';
 import { RestApi, RestApiProps } from '${PACKAGE_NAME}/lib/constructs';
 import { operations, paths } from './rest.${this.options.apiName.toLowerCase()}-model.generated';
@@ -52,9 +90,7 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
     });
   }
 
-}`, {
-      encoding: 'utf-8',
-    });
+}`;
   }
 
   protected validatePathRef(apiSpec: OpenAPI3, path: string, visited: string[] = []): boolean {
@@ -93,22 +129,19 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
     return false;
   }
 
-  protected addRestResource(apiSpec: OpenAPI3, path: string, method: string) {
+  protected addRestResourceHandlerSample(files: { [fileName: string]: () => string }, apiSpec: OpenAPI3, path: string, method: string) {
     const oaPath = apiSpec.paths![path] as PathItemObject;
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;
     const operationId = operation.operationId!;
     // const description = `${method as string} ${path as string} - ${operation.summary}`;
 
-    const entryFile = `${this.project.outdir}/src/lambda/rest.${this.options.apiName.toLowerCase()}.${operationId}.ts`;
-    if (!fs.existsSync(entryFile)) {
-      if (!fs.existsSync(`${this.project.outdir}/src/lambda`)) {
-        fs.mkdirSync(`${this.project.outdir}/src/lambda`);
-      }
-      this.createEntryFile(entryFile, method, operationId);
-    }
+    const entryFile = `rest.${this.options.apiName.toLowerCase()}.${operationId}.ts`;
+    files[entryFile] = () => {
+      return this.createEntryFile(method, operationId);
+    };
   }
 
-  protected createEntryFile(entryFile: string, method: string, operationId: string) {
+  protected createEntryFile(method: string, operationId: string): string {
     let factoryCall;
     let logs;
     switch (method.toLowerCase()) {
@@ -128,48 +161,19 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
         break;
     }
 
-    fs.writeFileSync(entryFile, `import { api, errors } from '${PACKAGE_NAME}/lib/lambda';
+    return `import { api, errors } from '${PACKAGE_NAME}/lib/lambda';
 import { operations } from '../generated/rest.${this.options.apiName.toLowerCase()}-model.generated';
 
 export const handler = ${factoryCall}
   ctx.logger.info(JSON.stringify(ctx.event));
   ${logs}
   throw new errors.HttpError(500, 'Not yet implemented');
-});`, {
-      encoding: 'utf-8',
-    });
+});`;
   }
 
-  public synthesize() {
-    super.synthesize();
-    if (!fs.existsSync(this.options.definitionFile)) {
-      fs.writeFileSync(this.options.definitionFile, yaml.dump({
-        openapi: '3.0.1',
-        paths: {
-          '/hello': {
-            get: {
-              operationId: 'helloWorld',
-              responses: {
-                200: {
-                  content: {
-                    'application/json': {
-                      schema: {
-                        type: 'string',
-                      },
-                    },
-                  },
-                },
-              },
-            },
-          },
-        },
-        info: {
-          title: `${this.options.apiName} API definition`,
-          version: '1.0',
-        },
-      }));
-    }
-    const apiSpec = yaml.load(fs.readFileSync(this.options.definitionFile).toString()) as OpenAPI3;
+  private generateSampleHandlerFiles(): { [fileName: string]: (() => string) } {
+    const files = {};
+    const apiSpec = yaml.load(fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString()) as OpenAPI3;
     for (const path in apiSpec.paths) {
       if (Object.prototype.hasOwnProperty.call(apiSpec.paths, path)) {
         const pathItem = apiSpec.paths[path];
@@ -182,15 +186,12 @@ export const handler = ${factoryCall}
           if (Object.prototype.hasOwnProperty.call(pathItem, method) &&
             ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'].indexOf(method) >= 0) {
             // Add all operations
-            this.addRestResource(apiSpec, path, method);
+            this.addRestResourceHandlerSample(files, apiSpec, path, method);
           }
         }
       }
     }
-    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
-      fs.mkdirSync(`${this.project.outdir}/src/generated`);
-    }
-    this.createConstructFile(`${this.project.outdir}/src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
+    return files;
   }
 
 }

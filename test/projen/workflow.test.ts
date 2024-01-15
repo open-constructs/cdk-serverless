@@ -14,7 +14,7 @@ describe('A Step Function Workflow projen component instance', () => {
 
       new Workflow(project, {
         workflowName: 'TestWorkflow',
-        definitionFile: `${project.outdir}/testmachine.json`,
+        definitionFile: 'testmachine.json',
       });
 
       const snap = synthSnapshot(project);
@@ -33,7 +33,7 @@ describe('A Step Function Workflow projen component instance', () => {
 
       new Workflow(project, {
         workflowName: 'ExistingWorkflow',
-        definitionFile: `${project.outdir}/existingworkflow.json`,
+        definitionFile: 'existingworkflow.json',
       });
 
       const asl = {

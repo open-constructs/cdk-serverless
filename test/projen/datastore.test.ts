@@ -14,7 +14,7 @@ describe('A Datastore projen component instance', () => {
 
       new Datastore(project, {
         modelName: 'TestModel',
-        definitionFile: `${project.outdir}/testmodel.json`,
+        definitionFile: 'testmodel.json',
       });
 
       const snap = synthSnapshot(project);
@@ -32,7 +32,7 @@ describe('A Datastore projen component instance', () => {
 
       new Datastore(project, {
         modelName: 'TestModel',
-        definitionFile: `${project.outdir}/existingmodel.json`,
+        definitionFile: 'existingmodel.json',
       });
 
       const existingOneTableSchema = {

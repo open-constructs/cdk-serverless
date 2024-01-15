@@ -18,7 +18,7 @@ describe('A RestApi Projen component instance', () => {
 
       new RestApi(project, {
         apiName: 'TestApi',
-        definitionFile: `${project.outdir}/testapi.yaml`,
+        definitionFile: 'testapi.yaml',
       });
 
       const snap = synthSnapshot(project);
@@ -36,7 +36,7 @@ describe('A RestApi Projen component instance', () => {
 
       new RestApi(project, {
         apiName: 'TestApi',
-        definitionFile: `${project.outdir}/existingapi.yaml`,
+        definitionFile: 'existingapi.yaml',
       });
 
       const existingApiSpec = yaml.dump({

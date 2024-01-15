@@ -1,7 +1,9 @@
 import * as fs from 'fs';
+import { join } from 'path';
 import { OneSchema } from 'dynamodb-onetable';
 import * as pj from 'projen';
 import { PACKAGE_NAME } from './core';
+import { LazyTextFile } from './lazy-textfile';
 
 export interface DatastoreOptions {
   readonly modelName: string;
@@ -22,11 +24,47 @@ export class Datastore extends pj.Component {
     app.addDevDeps(
       '@types/uuid',
     );
+
+    new pj.SampleFile(this.project, this.options.definitionFile, {
+      contents: JSON.stringify({
+        format: 'onetable:1.0.0',
+        version: '0.1.0',
+        indexes: {
+          primary: {
+            hash: 'PK',
+            sort: 'SK',
+          },
+        },
+        models: {
+          User: {
+            PK: {
+              type: 'string',
+              required: true,
+              value: 'User#${name}',
+            },
+            SK: {
+              type: 'string',
+              required: true,
+              value: 'User#${name}',
+            },
+            name: {
+              type: 'string',
+              required: true,
+            },
+          },
+        },
+      }),
+    });
+
+    new LazyTextFile(this.project, `src/generated/datastore.${this.options.modelName.toLowerCase()}-model.generated.ts`, { content: this.createModelFile.bind(this) });
+    new LazyTextFile(this.project, `src/generated/datastore.${this.options.modelName.toLowerCase()}-construct.generated.ts`, { content: this.createConstructFile.bind(this) });
   }
 
-  protected createModelFile(fileName: string, model: OneSchema) {
+  protected createModelFile(file: pj.FileBase): string {
+    const model = JSON.parse(fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString()) as OneSchema;
 
-    fs.writeFileSync(fileName, `/* eslint-disable */
+    return `// ${file.marker}
+/* eslint-disable */
 import { Model, Table, Entity } from 'dynamodb-onetable';
 import { env } from 'process';
 import { Dynamo } from 'dynamodb-onetable/Dynamo';
@@ -55,9 +93,7 @@ ${Object.entries(model.models).map(([typeName, _]) => `export type ${typeName}Ty
 export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Type>('${typeName}');
 `).join('\n')}
 
-`, {
-      encoding: 'utf-8',
-    });
+`;
   }
 
   private stringifyModel(model: OneSchema) {
@@ -75,9 +111,11 @@ export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Typ
       .replace(/"type": "string"/g, '"type": String');
   }
 
-  protected createConstructFile(fileName: string, model: OneSchema) {
+  protected createConstructFile(file: pj.FileBase): string {
+    const model = JSON.parse(fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString()) as OneSchema;
 
-    fs.writeFileSync(fileName, `/* eslint-disable */
+    return `// ${file.marker}
+/* eslint-disable */
 import { AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import { SingleTableDatastore, SingleTableDatastoreProps } from '${PACKAGE_NAME}/lib/constructs';
@@ -127,50 +165,7 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
     });
   }
 
-}`, {
-      encoding: 'utf-8',
-    });
-  }
-
-  public synthesize() {
-    super.synthesize();
-    if (!fs.existsSync(this.options.definitionFile)) {
-      fs.writeFileSync(this.options.definitionFile, JSON.stringify({
-        format: 'onetable:1.0.0',
-        version: '0.1.0',
-        indexes: {
-          primary: {
-            hash: 'PK',
-            sort: 'SK',
-          },
-        },
-        models: {
-          User: {
-            PK: {
-              type: 'string',
-              required: true,
-              value: 'User#${name}',
-            },
-            SK: {
-              type: 'string',
-              required: true,
-              value: 'User#${name}',
-            },
-            name: {
-              type: 'string',
-              required: true,
-            },
-          },
-        },
-      }));
-    }
-    const model = JSON.parse(fs.readFileSync(this.options.definitionFile).toString()) as OneSchema;
-
-    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
-      fs.mkdirSync(`${this.project.outdir}/src/generated`);
-    }
-    this.createModelFile(`${this.project.outdir}/src/generated/datastore.${this.options.modelName.toLowerCase()}-model.generated.ts`, model);
-    this.createConstructFile(`${this.project.outdir}/src/generated/datastore.${this.options.modelName.toLowerCase()}-construct.generated.ts`, model);
+}`;
   }
 
 }

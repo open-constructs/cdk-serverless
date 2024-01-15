@@ -246,13 +246,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@hapi/boom,@taimos/projen,@types/aws-lambda,@types/jest,@types/js-yaml,@types/jsonwebtoken,@types/jwk-to-pem,@types/lambda-log,@types/node,@types/uuid,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,constructs,eslint-import-resolver-typescript,eslint-plugin-import,eslint,jest,jest-junit,projen,standard-version,ts-jest,ts-node,typedoc,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,dynamodb-onetable,openapi-typescript,axios,date-fns,js-yaml,jsonwebtoken,jwk-to-pem,lambda-log,uuid"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@hapi/boom,@taimos/projen,@types/aws-lambda,@types/jest,@types/js-yaml,@types/jsonwebtoken,@types/jwk-to-pem,@types/lambda-log,@types/node,@types/uuid,@typescript-eslint/eslint-plugin,@typescript-eslint/parser,constructs,eslint-import-resolver-typescript,eslint-plugin-import,eslint,jest,jest-junit,projen,standard-version,ts-jest,ts-node,typescript,@aws-cdk/aws-cognito-identitypool-alpha,aws-cdk-lib,dynamodb-onetable,openapi-typescript,axios,date-fns,js-yaml,jsonwebtoken,jwk-to-pem,lambda-log,uuid"
         },
         {
           "exec": "yarn install --check-files"
         },
         {
-          "exec": "yarn upgrade @hapi/boom @taimos/projen @types/aws-lambda @types/jest @types/js-yaml @types/jsonwebtoken @types/jwk-to-pem @types/lambda-log @types/node @types/uuid @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen standard-version ts-jest ts-node typedoc typescript @aws-cdk/aws-cognito-identitypool-alpha aws-cdk-lib dynamodb-onetable openapi-typescript axios date-fns js-yaml jsonwebtoken jwk-to-pem lambda-log uuid"
+          "exec": "yarn upgrade @hapi/boom @taimos/projen @types/aws-lambda @types/jest @types/js-yaml @types/jsonwebtoken @types/jwk-to-pem @types/lambda-log @types/node @types/uuid @typescript-eslint/eslint-plugin @typescript-eslint/parser constructs eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen standard-version ts-jest ts-node typescript @aws-cdk/aws-cognito-identitypool-alpha aws-cdk-lib dynamodb-onetable openapi-typescript axios date-fns js-yaml jsonwebtoken jwk-to-pem lambda-log uuid"
         },
         {
           "exec": "npx projen"

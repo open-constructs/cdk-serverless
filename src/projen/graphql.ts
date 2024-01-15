@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import * as pj from 'projen';
 import { PACKAGE_NAME } from './core';
 
@@ -53,11 +52,10 @@ export class GraphQlApi extends pj.Component {
     new pj.YamlFile(this.project, this.codegenConfigFileName, {
       obj: codegenConfig,
     });
-  }
 
-  protected createConstructFile(fileName: string) {
-
-    fs.writeFileSync(fileName, `/* eslint-disable */
+    const constructFile = new pj.TextFile(this.project, `src/generated/graphql.${this.options.apiName.toLowerCase()}-api.generated.ts`);
+    constructFile.addLine(`// ${constructFile.marker}
+/* eslint-disable */
 import { Construct } from 'constructs';
 import { GraphQlApi, GraphQlApiProps } from '${PACKAGE_NAME}/lib/constructs';
 import { Resolvers } from './graphql.${this.options.apiName.toLowerCase()}-model.generated';
@@ -76,29 +74,18 @@ export class ${this.options.apiName}GraphQlApi extends GraphQlApi<Resolvers> {
     });
   }
 
-}`, {
-      encoding: 'utf-8',
-    });
-  }
+}`);
 
-  public synthesize() {
-    super.synthesize();
-
-    if (!fs.existsSync(this.options.definitionFile)) {
-      fs.writeFileSync(this.options.definitionFile, `type Query {
+    new pj.SampleFile(this.project, this.options.definitionFile, {
+      contents: `type Query {
    users: [User]
 }
 
 type User {
    id: ID!
    name: String
-}`);
-    }
-
-    if (!fs.existsSync(`${this.project.outdir}/src/generated`)) {
-      fs.mkdirSync(`${this.project.outdir}/src/generated`);
-    }
-    this.createConstructFile(`${this.project.outdir}/src/generated/graphql.${this.options.apiName.toLowerCase()}-api.generated.ts`);
+}`,
+    });
   }
 
 }
