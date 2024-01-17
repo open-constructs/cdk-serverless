@@ -1,5 +1,4 @@
-import { IConstruct } from 'constructs';
-import { FileBase, FileBaseOptions, IResolver, TextFile } from 'projen';
+import { FileBase, FileBaseOptions, IResolver, Project, TextFile } from 'projen';
 
 export interface LazyTextFileOptions extends FileBaseOptions {
   /**
@@ -19,8 +18,8 @@ export class LazyTextFile extends TextFile {
    * @param filePath File path
    * @param options Options
    */
-  constructor(scope: IConstruct, filePath: string, options?: LazyTextFileOptions) {
-    super(scope, filePath, options);
+  constructor(project: Project, filePath: string, options?: LazyTextFileOptions) {
+    super(project, filePath, options);
     this.content = options?.content ?? (() => '');
   }
 
