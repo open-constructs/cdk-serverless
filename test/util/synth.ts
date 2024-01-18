@@ -3,9 +3,14 @@ import * as path from 'node:path';
 import * as yaml from 'js-yaml';
 import { Project } from 'projen';
 
-export function createOpenApiDefinitionFile(project: Project, obj: any): string {
+interface OpenApiDefinitionSnapshot {
+  definitionFile: string;
+  content: string;
+}
+
+export function createOpenApiDefinitionFile(project: Project, obj: any, filename?: string): OpenApiDefinitionSnapshot {
   const spec = yaml.dump(obj);
-  const outputFileName = 'valid-ref.yaml';
+  const outputFileName = filename ?? 'openapi.yaml';
   fs.writeFileSync(path.join(project.outdir, outputFileName), spec);
-  return outputFileName;
+  return { definitionFile: outputFileName, content: spec };
 }

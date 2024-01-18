@@ -1,5 +1,3 @@
-import * as fs from 'fs';
-import * as yaml from 'js-yaml';
 import { AwsCdkTypeScriptApp } from 'projen/lib/awscdk';
 import { synthSnapshot } from 'projen/lib/util/synth';
 import { RestApi } from '../../src/projen';
@@ -34,12 +32,7 @@ describe('A RestApi Projen component instance', () => {
         defaultReleaseBranch: 'main',
       });
 
-      new RestApi(project, {
-        apiName: 'TestApi',
-        definitionFile: 'existingapi.yaml',
-      });
-
-      const existingApiSpec = yaml.dump({
+      const { definitionFile, content } = createOpenApiDefinitionFile(project, {
         openapi: '3.0.1',
         paths: {
           '/hello': {
@@ -63,14 +56,18 @@ describe('A RestApi Projen component instance', () => {
           title: 'Existing API definition',
           version: '1.0',
         },
+      }, 'existingapi.yaml');
+
+      new RestApi(project, {
+        apiName: 'TestApi',
+        definitionFile,
       });
-      fs.writeFileSync(`${project.outdir}/existingapi.yaml`, existingApiSpec);
 
       const snap = synthSnapshot(project);
 
       expect(Object.keys(snap)).toContain('existingapi.yaml');
       expect(Object.keys(snap)).toContain('src/lambda/rest.testapi.existingHello.ts');
-      expect(snap['existingapi.yaml']).toEqual(existingApiSpec);
+      expect(snap['existingapi.yaml']).toEqual(content);
     });
   });
 });
@@ -87,7 +84,7 @@ describe('An OpenAPI3 definition with a path item declared as a reference to ano
         defaultReleaseBranch: 'main',
       });
 
-      const definitionFile = createOpenApiDefinitionFile(testApp, {
+      const { definitionFile } = createOpenApiDefinitionFile(testApp, {
         openapi: '3.0.1',
         paths: {
           '/hello': {
@@ -114,7 +111,7 @@ describe('An OpenAPI3 definition with a path item declared as a reference to ano
           title: 'API with valid ref in paths',
           version: '1.0',
         },
-      });
+      }, 'test-paths-with-ref.yaml');
 
       new RestApi(testApp, {
         apiName: 'test-paths-with-ref',
@@ -137,7 +134,7 @@ describe('An OpenAPI3 definition with a path item declared as a reference to ano
         defaultReleaseBranch: 'main',
       });
 
-      const definitionFile = createOpenApiDefinitionFile(testApp, {
+      const { definitionFile } = createOpenApiDefinitionFile(testApp, {
         openapi: '3.0.1',
         paths: {
           '/hello': {
@@ -164,10 +161,10 @@ describe('An OpenAPI3 definition with a path item declared as a reference to ano
           title: 'API with invalid ref in paths',
           version: '1.0',
         },
-      });
+      }, 'test-paths-with-invalid-ref.yaml');
 
       new RestApi(testApp, {
-        apiName: 'test-paths-with-ref',
+        apiName: 'test-paths-with-invalid-ref',
         definitionFile,
       });
 
@@ -186,7 +183,7 @@ describe('An OpenAPI3 definition with a path item declared as a reference to ano
         defaultReleaseBranch: 'main',
       });
 
-      const definitionFile = createOpenApiDefinitionFile(testApp, {
+      const { definitionFile } = createOpenApiDefinitionFile(testApp, {
         openapi: '3.0.1',
         paths: {
           '/cycle1': {
@@ -200,10 +197,10 @@ describe('An OpenAPI3 definition with a path item declared as a reference to ano
           title: 'API with cyclical refs in paths',
           version: '1.0',
         },
-      });
+      }, 'cycles.yaml');
 
       new RestApi(testApp, {
-        apiName: 'test-paths-with-ref',
+        apiName: 'cycles',
         definitionFile,
       });
 
@@ -213,5 +210,53 @@ describe('An OpenAPI3 definition with a path item declared as a reference to ano
 
       expect(shouldThrow).toThrow('Cyclical reference exists between paths: /cycle2, /cycle1');
     });
+  });
+
+  test('should generate a RestAPI class and a data model definition within specified paths inside the project', () => {
+    const testApp = new AwsCdkTypeScriptApp({
+      name: 'testRestApiGeneratedFiles',
+      cdkVersion: '2.1.0',
+      defaultReleaseBranch: 'main',
+    });
+
+    const { definitionFile } = createOpenApiDefinitionFile(testApp, {
+      openapi: '3.0.1',
+      paths: {
+        '/hello': {
+          get: {
+            operationId: 'helloWorld',
+            responses: {
+              200: {
+                content: {
+                  'application/json': {
+                    schema: {
+                      type: 'string',
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      info: {
+        title: 'Basic Hello World API',
+        version: '1.0',
+      },
+    }, 'test-basic-file-creation.yaml');
+
+    new RestApi(testApp, {
+      apiName: 'test-basic-file-creation',
+      definitionFile,
+    });
+
+    const snap = synthSnapshot(testApp);
+
+    console.log(JSON.stringify(Object.keys(snap), undefined, 2));
+
+    expect(Object.keys(snap)).toContain('test-basic-file-creation.yaml');
+    expect(Object.keys(snap)).toContain('src/generated/rest.test-basic-file-creation-api.generated.ts');
+
+
   });
 });
