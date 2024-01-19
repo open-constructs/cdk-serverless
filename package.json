@@ -32,7 +32,7 @@
     "organization": true
   },
   "devDependencies": {
-    "@aws-cdk/aws-cognito-identitypool-alpha": "2.60.0-alpha.0",
+    "@aws-cdk/aws-cognito-identitypool-alpha": "2.120.0-alpha.0",
     "@hapi/boom": "^10.0.1",
     "@taimos/projen": "^0.0.188",
     "@types/aws-lambda": "^8.10.131",
@@ -45,7 +45,7 @@
     "@types/uuid": "^9.0.7",
     "@typescript-eslint/eslint-plugin": "^6",
     "@typescript-eslint/parser": "^6",
-    "aws-cdk-lib": "2.60.0",
+    "aws-cdk-lib": "2.120.0",
     "constructs": "^10.0.0",
     "dynamodb-onetable": "~2.7.1",
     "eslint": "^8",
@@ -62,8 +62,8 @@
     "typescript": "^4.9.5"
   },
   "peerDependencies": {
-    "@aws-cdk/aws-cognito-identitypool-alpha": "^2.60.0-alpha.0",
-    "aws-cdk-lib": "^2.60.0",
+    "@aws-cdk/aws-cognito-identitypool-alpha": "^2.120.0-alpha.0",
+    "aws-cdk-lib": "^2.120.0",
     "dynamodb-onetable": "^2.7.1",
     "openapi-typescript": "^6.7.3"
   },

@@ -2,7 +2,7 @@
 import { SpawnSyncOptions, spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
-import { AssetHashType, BundlingOutput, DockerImage, FileSystem, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
+import { AssetHashType, BundlingOptions, BundlingOutput, DockerImage, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
@@ -317,11 +317,12 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
         description,
         dataSource,
         code: aws_appsync.Code.fromAsset('.', {
-          assetHashType: AssetHashType.CUSTOM,
-          assetHash: FileSystem.fingerprint(fn.entryFile),
+          assetHashType: AssetHashType.OUTPUT,
+          deployTime: true,
           bundling: {
             image: DockerImage.fromRegistry('dummy'), // Will never be used due to local bundling
-            outputType: BundlingOutput.ARCHIVED, // TODO create single file asset upstream to fix this
+            outputType: BundlingOutput.SINGLE_FILE,
+            functionId: fn.functionId,
             local: {
               tryBundle(outputDir) {
                 const osPlatform = os.platform();
@@ -329,7 +330,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
                   osPlatform === 'win32' ? 'cmd' : 'bash',
                   [
                     osPlatform === 'win32' ? '/c' : '-c',
-                    `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --out-extension:.js=.jar --outdir=${outputDir} ${fn.entryFile}`,
+                    `esbuild --bundle --sourcemap=inline --sources-content=false --target=esnext --platform=node --format=esm --external:@aws-appsync/utils --outdir=${outputDir} ${fn.entryFile}`,
                   ],
                   {
                     env: { ...process.env },
@@ -344,7 +345,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
                 return true;
               },
             },
-          },
+          } as BundlingOptions,
         }),
         runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
       });
