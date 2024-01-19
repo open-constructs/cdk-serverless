@@ -64,7 +64,7 @@ export class RestApi extends pj.Component {
       fileGenerator: this.generateSampleHandlerFiles.bind(this),
     });
 
-    const apiFile = new pj.TextFile(this.project, `${this.project.outdir}/src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
+    const apiFile = new pj.TextFile(this.project, `src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
     apiFile.addLine(this.createConstructFile(apiFile));
 
   }
