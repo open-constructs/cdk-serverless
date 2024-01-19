@@ -76,6 +76,7 @@
 <a href="LambdaFunction.html#getResourceNameAttribute" class="tsd-index-link tsd-is-protected tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Resource<wbr/>Name<wbr/>Attribute</span></a>
 <a href="LambdaFunction.html#grantDeleteAsset" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Delete<wbr/>Asset</span></a>
 <a href="LambdaFunction.html#grantInvoke" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Invoke</span></a>
+<a href="LambdaFunction.html#grantInvokeCompositePrincipal" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Invoke<wbr/>Composite<wbr/>Principal</span></a>
 <a href="LambdaFunction.html#grantInvokeUrl" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Invoke<wbr/>Url</span></a>
 <a href="LambdaFunction.html#grantReadAssets" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Read<wbr/>Assets</span></a>
 <a href="LambdaFunction.html#grantSendEmails" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Send<wbr/>Emails</span></a>
@@ -83,6 +84,7 @@
 <a href="LambdaFunction.html#grantUploadAssets" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Upload<wbr/>Assets</span></a>
 <a href="LambdaFunction.html#grantUserpoolRead" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Userpool<wbr/>Read</span></a>
 <a href="LambdaFunction.html#grantUserpoolReadWrite" class="tsd-index-link"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Userpool<wbr/>Read<wbr/>Write</span></a>
+<a href="LambdaFunction.html#invalidateVersionBasedOn" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>invalidate<wbr/>Version<wbr/>Based<wbr/>On</span></a>
 <a href="LambdaFunction.html#metric" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>metric</span></a>
 <a href="LambdaFunction.html#metricDuration" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>metric<wbr/>Duration</span></a>
 <a href="LambdaFunction.html#metricErrors" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>metric<wbr/>Errors</span></a>
@@ -583,6 +585,21 @@ Commonly this is the resource&#39;s <code>ref</code>.</p>
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Grant</span></h4>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from lambdaNodejs.NodejsFunction.grantInvoke</p></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="grantInvokeCompositePrincipal" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>grant<wbr/>Invoke<wbr/>Composite<wbr/>Principal</span><a href="#grantInvokeCompositePrincipal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited tsd-is-external">
+<li class="tsd-signature tsd-anchor-link" id="grantInvokeCompositePrincipal.grantInvokeCompositePrincipal-1"><span class="tsd-kind-call-signature">grant<wbr/>Invoke<wbr/>Composite<wbr/>Principal</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">compositePrincipal</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">Grant</span><span class="tsd-signature-symbol">[]</span><a href="#grantInvokeCompositePrincipal.grantInvokeCompositePrincipal-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Grant multiple principals the ability to invoke this Lambda via CompositePrincipal</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">compositePrincipal</span>: <span class="tsd-signature-type ">CompositePrincipal</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Grant</span><span class="tsd-signature-symbol">[]</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from lambdaNodejs.NodejsFunction.grantInvokeCompositePrincipal</p></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="grantInvokeUrl" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>grant<wbr/>Invoke<wbr/>Url</span><a href="#grantInvokeUrl" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -634,6 +651,32 @@ Commonly this is the resource&#39;s <code>ref</code>.</p>
 <li class="tsd-signature tsd-anchor-link" id="grantUserpoolReadWrite.grantUserpoolReadWrite-1"><span class="tsd-kind-call-signature">grant<wbr/>Userpool<wbr/>Read<wbr/>Write</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a><a href="#grantUserpoolReadWrite.grantUserpoolReadWrite-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></h4></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="invalidateVersionBasedOn" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>invalidate<wbr/>Version<wbr/>Based<wbr/>On</span><a href="#invalidateVersionBasedOn" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited tsd-is-external">
+<li class="tsd-signature tsd-anchor-link" id="invalidateVersionBasedOn.invalidateVersionBasedOn-1"><span class="tsd-kind-call-signature">invalidate<wbr/>Version<wbr/>Based<wbr/>On</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">x</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#invalidateVersionBasedOn.invalidateVersionBasedOn-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Mix additional information into the hash of the Version object</p>
+<p>The Lambda Function construct does its best to automatically create a new
+Version when anything about the Function changes (its code, its layers,
+any of the other properties).</p>
+<p>However, you can sometimes source information from places that the CDK cannot
+look into, like the deploy-time values of SSM parameters. In those cases,
+the CDK would not force the creation of a new Version object when it actually
+should.</p>
+<p>This method can be used to invalidate the current Version object. Pass in
+any string into this method, and make sure the string changes when you know
+a new Version needs to be created.</p>
+<p>This method may be called more than once.</p>
+</div>
+<div class="tsd-parameters">
+<h4 class="tsd-parameters-title">Parameters</h4>
+<ul class="tsd-parameter-list">
+<li>
+<h5><span class="tsd-kind-parameter">x</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from lambdaNodejs.NodejsFunction.invalidateVersionBasedOn</p></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="metric" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>metric</span><a href="#metric" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -800,7 +843,9 @@ See &#39;currentVersion&#39; section in the module README for more details.</p>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
 <li class="tsd-signature tsd-anchor-link" id="fromFunctionArn.fromFunctionArn-1"><span class="tsd-kind-call-signature">from<wbr/>Function<wbr/>Arn</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">scope</span>, <span class="tsd-kind-parameter">id</span>, <span class="tsd-kind-parameter">functionArn</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type ">IFunction</span><a href="#fromFunctionArn.fromFunctionArn-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<div class="tsd-comment tsd-typography"><p>Import a lambda function into the CDK using its ARN</p>
+<div class="tsd-comment tsd-typography"><p>Import a lambda function into the CDK using its ARN.</p>
+<p>For <code>Function.addPermissions()</code> to work on this imported lambda, make sure that is
+in the same account and region as the stack you are importing it into.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -821,6 +866,8 @@ See &#39;currentVersion&#39; section in the module README for more details.</p>
 <li class="tsd-description">
 <div class="tsd-comment tsd-typography"><p>Creates a Lambda function object which represents a function not defined
 within this stack.</p>
+<p>For <code>Function.addPermissions()</code> to work on this imported lambda, set the sameEnvironment property to true
+if this imported lambda is in the same account and region as the stack you are importing it into.</p>
 </div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
@@ -1102,6 +1149,7 @@ this type-testing method instead.</p>
 <li><a href="#getResourceNameAttribute" class="tsd-is-protected tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>get<wbr/>Resource<wbr/>Name<wbr/>Attribute</span></a></li>
 <li><a href="#grantDeleteAsset" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Delete<wbr/>Asset</span></a></li>
 <li><a href="#grantInvoke" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Invoke</span></a></li>
+<li><a href="#grantInvokeCompositePrincipal" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Invoke<wbr/>Composite<wbr/>Principal</span></a></li>
 <li><a href="#grantInvokeUrl" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Invoke<wbr/>Url</span></a></li>
 <li><a href="#grantReadAssets" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Read<wbr/>Assets</span></a></li>
 <li><a href="#grantSendEmails" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Send<wbr/>Emails</span></a></li>
@@ -1109,6 +1157,7 @@ this type-testing method instead.</p>
 <li><a href="#grantUploadAssets" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Upload<wbr/>Assets</span></a></li>
 <li><a href="#grantUserpoolRead" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Userpool<wbr/>Read</span></a></li>
 <li><a href="#grantUserpoolReadWrite" class=""><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>grant<wbr/>Userpool<wbr/>Read<wbr/>Write</span></a></li>
+<li><a href="#invalidateVersionBasedOn" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>invalidate<wbr/>Version<wbr/>Based<wbr/>On</span></a></li>
 <li><a href="#metric" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>metric</span></a></li>
 <li><a href="#metricDuration" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>metric<wbr/>Duration</span></a></li>
 <li><a href="#metricErrors" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-2048"></use></svg><span>metric<wbr/>Errors</span></a></li>

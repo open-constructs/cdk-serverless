@@ -106,12 +106,12 @@
     },
     {
       "name": "@aws-cdk/aws-cognito-identitypool-alpha",
-      "version": "^2.60.0-alpha.0",
+      "version": "^2.120.0-alpha.0",
       "type": "peer"
     },
     {
       "name": "aws-cdk-lib",
-      "version": "^2.60.0",
+      "version": "^2.120.0",
       "type": "peer"
     },
     {
