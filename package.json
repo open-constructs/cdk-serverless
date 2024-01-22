@@ -65,11 +65,11 @@
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.120.0-alpha.0",
     "aws-cdk-lib": "^2.120.0",
     "dynamodb-onetable": "^2.7.1",
-    "openapi-typescript": "^6.7.3"
+    "openapi-typescript": "^6.7.4"
   },
   "dependencies": {
     "axios": "^1.6.5",
-    "constructs": "^10.0.0",
+    "constructs": "^10.3.0",
     "date-fns": "^2.30.0",
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
