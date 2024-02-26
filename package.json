@@ -76,7 +76,7 @@
   "dependencies": {
     "@types/aws-lambda": "^8.10.148",
     "axios": "^1.8.4",
-    "cdk-monitoring-constructs": "^7.2.1",
+    "cdk-monitoring-constructs": "^7.7.0",
     "constructs": "^10.3.0",
     "date-fns": "^4.1.0",
     "js-yaml": "^4.1.0",
