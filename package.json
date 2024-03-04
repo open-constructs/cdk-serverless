@@ -34,11 +34,11 @@
   "devDependencies": {
     "@aws-cdk/aws-cognito-identitypool-alpha": "2.120.0-alpha.0",
     "@hapi/boom": "^10.0.1",
-    "@taimos/projen": "^0.0.188",
+    "@taimos/projen": "^0.0.189",
     "@types/aws-lambda": "^8.10.134",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
-    "@types/jsonwebtoken": "^9.0.5",
+    "@types/jsonwebtoken": "^9.0.6",
     "@types/jwk-to-pem": "^2.0.3",
     "@types/lambda-log": "^2.2.1",
     "@types/node": "^16",
