@@ -1,3 +1,4 @@
+import fs from 'fs';
 import { GraphWidget, IWidget, Row } from 'aws-cdk-lib/aws-cloudwatch';
 import { IFunction } from 'aws-cdk-lib/aws-lambda';
 import {
@@ -30,9 +31,15 @@ export class AggregatedFunctionMonitoring extends Monitoring {
   }
 
   createTitleWidget() {
+    const descriptionFile = `src/definitions/monitoring/${this.apiName}.description.md`;
+    let description = `Create a file named '${descriptionFile}' to add a description to this API`;
+    if (fs.existsSync(descriptionFile)) {
+      description = fs.readFileSync(descriptionFile).toString('utf-8');
+    }
     return new MonitoringHeaderWidget({
       family: this.apiName,
       title: this.title,
+      description,
     });
   }
 
@@ -81,4 +88,5 @@ export class AggregatedFunctionMonitoring extends Monitoring {
       ),
     ];
   }
+
 }
