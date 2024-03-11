@@ -116,6 +116,7 @@
 <a href="ServerlessProjectOptions.html#npmAccess" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Access?</span></a>
 <a href="ServerlessProjectOptions.html#npmDistTag" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Dist<wbr/>Tag?</span></a>
 <a href="ServerlessProjectOptions.html#npmIgnoreOptions" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Ignore<wbr/>Options?</span></a>
+<a href="ServerlessProjectOptions.html#npmProvenance" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Provenance?</span></a>
 <a href="ServerlessProjectOptions.html#npmRegistry" class="tsd-index-link deprecated tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Registry?</span></a>
 <a href="ServerlessProjectOptions.html#npmRegistryUrl" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Registry<wbr/>Url?</span></a>
 <a href="ServerlessProjectOptions.html#npmTokenSecret" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Token<wbr/>Secret?</span></a>
@@ -1129,6 +1130,22 @@ for each branch.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.npmIgnoreOptions</p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="npmProvenance" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>npm<wbr/>Provenance</span><a href="#npmProvenance" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">npm<wbr/>Provenance</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">boolean</span></div>
+<div class="tsd-comment tsd-typography"><p>Should provenance statements be generated when the package is published.</p>
+<p>A supported package manager is required to publish a package with npm provenance statements and
+you will need to use a supported CI/CD provider.</p>
+<p>Note that the projen <code>Release</code> and <code>Publisher</code> components are using <code>publib</code> to publish packages,
+which is using npm internally and supports provenance statements independently of the package manager used.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>See</h4><p><a href="https://docs.npmjs.com/generating-provenance-statements">https://docs.npmjs.com/generating-provenance-statements</a></p>
+
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-3">true</span><span class="hl-1"> </span><span class="hl-4">for</span><span class="hl-1"> </span><span class="hl-4">public</span><span class="hl-1"> </span><span class="hl-4">packages</span><span class="hl-1">, </span><span class="hl-3">false</span><span class="hl-1"> </span><span class="hl-4">otherwise</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.npmProvenance</p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="npmRegistry" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span class="deprecated">npm<wbr/>Registry</span><a href="#npmRegistry" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">npm<wbr/>Registry</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
@@ -2072,6 +2089,7 @@ Given values either append to default configuration or overwrite values in it.</
 <li><a href="#npmAccess" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Access</span></a></li>
 <li><a href="#npmDistTag" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Dist<wbr/>Tag</span></a></li>
 <li><a href="#npmIgnoreOptions" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Ignore<wbr/>Options</span></a></li>
+<li><a href="#npmProvenance" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Provenance</span></a></li>
 <li><a href="#npmRegistry" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Registry</span></a></li>
 <li><a href="#npmRegistryUrl" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Registry<wbr/>Url</span></a></li>
 <li><a href="#npmTokenSecret" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Token<wbr/>Secret</span></a></li>

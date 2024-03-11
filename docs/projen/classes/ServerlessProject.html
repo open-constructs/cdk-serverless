@@ -67,7 +67,6 @@
 <a href="ServerlessProject.html#prettier" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>prettier?</span></a>
 <a href="ServerlessProject.html#projectBuild" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>project<wbr/>Build</span></a>
 <a href="ServerlessProject.html#projectType" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>project<wbr/>Type</span></a>
-<a href="ServerlessProject.html#projenCommand" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>projen<wbr/>Command</span></a>
 <a href="ServerlessProject.html#publisher" class="tsd-index-link deprecated tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>publisher?</span></a>
 <a href="ServerlessProject.html#release" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>release?</span></a>
 <a href="ServerlessProject.html#runScriptCommand" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>run<wbr/>Script<wbr/>Command</span></a>
@@ -104,6 +103,7 @@
 <a href="ServerlessProject.html#packageTask" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>package<wbr/>Task</span></a>
 <a href="ServerlessProject.html#postCompileTask" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>post<wbr/>Compile<wbr/>Task</span></a>
 <a href="ServerlessProject.html#preCompileTask" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>pre<wbr/>Compile<wbr/>Task</span></a>
+<a href="ServerlessProject.html#projenCommand" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>projen<wbr/>Command</span></a>
 <a href="ServerlessProject.html#root" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>root</span></a>
 <a href="ServerlessProject.html#subprojects" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>subprojects</span></a>
 <a href="ServerlessProject.html#testTask" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>test<wbr/>Task</span></a>
@@ -390,13 +390,6 @@ FQN of the project type.</p>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>project<wbr/>Type</span><a href="#projectType" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">project<wbr/>Type</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">ProjectType</span></div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptApp.projectType</p></aside></section>
-<section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="projenCommand" class="tsd-anchor"></a>
-<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>projen<wbr/>Command</span><a href="#projenCommand" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">projen<wbr/>Command</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>The command to use in order to run the projen CLI.</p>
-</div>
-<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
-<p>Inherited from pj.awscdk.AwsCdkTypeScriptApp.projenCommand</p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="publisher" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span class="deprecated">publisher</span><a href="#publisher" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">publisher</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">Publisher</span></div>
@@ -658,6 +651,16 @@ this task should synthesize the project files.</p>
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type ">Task</span></h4><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptApp.preCompileTask</p></aside></li></ul></section>
+<section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="projenCommand" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><span>projen<wbr/>Command</span><a href="#projenCommand" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<ul class="tsd-signatures tsd-is-inherited tsd-is-external">
+<li class="tsd-signature" id="projenCommand.projenCommand-1"><span class="tsd-signature-symbol">get</span> projenCommand<span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
+<li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>The command to use in order to run the projen CLI.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
+<p>Inherited from pj.awscdk.AwsCdkTypeScriptApp.projenCommand</p></aside></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="root" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>root</span><a href="#root" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -1365,7 +1368,6 @@ When given a project, this it the project itself.</p>
 <li><a href="#prettier" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>prettier</span></a></li>
 <li><a href="#projectBuild" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>project<wbr/>Build</span></a></li>
 <li><a href="#projectType" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>project<wbr/>Type</span></a></li>
-<li><a href="#projenCommand" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>projen<wbr/>Command</span></a></li>
 <li><a href="#publisher" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>publisher</span></a></li>
 <li><a href="#release" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>release</span></a></li>
 <li><a href="#runScriptCommand" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>run<wbr/>Script<wbr/>Command</span></a></li>
@@ -1399,6 +1401,7 @@ When given a project, this it the project itself.</p>
 <li><a href="#packageTask" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>package<wbr/>Task</span></a></li>
 <li><a href="#postCompileTask" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>post<wbr/>Compile<wbr/>Task</span></a></li>
 <li><a href="#preCompileTask" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>pre<wbr/>Compile<wbr/>Task</span></a></li>
+<li><a href="#projenCommand" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>projen<wbr/>Command</span></a></li>
 <li><a href="#root" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>root</span></a></li>
 <li><a href="#subprojects" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>subprojects</span></a></li>
 <li><a href="#testTask" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-262144"></use></svg><span>test<wbr/>Task</span></a></li>
