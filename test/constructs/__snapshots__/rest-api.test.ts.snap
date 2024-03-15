@@ -1,0 +1,48 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`A generated RestApi when instantiated with monitoring active should create a Cloudwatch Dashboard 1`] = `
+{
+  "TestSubjectDashboardFactoryDashboardEAA7D797": {
+    "Properties": {
+      "DashboardBody": {
+        "Fn::Join": [
+          "",
+          [
+            "{"start":"-PT8H","periodOverride":"inherit","widgets":[{"type":"text","width":24,"height":1,"x":0,"y":0,"properties":{"markdown":"# TestSubjectApi Rest API Monitoring"}},{"type":"text","width":24,"height":1,"x":0,"y":1,"properties":{"markdown":"### API Gateway Endpoint **TestSubjectApi [test] prod**"}},{"type":"metric","width":6,"height":5,"x":0,"y":2,"properties":{"view":"timeSeries","title":"TPS","region":"",
+            {
+              "Ref": "AWS::Region",
+            },
+            "","metrics":[[{"label":"Count/s","expression":"FILL(requests,0) / PERIOD(requests)"}],["AWS/ApiGateway","Count","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"Count","stat":"Sum","visible":false,"id":"requests"}]],"yAxis":{"left":{"min":0,"label":"Count","showUnits":false}}}},{"type":"metric","width":6,"height":5,"x":6,"y":2,"properties":{"view":"timeSeries","title":"Latency","region":"",
+            {
+              "Ref": "AWS::Region",
+            },
+            "","metrics":[["AWS/ApiGateway","Latency","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"P50 (avg: \${AVG})","stat":"p50"}],["AWS/ApiGateway","Latency","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"P90 (avg: \${AVG})","stat":"p90"}],["AWS/ApiGateway","Latency","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"P99 (avg: \${AVG})","stat":"p99"}]],"yAxis":{"left":{"min":0,"label":"ms","showUnits":false}}}},{"type":"metric","width":6,"height":5,"x":12,"y":2,"properties":{"view":"timeSeries","title":"Errors","region":"",
+            {
+              "Ref": "AWS::Region",
+            },
+            "","metrics":[["AWS/ApiGateway","4XXError","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"4XX Error","stat":"Sum"}],["AWS/ApiGateway","5XXError","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"5XX Fault","stat":"Sum"}]],"yAxis":{"left":{"min":0,"label":"Count","showUnits":false}}}},{"type":"metric","width":6,"height":5,"x":18,"y":2,"properties":{"view":"timeSeries","title":"Errors (rate)","region":"",
+            {
+              "Ref": "AWS::Region",
+            },
+            "","metrics":[["AWS/ApiGateway","4XXError","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"4XX Error (avg)"}],["AWS/ApiGateway","5XXError","ApiName","TestSubjectApi [test]","Stage","prod",{"label":"5XX Fault (avg)"}]],"yAxis":{"left":{"min":0,"label":"Rate","showUnits":false}}}},{"type":"text","width":24,"height":2,"x":0,"y":7,"properties":{"markdown":"### TestSubjectApi **Lambda metrics**\\n\\nCreate a file named 'src/definitions/monitoring/TestSubjectApi.description.md' to add a description to this API"}},{"type":"metric","width":8,"height":5,"x":0,"y":9,"properties":{"view":"timeSeries","title":"Lambda Duration","region":"",
+            {
+              "Ref": "AWS::Region",
+            },
+            "","metrics":[["TestNamespace","Duration"]],"yAxis":{"left":{"min":0,"label":"ms","showUnits":false}}}},{"type":"metric","width":8,"height":5,"x":8,"y":9,"properties":{"view":"timeSeries","title":"Lambda Errors/Throttles","region":"",
+            {
+              "Ref": "AWS::Region",
+            },
+            "","metrics":[["TestNamespace","Errors"],["TestNamespace","Invocations"]],"yAxis":{"left":{"min":0,"label":"Count","showUnits":false}}}},{"type":"metric","width":8,"height":5,"x":16,"y":9,"properties":{"view":"timeSeries","title":"Lambda Invocations","region":"",
+            {
+              "Ref": "AWS::Region",
+            },
+            "","metrics":[["TestNamespace","Invocations"]],"yAxis":{"left":{"min":0,"label":"Count","showUnits":false}}}}]}",
+          ],
+        ],
+      },
+      "DashboardName": "TestSubjectApi",
+    },
+    "Type": "AWS::CloudWatch::Dashboard",
+  },
+}
+`;

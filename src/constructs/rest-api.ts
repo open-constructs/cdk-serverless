@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import {
   aws_certificatemanager,
   aws_iam,
@@ -8,11 +7,11 @@ import {
 } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
+import { loadYaml } from './load-yaml';
 import { CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
 
 export interface RestApiProps<OPS> extends BaseApiProps {
@@ -95,7 +94,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   constructor(scope: Construct, id: string, private props: RestApiProps<OPS>) {
     super(scope, id, props);
 
-    this.apiSpec = yaml.load(fs.readFileSync(props.definitionFileName).toString()) as OpenAPI3;
+    this.apiSpec = loadYaml(props.definitionFileName);
 
     let customDomainName: aws_apigateway.DomainNameOptions | undefined;
     if (this.apiFQDN) {
