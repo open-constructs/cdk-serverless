@@ -246,7 +246,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@hapi/boom,@taimos/projen,@types/aws-lambda,@types/jest,@types/js-yaml,@types/jsonwebtoken,@types/jwk-to-pem,@types/lambda-log,@types/uuid,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typedoc,typescript,dynamodb-onetable,openapi-typescript,axios,constructs,date-fns,js-yaml,jsonwebtoken,jwk-to-pem,lambda-log,uuid"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --dep=dev,peer,prod,optional --filter=@hapi/boom,@taimos/projen,@types/aws-lambda,@types/jest,@types/js-yaml,@types/jsonwebtoken,@types/jwk-to-pem,@types/lambda-log,@types/uuid,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typescript,dynamodb-onetable,openapi-typescript,axios,constructs,date-fns,js-yaml,jsonwebtoken,jwk-to-pem,lambda-log,uuid"
         },
         {
           "exec": "yarn install --check-files"
