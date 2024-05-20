@@ -34,8 +34,8 @@
   "devDependencies": {
     "@aws-cdk/aws-cognito-identitypool-alpha": "2.120.0-alpha.0",
     "@hapi/boom": "^10.0.1",
-    "@taimos/projen": "^0.0.199",
-    "@types/aws-lambda": "^8.10.137",
+    "@taimos/projen": "^0.0.200",
+    "@types/aws-lambda": "^8.10.138",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.6",
@@ -54,7 +54,7 @@
     "jest": "^29.7.0",
     "jest-junit": "^15",
     "openapi-typescript": "6.7.5",
-    "projen": "^0.81.10",
+    "projen": "^0.81.15",
     "standard-version": "^9",
     "ts-jest": "^29.1.2",
     "ts-node": "^10.9.2",
@@ -65,17 +65,17 @@
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.120.0-alpha.0",
     "aws-cdk-lib": "^2.120.0",
     "dynamodb-onetable": "^2.7.2",
-    "openapi-typescript": "^6.7.5"
+    "openapi-typescript": "^6.7.6"
   },
   "dependencies": {
-    "axios": "^1.6.8",
+    "axios": "^1.7.0",
     "constructs": "^10.3.0",
     "date-fns": "^2.30.0",
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "jwk-to-pem": "^2.0.5",
     "lambda-log": "^3.1.0",
-    "projen": "^0.81.10",
+    "projen": "^0.81.15",
     "uuid": "^9.0.1"
   },
   "keywords": [
@@ -94,7 +94,7 @@
   "jest": {
     "testMatch": [
       "<rootDir>/src/**/__tests__/**/*.ts?(x)",
-      "<rootDir>/(test|src)/**/*(*.)@(spec|test).ts?(x)"
+      "<rootDir>/@(test|src)/**/*(*.)@(spec|test).ts?(x)"
     ],
     "clearMocks": true,
     "collectCoverage": true,
