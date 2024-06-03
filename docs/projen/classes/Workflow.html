@@ -15,6 +15,14 @@
 <li><a href="../modules.html">cdk-serverless</a></li>
 <li><a href="Workflow.html">Workflow</a></li></ul>
 <h1>Class Workflow</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The Workflow construct sets up an AWS Step Functions workflow for a serverless project using projen.
+This construct extends the projen Component to generate a sample state machine definition file and corresponding TypeScript construct file.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">workflow</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Workflow</span><span class="hl-1">(</span><span class="hl-4">app</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">workflowName:</span><span class="hl-1"> </span><span class="hl-2">&#39;MyWorkflow&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">definitionFile:</span><span class="hl-1"> </span><span class="hl-2">&#39;statemachine/definition.json&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">});</span>
+</code><button>Copy</button></pre>
+</div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -55,14 +63,21 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_Workflow"><span class="tsd-kind-constructor-signature">new <wbr/>Workflow</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">app</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Workflow.html" class="tsd-signature-type tsd-kind-class">Workflow</a><a href="#constructor.new_Workflow" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of Workflow.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">app</span>: <span class="tsd-signature-type ">AwsCdkTypeScriptApp</span></h5></li>
+<h5><span class="tsd-kind-parameter">app</span>: <span class="tsd-signature-type ">AwsCdkTypeScriptApp</span></h5>
+<div class="tsd-comment tsd-typography"><p>The AWS CDK TypeScript app.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">options</span>: <a href="../interfaces/WorkflowOptions.html" class="tsd-signature-type tsd-kind-interface">WorkflowOptions</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="Workflow.html" class="tsd-signature-type tsd-kind-class">Workflow</a></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">options</span>: <a href="../interfaces/WorkflowOptions.html" class="tsd-signature-type tsd-kind-interface">WorkflowOptions</a></h5>
+<div class="tsd-comment tsd-typography"><p>The options for configuring the Workflow.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="Workflow.html" class="tsd-signature-type tsd-kind-class">Workflow</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides pj.Component.constructor</p></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
@@ -75,7 +90,10 @@
 <p>Inherited from pj.Component.node</p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="options" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>options</span><a href="#options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">options</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/WorkflowOptions.html" class="tsd-signature-type tsd-kind-interface">WorkflowOptions</a></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">options</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/WorkflowOptions.html" class="tsd-signature-type tsd-kind-interface">WorkflowOptions</a></div>
+<div class="tsd-comment tsd-typography"><p>The options for configuring the Workflow.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="project" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>project</span><a href="#project" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">project</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Project</span></div><aside class="tsd-sources">
@@ -87,12 +105,18 @@
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="createConstructFile.createConstructFile-1"><span class="tsd-kind-call-signature">create<wbr/>Construct<wbr/>File</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">file</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#createConstructFile.createConstructFile-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates the construct file content for the generated Workflow.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type ">FileBase</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></section>
+<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type ">FileBase</span></h5>
+<div class="tsd-comment tsd-typography"><p>The file object to create content for.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>The content of the construct file.</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="postSynthesize" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>post<wbr/>Synthesize</span><a href="#postSynthesize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -118,23 +142,35 @@
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="renderDefinitionSubstitution.renderDefinitionSubstitution-1"><span class="tsd-kind-call-signature">render<wbr/>Definition<wbr/>Substitution</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">def</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#renderDefinitionSubstitution.renderDefinitionSubstitution-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Renders the definition substitution for a given variable.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">def</span>: <span class="tsd-signature-type ">VariableDefinition</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></section>
+<h5><span class="tsd-kind-parameter">def</span>: <span class="tsd-signature-type ">VariableDefinition</span></h5>
+<div class="tsd-comment tsd-typography"><p>The variable definition.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>The definition substitution string.</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="renderStateConfigDefinition" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>render<wbr/>State<wbr/>Config<wbr/>Definition</span><a href="#renderStateConfigDefinition" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="renderStateConfigDefinition.renderStateConfigDefinition-1"><span class="tsd-kind-call-signature">render<wbr/>State<wbr/>Config<wbr/>Definition</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">def</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#renderStateConfigDefinition.renderStateConfigDefinition-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Renders the state configuration definition for a given variable.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">def</span>: <span class="tsd-signature-type ">VariableDefinition</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></section>
+<h5><span class="tsd-kind-parameter">def</span>: <span class="tsd-signature-type ">VariableDefinition</span></h5>
+<div class="tsd-comment tsd-typography"><p>The variable definition.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>The state configuration definition string.</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="synthesize" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>synthesize</span><a href="#synthesize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">

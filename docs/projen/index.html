@@ -33,6 +33,15 @@
 <li>Add &#39;cdk-serverless&#39; as a dependency to your project</li>
 <li>Run <code>npx projen</code> to install it</li>
 </ol>
+<p>Now you can use the project type <code>ServerlessProject</code> for your repo.</p>
+<a id="md:adding-projen-constructs" class="tsd-anchor"></a><h3><a href="#md:adding-projen-constructs">Adding projen constructs</a></h3><p>First you need to add the desired construct to your projen configuration: (e.g. RestApi)</p>
+<pre><code class="language-typescript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">RestApi</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;cdk-serverless/projen&#39;</span><span class="hl-1">;</span><br/><br/><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">RestApi</span><span class="hl-1">(</span><span class="hl-4">project</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">apiName:</span><span class="hl-1"> </span><span class="hl-2">&#39;TestApi&#39;</span><span class="hl-1">, </span><span class="hl-6">// logical name of your API</span><br/><span class="hl-1">  </span><span class="hl-4">definitionFile:</span><span class="hl-1"> </span><span class="hl-2">&#39;testapi.yaml&#39;</span><span class="hl-1">, </span><span class="hl-6">// path to your OpenAPI spec</span><br/><span class="hl-1">});</span>
+</code><button>Copy</button></pre>
+<p>Then run projen to generate construct files and models for the API.</p>
+<a id="md:using-the-cdk-serverless-l3-constructs" class="tsd-anchor"></a><h3><a href="#md:using-the-cdk-serverless-l3-constructs">Using the CDK serverless L3 constructs</a></h3><p>In your stack you can then reference the generated L3s to create the API:</p>
+<pre><code class="language-typescript"><span class="hl-3">import</span><span class="hl-1"> { </span><span class="hl-4">TestApiRestApi</span><span class="hl-1"> } </span><span class="hl-3">from</span><span class="hl-1"> </span><span class="hl-2">&#39;./generated/rest.testapi-api.generated&#39;</span><span class="hl-1">;</span><br/><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">api</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">TestApiRestApi</span><span class="hl-1">(</span><span class="hl-5">this</span><span class="hl-1">, </span><span class="hl-2">&#39;Api&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">stageName:</span><span class="hl-1"> </span><span class="hl-4">props</span><span class="hl-1">.</span><span class="hl-4">stageName</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">domainName:</span><span class="hl-1"> </span><span class="hl-4">props</span><span class="hl-1">.</span><span class="hl-4">domainName</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">apiHostname:</span><span class="hl-1"> </span><span class="hl-2">&#39;api&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">singleTableDatastore</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">cors:</span><span class="hl-1"> </span><span class="hl-5">true</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">additionalEnv:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">DOMAIN_NAME:</span><span class="hl-1"> </span><span class="hl-4">props</span><span class="hl-1">.</span><span class="hl-4">domainName</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">});</span>
+</code><button>Copy</button></pre>
+<p>This will also create Lambda functions for all operations defined in your spec and wire them accordingly.</p>
 <a id="md:contribute" class="tsd-anchor"></a><h2><a href="#md:contribute">Contribute</a></h2><a id="md:how-to-contribute-to-cdk-serverless" class="tsd-anchor"></a><h3><a href="#md:how-to-contribute-to-cdk-serverless">How to contribute to CDK Serverless</a></h3><a id="md:did-you-find-a-bug" class="tsd-anchor"></a><h4><a href="#md:did-you-find-a-bug"><strong>Did you find a bug?</strong></a></h4><ul>
 <li><p><strong>Ensure the bug was not already reported</strong> by searching on GitHub under <a href="https://github.com/taimos/cdk-serverless/issues">Issues</a>.</p>
 </li>
@@ -83,6 +92,10 @@
 <ul>
 <li><a href="#md:features"><span>Features</span></a></li>
 <li><a href="#md:quick-start"><span>Quick <wbr/>Start</span></a></li>
+<li>
+<ul>
+<li><a href="#md:adding-projen-constructs"><span>Adding projen constructs</span></a></li>
+<li><a href="#md:using-the-cdk-serverless-l3-constructs"><span>Using the CDK serverless <wbr/>L3 constructs</span></a></li></ul></li>
 <li><a href="#md:contribute"><span>Contribute</span></a></li>
 <li>
 <ul>
