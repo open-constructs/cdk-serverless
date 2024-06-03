@@ -87,6 +87,9 @@ export interface BaseApiProps {
   apiHostname?: string;
 }
 
+/**
+ * Base class for different types of APIs
+ */
 export abstract class BaseApi extends Construct {
 
   protected readonly hostedZone?: aws_route53.IHostedZone;

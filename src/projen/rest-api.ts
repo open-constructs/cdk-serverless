@@ -11,8 +11,25 @@ export interface RestApiOptions {
   readonly definitionFile: string;
 }
 
+/**
+ * The RestApi construct sets up an OpenAPI-based REST API for a serverless project using projen.
+ * This construct extends the projen Component to include dependencies and development dependencies required for OpenAPI and AWS Lambda,
+ * and provides methods to generate TypeScript types from the OpenAPI definition file. It also generates sample handler files for the API endpoints.
+ *
+ * @example
+ * const restApi = new RestApi(app, {
+ *   apiName: 'MyRestApi',
+ *   definitionFile: 'src/openapi/schema.yaml',
+ * });
+ */
 export class RestApi extends pj.Component {
 
+  /**
+   * Creates an instance of RestApi.
+   *
+   * @param app - The AWS CDK TypeScript app.
+   * @param options - The options for configuring the RestApi.
+   */
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: RestApiOptions) {
     super(app);
 
@@ -66,9 +83,14 @@ export class RestApi extends pj.Component {
 
     const apiFile = new pj.TextFile(this.project, `src/generated/rest.${this.options.apiName.toLowerCase()}-api.generated.ts`);
     apiFile.addLine(this.createConstructFile(apiFile));
-
   }
 
+  /**
+   * Creates the construct file content for the generated REST API.
+   *
+   * @param file - The file object to create content for.
+   * @returns The content of the construct file.
+   */
   protected createConstructFile(file: pj.FileBase): string {
     return `// ${file.marker}
 /* eslint-disable */
@@ -93,6 +115,15 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
 }`;
   }
 
+  /**
+   * Validates a path reference in the OpenAPI specification.
+   *
+   * @param apiSpec - The OpenAPI specification object.
+   * @param path - The path reference to validate.
+   * @param visited - The list of visited paths to detect cycles.
+   * @returns True if the path reference is valid, otherwise false.
+   * @throws If the path reference is invalid or cyclical.
+   */
   protected validatePathRef(apiSpec: OpenAPI3, path: string, visited: string[] = []): boolean {
     if (!path.startsWith('#')) {
       throw new Error(`Unable to resolve ref '${path}' - Resolving references to paths from different files is currently not supported`);
@@ -112,7 +143,6 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
       throw new Error(`Cyclical reference exists between paths: ${visited.join(', ')}`);
     }
 
-
     const maybePath = pathPrettySplit.reduce((acc, pathPart) => {
       if (Object.keys(acc).includes(pathPart)) {
         return acc[pathPart];
@@ -129,6 +159,14 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
     return false;
   }
 
+  /**
+   * Adds a sample handler file for a REST API resource.
+   *
+   * @param files - The collection of file generators.
+   * @param apiSpec - The OpenAPI specification object.
+   * @param path - The path of the API resource.
+   * @param method - The HTTP method of the API resource.
+   */
   protected addRestResourceHandlerSample(files: { [fileName: string]: () => string }, apiSpec: OpenAPI3, path: string, method: string) {
     const oaPath = apiSpec.paths![path] as PathItemObject;
     const operation = oaPath[method as keyof PathItemObject] as OperationObject;
@@ -141,6 +179,13 @@ export class ${this.options.apiName}RestApi extends RestApi<paths, operations> {
     };
   }
 
+  /**
+   * Creates the entry file content for a REST API handler.
+   *
+   * @param method - The HTTP method of the API resource.
+   * @param operationId - The operation ID of the API resource.
+   * @returns The content of the entry file.
+   */
   protected createEntryFile(method: string, operationId: string): string {
     let factoryCall;
     let logs;
@@ -171,6 +216,11 @@ export const handler = ${factoryCall}
 });`;
   }
 
+  /**
+   * Generates sample handler files for the REST API based on the OpenAPI specification.
+   *
+   * @returns The collection of file generators for the sample handler files.
+   */
   private generateSampleHandlerFiles(): { [fileName: string]: (() => string) } {
     const files = {};
     const apiSpec = yaml.load(fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString()) as OpenAPI3;

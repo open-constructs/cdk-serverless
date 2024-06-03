@@ -105,8 +105,39 @@ export interface LambdaFunctionProps {
   lambdaTracing?: LambdaTracingOptions;
 }
 
+/**
+ * The LambdaFunction construct extends the AWS CDK NodejsFunction to provide additional configurations and environment settings for AWS Lambda functions.
+ * This construct facilitates setting up a Lambda function with various custom options, environment variables, and permissions required to interact with AWS services
+ * such as DynamoDB, Cognito, and S3. It supports setting up Lambda functions with pre-defined bundles, custom handlers, and integrations with AWS services.
+ * The construct also provides methods to dynamically update the configuration and permissions of the Lambda function after it has been created.
+ *
+ * @example
+ * const lambdaFunction = new LambdaFunction(this, 'MyLambdaFunction', {
+ *   entry: 'path/to/lambda/handler.ts',
+ *   handler: 'main',
+ *   stageName: 'dev',
+ *   table: myDynamoDBTable,
+ *   userPool: myCognitoUserPool,
+ *   assetBucket: myS3Bucket,
+ *   lambdaOptions: {
+ *     timeout: Duration.seconds(30),
+ *     memorySize: 512,
+ *   },
+ * });
+ *
+ * // Add additional permissions
+ * lambdaFunction.grantSendEmails();
+ * lambdaFunction.grantTableWrite();
+ */
 export class LambdaFunction extends lambdaNodejs.NodejsFunction {
 
+  /**
+   * Creates an instance of LambdaFunction.
+   *
+   * @param scope - The scope in which this construct is defined.
+   * @param id - The scoped construct ID.
+   * @param props - The properties of the LambdaFunction construct.
+   */
   constructor(scope: Construct, id: string, private props: LambdaFunctionProps) {
     super(scope, id, {
       ...props.lambdaOptions,

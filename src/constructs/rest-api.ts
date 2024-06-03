@@ -43,13 +43,55 @@ export interface RestApiProps<OPS> extends BaseApiProps {
   cors: boolean;
 }
 
+/**
+ * The RestApi construct sets up an AWS API Gateway REST API using OpenAPI specification.
+ * This construct facilitates the creation of a REST API with various configurations, including custom domain, CORS support, and integration with Lambda functions.
+ * It allows auto-generating routes based on the provided OpenAPI definition and provides methods to dynamically add custom routes and manage Lambda function integrations.
+ *
+ * @template PATHS - The type definition for the API paths.
+ * @template OPS - The type definition for the API operations.
+ *
+ * @example
+ * const api = new RestApi(this, 'MyRestApi', {
+ *   apiName: 'MyAPI',
+ *   stageName: 'dev',
+ *   definitionFileName: 'openapi.yaml',
+ *   authentication: myCognitoAuth,
+ *   singleTableDatastore: myDynamoDBTable,
+ *   autoGenerateRoutes: true,
+ * });
+ *
+ * // Add a custom REST resource
+ * api.addRestResource('/items', 'get');
+ *
+ * // Get the Lambda function for a specific operation
+ * const lambdaFunction = api.getFunctionForOperation('getItems');
+ */
 export class RestApi<PATHS, OPS> extends BaseApi {
 
+  /**
+   * The AWS API Gateway REST API instance.
+   */
   public readonly api: aws_apigateway.SpecRestApi;
+
+  /**
+   * The OpenAPI specification for the REST API.
+   */
   public readonly apiSpec: OpenAPI3;
 
+  /**
+   * A collection of Lambda functions used as integrations for the API operations.
+   * @private
+   */
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
+  /**
+   * Creates an instance of RestApi.
+   *
+   * @param scope - The scope in which this construct is defined.
+   * @param id - The scoped construct ID.
+   * @param props - The properties of the RestApi construct.
+   */
   constructor(scope: Construct, id: string, private props: RestApiProps<OPS>) {
     super(scope, id, props);
 

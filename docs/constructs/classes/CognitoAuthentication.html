@@ -15,6 +15,11 @@
 <li><a href="../modules.html">cdk-serverless</a></li>
 <li><a href="CognitoAuthentication.html">CognitoAuthentication</a></li></ul>
 <h1>Class CognitoAuthentication</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The CognitoAuthentication construct sets up a Cognito User Pool with optional triggers and an optional Cognito Identity Pool.
+It also configures various Lambda triggers for custom message, pre-sign up, and pre-token generation events.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -56,25 +61,40 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_CognitoAuthentication"><span class="tsd-kind-constructor-signature">new <wbr/>Cognito<wbr/>Authentication</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">scope</span>, <span class="tsd-kind-parameter">id</span>, <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="CognitoAuthentication.html" class="tsd-signature-type tsd-kind-class">CognitoAuthentication</a><a href="#constructor.new_CognitoAuthentication" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of CognitoAuthentication.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5></li>
+<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scope in which this construct is defined.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scoped construct ID.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/CognitoAuthenticationProps.html" class="tsd-signature-type tsd-kind-interface">CognitoAuthenticationProps</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="CognitoAuthentication.html" class="tsd-signature-type tsd-kind-class">CognitoAuthentication</a></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/CognitoAuthenticationProps.html" class="tsd-signature-type tsd-kind-interface">CognitoAuthenticationProps</a></h5>
+<div class="tsd-comment tsd-typography"><p>The properties of the CognitoAuthentication construct.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="CognitoAuthentication.html" class="tsd-signature-type tsd-kind-class">CognitoAuthentication</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides Construct.constructor</p></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="customMessageFunction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>custom<wbr/>Message<wbr/>Function</span><a href="#customMessageFunction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">custom<wbr/>Message<wbr/>Function</span><span class="tsd-signature-symbol">?:</span> <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">custom<wbr/>Message<wbr/>Function</span><span class="tsd-signature-symbol">?:</span> <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></div>
+<div class="tsd-comment tsd-typography"><p>The optional Lambda function for custom message trigger.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="identityPool" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>identity<wbr/>Pool</span><a href="#identityPool" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">identity<wbr/>Pool</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">IdentityPool</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">identity<wbr/>Pool</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">IdentityPool</span></div>
+<div class="tsd-comment tsd-typography"><p>The optional Cognito Identity Pool for federated identities.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="node" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>node</span><a href="#node" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">node</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Node</span></div>
@@ -84,14 +104,20 @@
 <p>Inherited from Construct.node</p></aside></section>
 <section class="tsd-panel tsd-member"><a id="preSignUpFunction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>pre<wbr/>Sign<wbr/>Up<wbr/>Function</span><a href="#preSignUpFunction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">pre<wbr/>Sign<wbr/>Up<wbr/>Function</span><span class="tsd-signature-symbol">?:</span> <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">pre<wbr/>Sign<wbr/>Up<wbr/>Function</span><span class="tsd-signature-symbol">?:</span> <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></div>
+<div class="tsd-comment tsd-typography"><p>The optional Lambda function for pre-sign up trigger.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="preTokenGenerationFunction" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>pre<wbr/>Token<wbr/>Generation<wbr/>Function</span><a href="#preTokenGenerationFunction" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">pre<wbr/>Token<wbr/>Generation<wbr/>Function</span><span class="tsd-signature-symbol">?:</span> <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">pre<wbr/>Token<wbr/>Generation<wbr/>Function</span><span class="tsd-signature-symbol">?:</span> <a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></div>
+<div class="tsd-comment tsd-typography"><p>The optional Lambda function for pre-token generation trigger.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="userpool" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>userpool</span><a href="#userpool" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">userpool</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">UserPool</span></div>
-<div class="tsd-comment tsd-typography"><p>The Cognito user pool that holds user information</p>
+<div class="tsd-comment tsd-typography"><p>The Cognito User Pool for user authentication.</p>
 </div>
 <div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Implementation of <a href="../interfaces/ICognitoAuthentication.html">ICognitoAuthentication</a>.<a href="../interfaces/ICognitoAuthentication.html#userpool">userpool</a></p></aside></section></section>

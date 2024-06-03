@@ -11,6 +11,17 @@ export interface DatastoreOptions {
   readonly definitionFile: string;
 }
 
+/**
+ * The Datastore construct sets up a DynamoDB single-table design for a serverless project using projen.
+ * This construct extends the projen Component to include dependencies and development dependencies required for DynamoDB and provides
+ * methods to generate model and construct files based on a schema definition file.
+ *
+ * @example
+ * const datastore = new Datastore(app, {
+ *   modelName: 'User',
+ *   definitionFile: 'src/models/user.schema.json',
+ * });
+ */
 export class Datastore extends pj.Component {
 
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: DatastoreOptions) {

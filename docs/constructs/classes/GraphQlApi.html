@@ -14,12 +14,24 @@
 <ul class="tsd-breadcrumb">
 <li><a href="../modules.html">cdk-serverless</a></li>
 <li><a href="GraphQlApi.html">GraphQlApi</a></li></ul>
-<h1>Class GraphQlApi&lt;RESOLVERS&gt;</h1></div> 
+<h1>Class GraphQlApi&lt;RESOLVERS&gt;</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The GraphQlApi construct sets up an AWS AppSync GraphQL API integrated with Cognito for authentication and DynamoDB for data storage.
+This construct facilitates the creation of a GraphQL API with various configurations, including custom domain, logging, schema definition,
+and authorization using Cognito User Pool and Identity Pool. It also provides methods to dynamically add resolvers and grant access to specific fields.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">api</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">GraphQlApi</span><span class="hl-1">(</span><span class="hl-5">this</span><span class="hl-1">, </span><span class="hl-2">&#39;MyGraphQlApi&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">apiName:</span><span class="hl-1"> </span><span class="hl-2">&#39;MyAPI&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">stageName:</span><span class="hl-1"> </span><span class="hl-2">&#39;dev&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">definitionFileName:</span><span class="hl-1"> </span><span class="hl-2">&#39;schema.graphql&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">authentication:</span><span class="hl-1"> </span><span class="hl-4">myCognitoAuth</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">singleTableDatastore:</span><span class="hl-1"> </span><span class="hl-4">myDynamoDBTable</span><span class="hl-1">,</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-6">// Add a Lambda resolver</span><br/><span class="hl-4">api</span><span class="hl-1">.</span><span class="hl-0">addLambdaResolver</span><span class="hl-1">(</span><span class="hl-2">&#39;Query&#39;</span><span class="hl-1">, </span><span class="hl-2">&#39;getItem&#39;</span><span class="hl-1">);</span><br/><br/><span class="hl-6">// Grant access to unauthenticated users for a specific query</span><br/><span class="hl-4">api</span><span class="hl-1">.</span><span class="hl-0">grantAccessUnAuth</span><span class="hl-1">(</span><span class="hl-2">&#39;Query&#39;</span><span class="hl-1">, </span><span class="hl-2">&#39;getItem&#39;</span><span class="hl-1">);</span>
+</code><button>Copy</button></pre>
+</div></section> 
 <section class="tsd-panel">
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameter-list">
 <li>
-<h4><span class="tsd-kind-type-parameter">RESOLVERS</span></h4></li></ul></section> 
+<h4><span class="tsd-kind-type-parameter">RESOLVERS</span></h4>
+<div class="tsd-comment tsd-typography"><p>The type definition for the GraphQL resolvers.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></li></ul></section> 
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -72,6 +84,8 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_GraphQlApi"><span class="tsd-kind-constructor-signature">new <wbr/>Graph<wbr/>Ql<wbr/>Api</span><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">RESOLVERS</span><span class="tsd-signature-symbol">&gt;</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">scope</span>, <span class="tsd-kind-parameter">id</span>, <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="GraphQlApi.html" class="tsd-signature-type tsd-kind-class">GraphQlApi</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">RESOLVERS</span><span class="tsd-signature-symbol">&gt;</span><a href="#constructor.new_GraphQlApi" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of GraphQlApi.</p>
+</div>
 <section class="tsd-panel">
 <h4>Type Parameters</h4>
 <ul class="tsd-type-parameter-list">
@@ -81,26 +95,39 @@
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5></li>
+<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scope in which this construct is defined.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scoped construct ID.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/GraphQlApiProps.html" class="tsd-signature-type tsd-kind-interface">GraphQlApiProps</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="GraphQlApi.html" class="tsd-signature-type tsd-kind-class">GraphQlApi</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">RESOLVERS</span><span class="tsd-signature-symbol">&gt;</span></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/GraphQlApiProps.html" class="tsd-signature-type tsd-kind-interface">GraphQlApiProps</a></h5>
+<div class="tsd-comment tsd-typography"><p>The properties of the GraphQlApi construct.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="GraphQlApi.html" class="tsd-signature-type tsd-kind-class">GraphQlApi</a><span class="tsd-signature-symbol">&lt;</span><span class="tsd-signature-type tsd-kind-type-parameter">RESOLVERS</span><span class="tsd-signature-symbol">&gt;</span></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides <a href="BaseApi.html">BaseApi</a>.<a href="BaseApi.html#constructor">constructor</a></p></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="_functions" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>_functions</span><a href="#_functions" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">_functions</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">operationId</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><span class="tsd-signature-symbol"> = {}</span></div>
+<div class="tsd-comment tsd-typography"><p>A collection of Lambda functions used as resolvers for the GraphQL API.</p>
+</div>
 <div class="tsd-type-declaration">
 <h4>Type declaration</h4>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-index-signature">
-<h5><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">operationId</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></h5></li></ul></div></section>
+<h5><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">operationId</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><a href="LambdaFunction.html" class="tsd-signature-type tsd-kind-class">LambdaFunction</a></h5></li></ul></div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="api" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>api</span><a href="#api" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">api</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">GraphqlApi</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">api</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">GraphqlApi</span></div>
+<div class="tsd-comment tsd-typography"><p>The AWS AppSync GraphQL API instance.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="apiDomainName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>api<wbr/>Domain<wbr/>Name</span><a href="#apiDomainName" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">api<wbr/>Domain<wbr/>Name</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div><aside class="tsd-sources">
@@ -115,7 +142,10 @@
 <p>Inherited from <a href="BaseApi.html">BaseApi</a>.<a href="BaseApi.html#apiHostName">apiHostName</a></p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="cognitoAuth" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>cognito<wbr/>Auth</span><a href="#cognitoAuth" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">cognito<wbr/>Auth</span><span class="tsd-signature-symbol">:</span> <a href="CognitoAuthentication.html" class="tsd-signature-type tsd-kind-class">CognitoAuthentication</a></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">cognito<wbr/>Auth</span><span class="tsd-signature-symbol">:</span> <a href="CognitoAuthentication.html" class="tsd-signature-type tsd-kind-class">CognitoAuthentication</a></div>
+<div class="tsd-comment tsd-typography"><p>The Cognito authentication configuration.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member tsd-is-protected tsd-is-inherited"><a id="hostedZone" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>hosted<wbr/>Zone</span><a href="#hostedZone" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">hosted<wbr/>Zone</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">IHostedZone</span></div><aside class="tsd-sources">
@@ -129,10 +159,16 @@
 <p>Inherited from <a href="BaseApi.html">BaseApi</a>.<a href="BaseApi.html#node">node</a></p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="props" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>props</span><a href="#props" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">props</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/GraphQlApiProps.html" class="tsd-signature-type tsd-kind-interface">GraphQlApiProps</a></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">props</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/GraphQlApiProps.html" class="tsd-signature-type tsd-kind-interface">GraphQlApiProps</a></div>
+<div class="tsd-comment tsd-typography"><p>The properties of the GraphQlApi construct.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="tableDataSource" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>table<wbr/>Data<wbr/>Source</span><a href="#tableDataSource" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">table<wbr/>Data<wbr/>Source</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">DynamoDbDataSource</span></div></section></section>
+<div class="tsd-signature"><span class="tsd-kind-property">table<wbr/>Data<wbr/>Source</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">DynamoDbDataSource</span></div>
+<div class="tsd-comment tsd-typography"><p>The optional DynamoDB data source for the GraphQL API.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member"><a id="addDynamoDbJSResolver" class="tsd-anchor"></a>
