@@ -1,4 +1,5 @@
 import {
+  CfnOutput,
   aws_certificatemanager as certificatemanager,
   aws_cloudfront as cloudfront,
   aws_route53 as route53,
@@ -6,6 +7,7 @@ import {
   aws_s3 as s3,
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
+import { CFN_OUTPUT_SUFFIX_ASSETCDN_BUCKETNAME, CFN_OUTPUT_SUFFIX_ASSETCDN_DOMAINNAME, CFN_OUTPUT_SUFFIX_ASSETCDN_URL } from '../shared/outputs';
 
 export interface AssetCdnProps {
   /**
@@ -42,6 +44,17 @@ export class AssetCdn extends Construct {
     });
 
     this.assetDomainName = `${props.hostName}.${props.domainName}`;
+
+
+    new CfnOutput(this, CFN_OUTPUT_SUFFIX_ASSETCDN_BUCKETNAME, {
+      value: this.assetBucket.bucketName,
+    });
+    new CfnOutput(this, CFN_OUTPUT_SUFFIX_ASSETCDN_DOMAINNAME, {
+      value: this.assetDomainName,
+    });
+    new CfnOutput(this, CFN_OUTPUT_SUFFIX_ASSETCDN_URL, {
+      value: 'https://' + this.assetDomainName,
+    });
 
     // TODO this will be deprecated soon; find other solution
     const cert = new certificatemanager.DnsValidatedCertificate(this, 'Certificate', {

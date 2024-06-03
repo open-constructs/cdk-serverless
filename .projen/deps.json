@@ -1,6 +1,14 @@
 {
   "dependencies": [
     {
+      "name": "@aws-sdk/client-cognito-identity-provider",
+      "type": "build"
+    },
+    {
+      "name": "@aws-sdk/client-s3",
+      "type": "build"
+    },
+    {
       "name": "@hapi/boom",
       "type": "build"
     },
@@ -107,6 +115,14 @@
     {
       "name": "@aws-cdk/aws-cognito-identitypool-alpha",
       "version": "^2.120.0-alpha.0",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-sdk/client-cognito-identity-provider",
+      "type": "peer"
+    },
+    {
+      "name": "@aws-sdk/client-s3",
       "type": "peer"
     },
     {

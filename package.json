@@ -33,6 +33,8 @@
   },
   "devDependencies": {
     "@aws-cdk/aws-cognito-identitypool-alpha": "2.120.0-alpha.0",
+    "@aws-sdk/client-cognito-identity-provider": "3.583.0",
+    "@aws-sdk/client-s3": "3.583.0",
     "@hapi/boom": "^10.0.1",
     "@taimos/projen": "^0.0.201",
     "@types/aws-lambda": "^8.10.138",
@@ -63,6 +65,8 @@
   },
   "peerDependencies": {
     "@aws-cdk/aws-cognito-identitypool-alpha": "^2.120.0-alpha.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.583.0",
+    "@aws-sdk/client-s3": "^3.583.0",
     "aws-cdk-lib": "^2.120.0",
     "dynamodb-onetable": "^2.7.2",
     "openapi-typescript": "^6.7.6"

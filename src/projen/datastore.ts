@@ -4,6 +4,7 @@ import { OneSchema } from 'dynamodb-onetable';
 import * as pj from 'projen';
 import { PACKAGE_NAME } from './core';
 import { LazyTextFile } from './lazy-textfile';
+import { CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME } from '../shared/outputs';
 
 export interface DatastoreOptions {
   readonly modelName: string;
@@ -117,6 +118,7 @@ export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Typ
     return `// ${file.marker}
 /* eslint-disable */
 import { AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
+import { CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { SingleTableDatastore, SingleTableDatastoreProps } from '${PACKAGE_NAME}/lib/constructs';
 
@@ -163,6 +165,7 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
         ],
       }
     });
+    new CfnOutput(this, '${this.options.modelName}${CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME}', { value: this.table.tableName });
   }
 
 }`;

@@ -4,8 +4,10 @@ import {
   aws_cognito as cognito, CfnOutput, Duration, Stack,
 
 } from 'aws-cdk-lib';
+import { UserPoolClient, UserPoolClientOptions } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
 import { LambdaFunction } from './func';
+import { CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_AUTH_ROLEARN, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_UNAUTH_ROLEARN, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID } from '../shared/outputs';
 
 export interface ICognitoAuthentication {
   /** The Cognito user pool that holds user information */
@@ -255,7 +257,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
       }
     }
 
-    new CfnOutput(this, 'UserPoolId', { value: this.userpool.userPoolId });
+    new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, { value: this.userpool.userPoolId });
 
     if (props.identityPool) {
       this.identityPool = new identitypool.IdentityPool(this, 'IdentityPool', {
@@ -267,10 +269,18 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
           ...props.identityPool.poolConfig?.authenticationProviders,
         },
       });
-      new CfnOutput(this, 'IdentityPoolId', { value: this.identityPool.identityPoolId });
-      new CfnOutput(this, 'IdentityPoolAuthRoleArn', { value: this.identityPool.authenticatedRole.roleArn });
-      new CfnOutput(this, 'IdentityPoolUnAuthRoleArn', { value: this.identityPool.unauthenticatedRole.roleArn });
+      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, { value: this.identityPool.identityPoolId });
+      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_AUTH_ROLEARN, { value: this.identityPool.authenticatedRole.roleArn });
+      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_UNAUTH_ROLEARN, { value: this.identityPool.unauthenticatedRole.roleArn });
     }
+  }
+
+  public addUserPoolClient(id: string, options: UserPoolClientOptions): UserPoolClient {
+    const client = this.userpool.addClient(id, options);
+    new CfnOutput(this, `${CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID}${id}`, {
+      value: client.userPoolClientId,
+    });
+    return client;
   }
 
 }
