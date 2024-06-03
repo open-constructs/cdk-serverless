@@ -57,10 +57,50 @@ export interface SingleTableDatastoreProps {
   readonly encryptionKey?: kms.IKey;
 }
 
+/**
+ * The SingleTableDatastore construct sets up an AWS DynamoDB table with a single-table design.
+ * This construct facilitates the creation of a DynamoDB table with various configurations, including primary key, sort key, global secondary indexes, local secondary indexes, and encryption.
+ * It also supports point-in-time recovery and time-to-live attributes.
+ *
+ * @example
+ * const datastore = new SingleTableDatastore(this, 'MyDatastore', {
+ *   design: {
+ *     primaryKey: {
+ *       partitionKey: 'PK',
+ *       sortKey: 'SK',
+ *     },
+ *     globalIndexes: [
+ *       {
+ *         indexName: 'GSI1',
+ *         partitionKey: { name: 'GSI1PK', type: dynamodb.AttributeType.STRING },
+ *         sortKey: { name: 'GSI1SK', type: dynamodb.AttributeType.STRING },
+ *       },
+ *     ],
+ *     localIndexes: [
+ *       {
+ *         indexName: 'LSI1',
+ *         sortKey: { name: 'LSI1SK', type: dynamodb.AttributeType.STRING },
+ *       },
+ *     ],
+ *     timeToLiveAttribute: 'TTL',
+ *   },
+ *   encryption: dynamodb.TableEncryption.AWS_MANAGED,
+ * });
+ */
 export class SingleTableDatastore extends Construct {
 
+  /**
+   * The DynamoDB table instance.
+   */
   public readonly table: dynamodb.Table;
 
+  /**
+   * Creates an instance of SingleTableDatastore.
+   *
+   * @param scope - The scope in which this construct is defined.
+   * @param id - The scoped construct ID.
+   * @param props - The properties of the SingleTableDatastore construct.
+   */
   constructor(scope: Construct, id: string, props: SingleTableDatastoreProps) {
     super(scope, id);
 
@@ -89,5 +129,4 @@ export class SingleTableDatastore extends Construct {
       this.table.addLocalSecondaryIndex(index);
     }
   }
-
 }

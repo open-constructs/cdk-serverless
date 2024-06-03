@@ -102,15 +102,44 @@ export interface CognitoAuthenticationProps {
   };
 }
 
+/**
+ * The CognitoAuthentication construct sets up a Cognito User Pool with optional triggers and an optional Cognito Identity Pool.
+ * It also configures various Lambda triggers for custom message, pre-sign up, and pre-token generation events.
+ */
 export class CognitoAuthentication extends Construct implements ICognitoAuthentication {
 
+  /**
+   * The Cognito User Pool for user authentication.
+   */
   public readonly userpool: cognito.UserPool;
+
+  /**
+   * The optional Cognito Identity Pool for federated identities.
+   */
   public readonly identityPool?: identitypool.IdentityPool;
 
+  /**
+   * The optional Lambda function for custom message trigger.
+   */
   public readonly customMessageFunction?: LambdaFunction;
+
+  /**
+   * The optional Lambda function for pre-sign up trigger.
+   */
   public readonly preSignUpFunction?: LambdaFunction;
+
+  /**
+   * The optional Lambda function for pre-token generation trigger.
+   */
   public readonly preTokenGenerationFunction?: LambdaFunction;
 
+  /**
+   * Creates an instance of CognitoAuthentication.
+   *
+   * @param scope - The scope in which this construct is defined.
+   * @param id - The scoped construct ID.
+   * @param props - The properties of the CognitoAuthentication construct.
+   */
   constructor(scope: Construct, id: string, props: CognitoAuthenticationProps) {
     super(scope, id);
 

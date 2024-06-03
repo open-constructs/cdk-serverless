@@ -30,6 +30,45 @@ Adding CDK Serverless is a two step process:
 1. Add 'cdk-serverless' as a dependency to your project
 2. Run `npx projen` to install it
 
+Now you can use the project type `ServerlessProject` for your repo.
+
+### Adding projen constructs
+
+First you need to add the desired construct to your projen configuration: (e.g. RestApi)
+
+```typescript
+import { RestApi } from 'cdk-serverless/projen';
+
+new RestApi(project, {
+  apiName: 'TestApi', // logical name of your API
+  definitionFile: 'testapi.yaml', // path to your OpenAPI spec
+});
+```
+
+Then run projen to generate construct files and models for the API.
+
+### Using the CDK serverless L3 constructs
+
+In your stack you can then reference the generated L3s to create the API:
+
+```typescript
+import { TestApiRestApi } from './generated/rest.testapi-api.generated';
+
+
+const api = new TestApiRestApi(this, 'Api', {
+  stageName: props.stageName,
+  domainName: props.domainName,
+  apiHostname: 'api',
+  singleTableDatastore,
+  cors: true,
+  additionalEnv: {
+    DOMAIN_NAME: props.domainName,
+  },
+});
+```
+
+This will also create Lambda functions for all operations defined in your spec and wire them accordingly.
+
 ## Contribute
 
 ### How to contribute to CDK Serverless

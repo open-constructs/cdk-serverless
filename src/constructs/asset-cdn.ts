@@ -7,6 +7,9 @@ import {
 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 
+/**
+ * Properties for AssetCdn L3 construct
+ */
 export interface AssetCdnProps {
   /**
    * Domain name of the asset content delivery network (e.g. example.com)
@@ -19,12 +22,35 @@ export interface AssetCdnProps {
   hostName: string;
 }
 
+/**
+ * The AssetCdn construct is responsible for setting up an S3 bucket for asset storage
+ * and a CloudFront distribution to serve the assets securely with HTTPS. It also
+ * configures a Route 53 DNS record to point to the CloudFront distribution.
+ */
 export class AssetCdn extends Construct {
 
+  /**
+   * The Route 53 hosted zone for the asset domain.
+   */
   public readonly zone: route53.IHostedZone;
+
+  /**
+   * The S3 bucket used to store the assets.
+   */
   public readonly assetBucket: s3.Bucket;
+
+  /**
+   * The domain name used for accessing the assets.
+   */
   public readonly assetDomainName: string;
 
+  /**
+   * Creates an instance of AssetCdn.
+   *
+   * @param scope - The scope in which this construct is defined.
+   * @param id - The scoped construct ID.
+   * @param props - The properties of the AssetCdn construct.
+   */
   constructor(scope: Construct, id: string, props: AssetCdnProps) {
     super(scope, id);
 

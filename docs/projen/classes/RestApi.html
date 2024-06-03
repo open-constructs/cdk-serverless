@@ -15,6 +15,15 @@
 <li><a href="../modules.html">cdk-serverless</a></li>
 <li><a href="RestApi.html">RestApi</a></li></ul>
 <h1>Class RestApi</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The RestApi construct sets up an OpenAPI-based REST API for a serverless project using projen.
+This construct extends the projen Component to include dependencies and development dependencies required for OpenAPI and AWS Lambda,
+and provides methods to generate TypeScript types from the OpenAPI definition file. It also generates sample handler files for the API endpoints.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">restApi</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">RestApi</span><span class="hl-1">(</span><span class="hl-4">app</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">apiName:</span><span class="hl-1"> </span><span class="hl-2">&#39;MyRestApi&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">definitionFile:</span><span class="hl-1"> </span><span class="hl-2">&#39;src/openapi/schema.yaml&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">});</span>
+</code><button>Copy</button></pre>
+</div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -57,14 +66,21 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_RestApi"><span class="tsd-kind-constructor-signature">new <wbr/>Rest<wbr/>Api</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">app</span>, <span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="RestApi.html" class="tsd-signature-type tsd-kind-class">RestApi</a><a href="#constructor.new_RestApi" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of RestApi.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">app</span>: <span class="tsd-signature-type ">AwsCdkTypeScriptApp</span></h5></li>
+<h5><span class="tsd-kind-parameter">app</span>: <span class="tsd-signature-type ">AwsCdkTypeScriptApp</span></h5>
+<div class="tsd-comment tsd-typography"><p>The AWS CDK TypeScript app.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">options</span>: <a href="../interfaces/RestApiOptions.html" class="tsd-signature-type tsd-kind-interface">RestApiOptions</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="RestApi.html" class="tsd-signature-type tsd-kind-class">RestApi</a></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">options</span>: <a href="../interfaces/RestApiOptions.html" class="tsd-signature-type tsd-kind-interface">RestApiOptions</a></h5>
+<div class="tsd-comment tsd-typography"><p>The options for configuring the RestApi.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="RestApi.html" class="tsd-signature-type tsd-kind-class">RestApi</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides pj.Component.constructor</p></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
@@ -77,7 +93,10 @@
 <p>Inherited from pj.Component.node</p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="options" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>options</span><a href="#options" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">options</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/RestApiOptions.html" class="tsd-signature-type tsd-kind-interface">RestApiOptions</a></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">options</span><span class="tsd-signature-symbol">:</span> <a href="../interfaces/RestApiOptions.html" class="tsd-signature-type tsd-kind-interface">RestApiOptions</a></div>
+<div class="tsd-comment tsd-typography"><p>The options for configuring the RestApi.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="project" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>project</span><a href="#project" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">project</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Project</span></div><aside class="tsd-sources">
@@ -89,11 +108,15 @@
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="addRestResourceHandlerSample.addRestResourceHandlerSample-1"><span class="tsd-kind-call-signature">add<wbr/>Rest<wbr/>Resource<wbr/>Handler<wbr/>Sample</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">files</span>, <span class="tsd-kind-parameter">apiSpec</span>, <span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">method</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">void</span><a href="#addRestResourceHandlerSample.addRestResourceHandlerSample-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Adds a sample handler file for a REST API resource.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
 <h5><span class="tsd-kind-parameter">files</span>: <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">fileName</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h5>
+<div class="tsd-comment tsd-typography"><p>The collection of file generators.</p>
+</div>
 <ul class="tsd-parameters">
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">fileName</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span></h5>
@@ -104,42 +127,66 @@
 <li class="tsd-description">
 <h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></li></ul></li></ul></li>
 <li>
-<h5><span class="tsd-kind-parameter">apiSpec</span>: <span class="tsd-signature-type ">OpenAPI3</span></h5></li>
+<h5><span class="tsd-kind-parameter">apiSpec</span>: <span class="tsd-signature-type ">OpenAPI3</span></h5>
+<div class="tsd-comment tsd-typography"><p>The OpenAPI specification object.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">path</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">path</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The path of the API resource.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">method</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4></li></ul></section>
+<h5><span class="tsd-kind-parameter">method</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The HTTP method of the API resource.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">void</span></h4>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="createConstructFile" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>create<wbr/>Construct<wbr/>File</span><a href="#createConstructFile" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="createConstructFile.createConstructFile-1"><span class="tsd-kind-call-signature">create<wbr/>Construct<wbr/>File</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">file</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#createConstructFile.createConstructFile-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates the construct file content for the generated REST API.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type ">FileBase</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></section>
+<h5><span class="tsd-kind-parameter">file</span>: <span class="tsd-signature-type ">FileBase</span></h5>
+<div class="tsd-comment tsd-typography"><p>The file object to create content for.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>The content of the construct file.</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-protected"><a id="createEntryFile" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagProtected">Protected</code> <span>create<wbr/>Entry<wbr/>File</span><a href="#createEntryFile" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="createEntryFile.createEntryFile-1"><span class="tsd-kind-call-signature">create<wbr/>Entry<wbr/>File</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">method</span>, <span class="tsd-kind-parameter">operationId</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span><a href="#createEntryFile.createEntryFile-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates the entry file content for a REST API handler.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">method</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">method</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The HTTP method of the API resource.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">operationId</span>: <span class="tsd-signature-type">string</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></section>
+<h5><span class="tsd-kind-parameter">operationId</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The operation ID of the API resource.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4><p>The content of the entry file.</p>
+
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-private"><a id="generateSampleHandlerFiles" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagPrivate">Private</code> <span>generate<wbr/>Sample<wbr/>Handler<wbr/>Files</span><a href="#generateSampleHandlerFiles" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-private">
 <li class="tsd-signature tsd-anchor-link" id="generateSampleHandlerFiles.generateSampleHandlerFiles-1"><span class="tsd-kind-call-signature">generate<wbr/>Sample<wbr/>Handler<wbr/>Files</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">fileName</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span><a href="#generateSampleHandlerFiles.generateSampleHandlerFiles-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">fileName</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4>
+<div class="tsd-comment tsd-typography"><p>Generates sample handler files for the REST API based on the OpenAPI specification.</p>
+</div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-symbol">{ </span><br/><span>    </span>[<span class="tsd-kind-index-signature">fileName</span>: <span class="tsd-signature-type">string</span>]<span class="tsd-signature-symbol">: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">; </span><br/><span class="tsd-signature-symbol">}</span></h4><p>The collection of file generators for the sample handler files.</p>
+
 <ul class="tsd-parameters">
 <li class="tsd-parameter-index-signature">
 <h5><span class="tsd-signature-symbol">[</span><span class="tsd-kind-parameter">fileName</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">]: </span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol"> =&gt; </span><span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">)</span></h5>
@@ -148,7 +195,8 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature" id="generateSampleHandlerFiles.generateSampleHandlerFiles-1.__type.__index.__type-1.__type-2"><span class="tsd-signature-symbol">(</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">string</span></li>
 <li class="tsd-description">
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></li></ul></li></ul></li></ul></section>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">string</span></h4></li></ul></li></ul></li></ul>
+<div class="tsd-comment tsd-typography"></div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="postSynthesize" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><span>post<wbr/>Synthesize</span><a href="#postSynthesize" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">
@@ -194,16 +242,28 @@
 <ul class="tsd-signatures tsd-is-protected">
 <li class="tsd-signature tsd-anchor-link" id="validatePathRef.validatePathRef-1"><span class="tsd-kind-call-signature">validate<wbr/>Path<wbr/>Ref</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">apiSpec</span>, <span class="tsd-kind-parameter">path</span>, <span class="tsd-kind-parameter">visited</span><span class="tsd-signature-symbol">?</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><span class="tsd-signature-type">boolean</span><a href="#validatePathRef.validatePathRef-1" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Validates a path reference in the OpenAPI specification.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">apiSpec</span>: <span class="tsd-signature-type ">OpenAPI3</span></h5></li>
+<h5><span class="tsd-kind-parameter">apiSpec</span>: <span class="tsd-signature-type ">OpenAPI3</span></h5>
+<div class="tsd-comment tsd-typography"><p>The OpenAPI specification object.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">path</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">path</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The path reference to validate.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">visited</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4></li></ul></section>
+<h5><span class="tsd-kind-parameter">visited</span>: <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span><span class="tsd-signature-symbol"> = []</span></h5>
+<div class="tsd-comment tsd-typography"><p>The list of visited paths to detect cycles.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <span class="tsd-signature-type">boolean</span></h4><p>True if the path reference is valid, otherwise false.</p>
+
+<div class="tsd-comment tsd-typography">
+<h4>Throws</h4><p>If the path reference is invalid or cyclical.</p>
+</div></li></ul></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="isComponent" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagStatic">Static</code> <span>is<wbr/>Component</span><a href="#isComponent" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <ul class="tsd-signatures tsd-is-inherited tsd-is-external">

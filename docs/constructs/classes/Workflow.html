@@ -15,6 +15,15 @@
 <li><a href="../modules.html">cdk-serverless</a></li>
 <li><a href="Workflow.html">Workflow</a></li></ul>
 <h1>Class Workflow</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The Workflow construct sets up an AWS Step Functions state machine with a specified definition file and IAM role.
+This construct facilitates the creation of a Step Functions workflow, including the definition from an S3 location and
+various configurations for logging and tracing. It implements the IGrantable interface for granting permissions.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">workflow</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">Workflow</span><span class="hl-1">(</span><span class="hl-5">this</span><span class="hl-1">, </span><span class="hl-2">&#39;MyWorkflow&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">definitionFileName:</span><span class="hl-1"> </span><span class="hl-2">&#39;path/to/definition.asl.json&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">stateMachineType:</span><span class="hl-1"> </span><span class="hl-4">sfn</span><span class="hl-1">.</span><span class="hl-4">StateMachineType</span><span class="hl-1">.</span><span class="hl-7">STANDARD</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">loggingConfiguration:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">level:</span><span class="hl-1"> </span><span class="hl-4">sfn</span><span class="hl-1">.</span><span class="hl-4">LogLevel</span><span class="hl-1">.</span><span class="hl-7">ALL</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">includeExecutionData:</span><span class="hl-1"> </span><span class="hl-5">true</span><span class="hl-1">,</span><br/><span class="hl-1">    </span><span class="hl-4">destinations:</span><span class="hl-1"> [</span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-4">logs</span><span class="hl-1">.</span><span class="hl-0">LogGroup</span><span class="hl-1">(</span><span class="hl-5">this</span><span class="hl-1">, </span><span class="hl-2">&#39;LogGroup&#39;</span><span class="hl-1">)],</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-4">tracingConfiguration:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-4">enabled:</span><span class="hl-1"> </span><span class="hl-5">true</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">  </span><span class="hl-4">definitionSubstitutions:</span><span class="hl-1"> {</span><br/><span class="hl-1">    </span><span class="hl-2">&#39;${MyVariable}&#39;</span><span class="hl-4">:</span><span class="hl-1"> </span><span class="hl-2">&#39;MyValue&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  },</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">lambdaFunction</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-4">lambda</span><span class="hl-1">.</span><span class="hl-0">Function</span><span class="hl-1">(</span><span class="hl-5">this</span><span class="hl-1">, </span><span class="hl-2">&#39;MyFunction&#39;</span><span class="hl-1">, {</span><br/><span class="hl-1">  </span><span class="hl-4">runtime:</span><span class="hl-1"> </span><span class="hl-4">lambda</span><span class="hl-1">.</span><span class="hl-4">Runtime</span><span class="hl-1">.</span><span class="hl-7">NODEJS_20_X</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">handler:</span><span class="hl-1"> </span><span class="hl-2">&#39;index.handler&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">code:</span><span class="hl-1"> </span><span class="hl-4">lambda</span><span class="hl-1">.</span><span class="hl-4">Code</span><span class="hl-1">.</span><span class="hl-0">fromAsset</span><span class="hl-1">(</span><span class="hl-2">&#39;lambda&#39;</span><span class="hl-1">),</span><br/><span class="hl-1">});</span><br/><br/><span class="hl-4">workflow</span><span class="hl-1">.</span><span class="hl-4">grantPrincipal</span><span class="hl-1">.</span><span class="hl-0">grantInvoke</span><span class="hl-1">(</span><span class="hl-4">lambdaFunction</span><span class="hl-1">);</span>
+</code><button>Copy</button></pre>
+</div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -53,22 +62,34 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_Workflow"><span class="tsd-kind-constructor-signature">new <wbr/>Workflow</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">scope</span>, <span class="tsd-kind-parameter">id</span>, <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="Workflow.html" class="tsd-signature-type tsd-kind-class">Workflow</a><a href="#constructor.new_Workflow" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of Workflow.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5></li>
+<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scope in which this construct is defined.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scoped construct ID.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/WorkflowProps.html" class="tsd-signature-type tsd-kind-interface">WorkflowProps</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="Workflow.html" class="tsd-signature-type tsd-kind-class">Workflow</a></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/WorkflowProps.html" class="tsd-signature-type tsd-kind-interface">WorkflowProps</a></h5>
+<div class="tsd-comment tsd-typography"><p>The properties of the Workflow construct.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="Workflow.html" class="tsd-signature-type tsd-kind-class">Workflow</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides constructs.Construct.constructor</p></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="grantPrincipal" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>grant<wbr/>Principal</span><a href="#grantPrincipal" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">grant<wbr/>Principal</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">IPrincipal</span></div><aside class="tsd-sources">
+<div class="tsd-signature"><span class="tsd-kind-property">grant<wbr/>Principal</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">IPrincipal</span></div>
+<div class="tsd-comment tsd-typography"><p>The principal to which permissions can be granted.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Implementation of iam.IGrantable.grantPrincipal</p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="node" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>node</span><a href="#node" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
@@ -79,10 +100,16 @@
 <p>Inherited from constructs.Construct.node</p></aside></section>
 <section class="tsd-panel tsd-member"><a id="role" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>role</span><a href="#role" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">role</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">IRole</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">role</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">IRole</span></div>
+<div class="tsd-comment tsd-typography"><p>The IAM role assumed by the state machine.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="workflowArn" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>workflow<wbr/>Arn</span><a href="#workflowArn" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">workflow<wbr/>Arn</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section></section>
+<div class="tsd-signature"><span class="tsd-kind-property">workflow<wbr/>Arn</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The ARN of the created state machine.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="toString" class="tsd-anchor"></a>

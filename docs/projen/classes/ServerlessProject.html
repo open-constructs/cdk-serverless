@@ -15,6 +15,15 @@
 <li><a href="../modules.html">cdk-serverless</a></li>
 <li><a href="ServerlessProject.html">ServerlessProject</a></li></ul>
 <h1>Class ServerlessProject</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The ServerlessProject construct sets up an AWS CDK TypeScript project with serverless application dependencies and configurations.
+This construct extends the projen AwsCdkTypeScriptApp to include additional dependencies and development dependencies required
+for serverless applications. It also enables TypeScript projen configuration (projenrcTs).</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Example</h4><pre><code class="language-ts"><span class="hl-5">const</span><span class="hl-1"> </span><span class="hl-7">project</span><span class="hl-1"> = </span><span class="hl-5">new</span><span class="hl-1"> </span><span class="hl-0">ServerlessProject</span><span class="hl-1">({</span><br/><span class="hl-1">  </span><span class="hl-4">name:</span><span class="hl-1"> </span><span class="hl-2">&#39;MyServerlessApp&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">defaultReleaseBranch:</span><span class="hl-1"> </span><span class="hl-2">&#39;main&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">cdkVersion:</span><span class="hl-1"> </span><span class="hl-2">&#39;2.140.0&#39;</span><span class="hl-1">,</span><br/><span class="hl-1">  </span><span class="hl-4">deps:</span><span class="hl-1"> [</span><span class="hl-2">&#39;additional-dependency&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">  </span><span class="hl-4">devDeps:</span><span class="hl-1"> [</span><span class="hl-2">&#39;additional-dev-dependency&#39;</span><span class="hl-1">],</span><br/><span class="hl-1">});</span>
+</code><button>Copy</button></pre>
+</div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -152,12 +161,17 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_ServerlessProject"><span class="tsd-kind-constructor-signature">new <wbr/>Serverless<wbr/>Project</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">options</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="ServerlessProject.html" class="tsd-signature-type tsd-kind-class">ServerlessProject</a><a href="#constructor.new_ServerlessProject" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of ServerlessProject.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">options</span>: <a href="../interfaces/ServerlessProjectOptions.html" class="tsd-signature-type tsd-kind-interface">ServerlessProjectOptions</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="ServerlessProject.html" class="tsd-signature-type tsd-kind-class">ServerlessProject</a></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">options</span>: <a href="../interfaces/ServerlessProjectOptions.html" class="tsd-signature-type tsd-kind-interface">ServerlessProjectOptions</a></h5>
+<div class="tsd-comment tsd-typography"><p>The options for configuring the ServerlessProject.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="ServerlessProject.html" class="tsd-signature-type tsd-kind-class">ServerlessProject</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides pj.awscdk.AwsCdkTypeScriptApp.constructor</p></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>

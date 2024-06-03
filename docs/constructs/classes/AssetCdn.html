@@ -15,6 +15,12 @@
 <li><a href="../modules.html">cdk-serverless</a></li>
 <li><a href="AssetCdn.html">AssetCdn</a></li></ul>
 <h1>Class AssetCdn</h1></div>
+<section class="tsd-panel tsd-comment">
+<div class="tsd-comment tsd-typography"><p>The AssetCdn construct is responsible for setting up an S3 bucket for asset storage
+and a CloudFront distribution to serve the assets securely with HTTPS. It also
+configures a Route 53 DNS record to point to the CloudFront distribution.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-hierarchy">
 <h4>Hierarchy</h4>
 <ul class="tsd-hierarchy">
@@ -49,25 +55,40 @@
 <ul class="tsd-signatures">
 <li class="tsd-signature tsd-anchor-link" id="constructor.new_AssetCdn"><span class="tsd-kind-constructor-signature">new <wbr/>Asset<wbr/>Cdn</span><span class="tsd-signature-symbol">(</span><span class="tsd-kind-parameter">scope</span>, <span class="tsd-kind-parameter">id</span>, <span class="tsd-kind-parameter">props</span><span class="tsd-signature-symbol">)</span><span class="tsd-signature-symbol">: </span><a href="AssetCdn.html" class="tsd-signature-type tsd-kind-class">AssetCdn</a><a href="#constructor.new_AssetCdn" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></li>
 <li class="tsd-description">
+<div class="tsd-comment tsd-typography"><p>Creates an instance of AssetCdn.</p>
+</div>
 <div class="tsd-parameters">
 <h4 class="tsd-parameters-title">Parameters</h4>
 <ul class="tsd-parameter-list">
 <li>
-<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5></li>
+<h5><span class="tsd-kind-parameter">scope</span>: <span class="tsd-signature-type ">Construct</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scope in which this construct is defined.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5></li>
+<h5><span class="tsd-kind-parameter">id</span>: <span class="tsd-signature-type">string</span></h5>
+<div class="tsd-comment tsd-typography"><p>The scoped construct ID.</p>
+</div></li>
 <li>
-<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/AssetCdnProps.html" class="tsd-signature-type tsd-kind-interface">AssetCdnProps</a></h5></li></ul></div>
-<h4 class="tsd-returns-title">Returns <a href="AssetCdn.html" class="tsd-signature-type tsd-kind-class">AssetCdn</a></h4><aside class="tsd-sources">
+<h5><span class="tsd-kind-parameter">props</span>: <a href="../interfaces/AssetCdnProps.html" class="tsd-signature-type tsd-kind-interface">AssetCdnProps</a></h5>
+<div class="tsd-comment tsd-typography"><p>The properties of the AssetCdn construct.</p>
+</div></li></ul></div>
+<h4 class="tsd-returns-title">Returns <a href="AssetCdn.html" class="tsd-signature-type tsd-kind-class">AssetCdn</a></h4>
+<div class="tsd-comment tsd-typography"></div><aside class="tsd-sources">
 <p>Overrides Construct.constructor</p></aside></li></ul></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Properties</h2>
 <section class="tsd-panel tsd-member"><a id="assetBucket" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>asset<wbr/>Bucket</span><a href="#assetBucket" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">asset<wbr/>Bucket</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Bucket</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">asset<wbr/>Bucket</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Bucket</span></div>
+<div class="tsd-comment tsd-typography"><p>The S3 bucket used to store the assets.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member"><a id="assetDomainName" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>asset<wbr/>Domain<wbr/>Name</span><a href="#assetDomainName" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">asset<wbr/>Domain<wbr/>Name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div></section>
+<div class="tsd-signature"><span class="tsd-kind-property">asset<wbr/>Domain<wbr/>Name</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The domain name used for accessing the assets.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="node" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>node</span><a href="#node" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">node</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">Node</span></div>
@@ -77,7 +98,10 @@
 <p>Inherited from Construct.node</p></aside></section>
 <section class="tsd-panel tsd-member"><a id="zone" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagReadonly">Readonly</code> <span>zone</span><a href="#zone" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
-<div class="tsd-signature"><span class="tsd-kind-property">zone</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">IHostedZone</span></div></section></section>
+<div class="tsd-signature"><span class="tsd-kind-property">zone</span><span class="tsd-signature-symbol">:</span> <span class="tsd-signature-type ">IHostedZone</span></div>
+<div class="tsd-comment tsd-typography"><p>The Route 53 hosted zone for the asset domain.</p>
+</div>
+<div class="tsd-comment tsd-typography"></div></section></section>
 <section class="tsd-panel-group tsd-member-group">
 <h2>Methods</h2>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="toString" class="tsd-anchor"></a>

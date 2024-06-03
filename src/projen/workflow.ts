@@ -15,8 +15,24 @@ interface VariableDefinition {
   readonly type: string;
 }
 
+/**
+ * The Workflow construct sets up an AWS Step Functions workflow for a serverless project using projen.
+ * This construct extends the projen Component to generate a sample state machine definition file and corresponding TypeScript construct file.
+ *
+ * @example
+ * const workflow = new Workflow(app, {
+ *   workflowName: 'MyWorkflow',
+ *   definitionFile: 'statemachine/definition.json',
+ * });
+ */
 export class Workflow extends pj.Component {
 
+  /**
+   * Creates an instance of Workflow.
+   *
+   * @param app - The AWS CDK TypeScript app.
+   * @param options - The options for configuring the Workflow.
+   */
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: WorkflowOptions) {
     super(app);
 
@@ -38,6 +54,12 @@ export class Workflow extends pj.Component {
     new LazyTextFile(this.project, `src/generated/workflow.${this.options.workflowName.toLowerCase()}.generated.ts`, { content: this.createConstructFile.bind(this) });
   }
 
+  /**
+   * Creates the construct file content for the generated Workflow.
+   *
+   * @param file - The file object to create content for.
+   * @returns The content of the construct file.
+   */
   protected createConstructFile(file: pj.FileBase): string {
     const workflowDefinition = fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString();
     const matches = workflowDefinition.match(/\$\{[a-zA-Z0-9#]*\}/g)?.map(match => match.substring(2, match.length - 1));
@@ -77,6 +99,12 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
 }`;
   }
 
+  /**
+   * Renders the state configuration definition for a given variable.
+   *
+   * @param def - The variable definition.
+   * @returns The state configuration definition string.
+   */
   protected renderStateConfigDefinition(def: VariableDefinition): string {
     switch (def.type) {
       case 'DynamoDBTable':
@@ -89,6 +117,12 @@ export class ${this.options.workflowName}Workflow extends sls.Workflow {
     }
   }
 
+  /**
+   * Renders the definition substitution for a given variable.
+   *
+   * @param def - The variable definition.
+   * @returns The definition substitution string.
+   */
   protected renderDefinitionSubstitution(def: VariableDefinition): string {
     switch (def.type) {
       case 'DynamoDBTable':

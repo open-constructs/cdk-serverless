@@ -6,6 +6,17 @@ export interface GraphQlApiOptions {
   readonly definitionFile: string;
 }
 
+/**
+ * The GraphQlApi construct sets up a GraphQL API for a serverless project using projen.
+ * This construct extends the projen Component to include dependencies and development dependencies required for GraphQL
+ * and provides methods to generate TypeScript types and resolvers from a GraphQL schema definition file.
+ *
+ * @example
+ * const graphQlApi = new GraphQlApi(app, {
+ *   apiName: 'MyGraphQlApi',
+ *   definitionFile: 'src/graphql/schema.graphql',
+ * });
+ */
 export class GraphQlApi extends pj.Component {
 
   protected readonly codegenConfigFileName: string;

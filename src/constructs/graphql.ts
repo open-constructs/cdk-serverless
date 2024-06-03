@@ -50,14 +50,57 @@ interface JsResolverConfig {
   functionId: string;
 }
 
+/**
+ * The GraphQlApi construct sets up an AWS AppSync GraphQL API integrated with Cognito for authentication and DynamoDB for data storage.
+ * This construct facilitates the creation of a GraphQL API with various configurations, including custom domain, logging, schema definition,
+ * and authorization using Cognito User Pool and Identity Pool. It also provides methods to dynamically add resolvers and grant access to specific fields.
+ *
+ * @template RESOLVERS - The type definition for the GraphQL resolvers.
+ *
+ * @example
+ * const api = new GraphQlApi(this, 'MyGraphQlApi', {
+ *   apiName: 'MyAPI',
+ *   stageName: 'dev',
+ *   definitionFileName: 'schema.graphql',
+ *   authentication: myCognitoAuth,
+ *   singleTableDatastore: myDynamoDBTable,
+ * });
+ *
+ * // Add a Lambda resolver
+ * api.addLambdaResolver('Query', 'getItem');
+ *
+ * // Grant access to unauthenticated users for a specific query
+ * api.grantAccessUnAuth('Query', 'getItem');
+ */
 export class GraphQlApi<RESOLVERS> extends BaseApi {
 
+  /**
+   * The AWS AppSync GraphQL API instance.
+   */
   public readonly api: aws_appsync.GraphqlApi;
+
+  /**
+   * The optional DynamoDB data source for the GraphQL API.
+   */
   public readonly tableDataSource?: aws_appsync.DynamoDbDataSource;
 
+  /**
+   * A collection of Lambda functions used as resolvers for the GraphQL API.
+   */
   private _functions: { [operationId: string]: LambdaFunction } = {};
+
+  /**
+   * The Cognito authentication configuration.
+   */
   private cognitoAuth: CognitoAuthentication;
 
+  /**
+   * Creates an instance of GraphQlApi.
+   *
+   * @param scope - The scope in which this construct is defined.
+   * @param id - The scoped construct ID.
+   * @param props - The properties of the GraphQlApi construct.
+   */
   constructor(scope: Construct, id: string, private props: GraphQlApiProps) {
     super(scope, id, props);
 
