@@ -36,7 +36,7 @@
     "@aws-sdk/client-cognito-identity-provider": "3.583.0",
     "@aws-sdk/client-s3": "3.583.0",
     "@hapi/boom": "^10.0.1",
-    "@taimos/projen": "^0.0.202",
+    "@taimos/projen": "^0.0.203",
     "@types/aws-lambda": "^8.10.138",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
