@@ -2,11 +2,12 @@
 import { SpawnSyncOptions, spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
-import { AssetHashType, BundlingOptions, BundlingOutput, DockerImage, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
+import { AssetHashType, BundlingOptions, BundlingOutput, CfnOutput, DockerImage, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction } from './func';
+import { CFN_OUTPUT_SUFFIX_GRAPHQL_DOMAINNAME } from '../shared/outputs';
 
 export interface GraphQlApiProps extends BaseApiProps {
   definitionFileName: string;
@@ -117,6 +118,9 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
           validation: aws_certificatemanager.CertificateValidation.fromDns(this.hostedZone),
         }),
       };
+      new CfnOutput(this, `${this.props.apiName}${CFN_OUTPUT_SUFFIX_GRAPHQL_DOMAINNAME}`, {
+        value: this.apiFQDN,
+      });
     }
 
     this.api = new aws_appsync.GraphqlApi(this, 'Resource', {

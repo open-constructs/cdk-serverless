@@ -24,7 +24,7 @@ jobs:
         with:
           node-version: v16.14.1
       - name: Install dependencies
-        run: yarn install --check-files
+        run: npm install
       - name: build
         run: npx projen build
       - name: Find mutations

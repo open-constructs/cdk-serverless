@@ -13,6 +13,7 @@ import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
+import { CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
 
 export interface RestApiProps<OPS> extends BaseApiProps {
 
@@ -105,6 +106,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
           validation: aws_certificatemanager.CertificateValidation.fromDns(this.hostedZone),
         }),
       };
+      new cdk.CfnOutput(this, `${this.props.apiName}${CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME}`, {
+        value: this.apiFQDN,
+      });
+      new cdk.CfnOutput(this, `${this.props.apiName}${CFN_OUTPUT_SUFFIX_RESTAPI_URL}`, {
+        value: 'https://' + this.apiFQDN,
+      });
     }
 
     // if ((props.monitoring ?? true) && this.monitoring) {

@@ -1,4 +1,5 @@
 const { TaimosTypescriptLibrary } = require('@taimos/projen');
+const { NodePackageManager } = require('projen/lib/javascript');
 
 const project = new TaimosTypescriptLibrary({
   name: 'cdk-serverless',
@@ -14,6 +15,7 @@ const project = new TaimosTypescriptLibrary({
     'constructs',
   ],
   defaultReleaseBranch: 'main',
+  packageManager: NodePackageManager.NPM,
   minMajorVersion: '2',
   docgen: false,
   devDeps: [
@@ -26,12 +28,20 @@ const project = new TaimosTypescriptLibrary({
     '@types/uuid',
     '@hapi/boom',
     'typedoc@0.25.0',
+    '@aws-sdk/client-cognito-identity-provider',
+    '@aws-sdk/client-s3',
+    '@aws-sdk/client-dynamodb',
+    '@aws-sdk/lib-dynamodb',
   ],
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable',
     'aws-cdk-lib@^2.120.0',
     '@aws-cdk/aws-cognito-identitypool-alpha@^2.120.0-alpha.0',
+    '@aws-sdk/client-cognito-identity-provider',
+    '@aws-sdk/client-s3',
+    '@aws-sdk/client-dynamodb',
+    '@aws-sdk/lib-dynamodb',
   ],
   keywords: [
     'aws',

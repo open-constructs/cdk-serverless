@@ -37,6 +37,7 @@ export class ServerlessProject extends pj.awscdk.AwsCdkTypeScriptApp {
         'esbuild',
         'js-yaml',
         `@aws-cdk/aws-cognito-identitypool-alpha@${options.cdkVersion}-alpha.0`,
+        '@aws-sdk/client-s3',
       ],
       devDeps: [
         ...options.devDeps ?? [],
