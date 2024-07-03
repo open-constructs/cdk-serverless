@@ -1,4 +1,5 @@
 const { TaimosTypescriptLibrary } = require('@taimos/projen');
+const { NodePackageManager } = require('projen/lib/javascript');
 
 const project = new TaimosTypescriptLibrary({
   name: 'cdk-serverless',
@@ -14,6 +15,7 @@ const project = new TaimosTypescriptLibrary({
     'constructs',
   ],
   defaultReleaseBranch: 'main',
+  packageManager: NodePackageManager.NPM,
   minMajorVersion: '2',
   docgen: false,
   devDeps: [

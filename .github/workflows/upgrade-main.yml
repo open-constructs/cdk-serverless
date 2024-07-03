@@ -23,7 +23,7 @@ jobs:
         with:
           node-version: v16.14.1
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: npm ci
       - name: Upgrade dependencies
         run: npx projen upgrade
       - name: Find mutations

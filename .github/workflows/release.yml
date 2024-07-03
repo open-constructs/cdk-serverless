@@ -30,7 +30,7 @@ jobs:
         with:
           node-version: v16.14.1
       - name: Install dependencies
-        run: yarn install --check-files --frozen-lockfile
+        run: npm ci
       - name: release
         run: npx projen release
       - name: Check if version has already been tagged
