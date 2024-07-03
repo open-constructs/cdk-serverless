@@ -30,6 +30,8 @@ const project = new TaimosTypescriptLibrary({
     'typedoc@0.25.0',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
+    '@aws-sdk/client-dynamodb',
+    '@aws-sdk/lib-dynamodb',
   ],
   peerDeps: [
     'openapi-typescript',
@@ -38,6 +40,8 @@ const project = new TaimosTypescriptLibrary({
     '@aws-cdk/aws-cognito-identitypool-alpha@^2.120.0-alpha.0',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
+    '@aws-sdk/client-dynamodb',
+    '@aws-sdk/lib-dynamodb',
   ],
   keywords: [
     'aws',

@@ -1,4 +1,6 @@
 import { AdminAddUserToGroupCommand, AdminCreateUserCommand, AdminDeleteUserCommand, CognitoIdentityProviderClient, MessageActionType } from '@aws-sdk/client-cognito-identity-provider';
+import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
+import { DeleteCommand, DynamoDBDocumentClient, NativeAttributeValue } from '@aws-sdk/lib-dynamodb';
 import { Axios, AxiosRequestConfig, HttpStatusCode } from 'axios';
 import { CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID, CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
 
@@ -54,6 +56,7 @@ export class IntegTestUtil {
   public readonly tableName?: string;
 
   private apiTokens: { [email: string]: string } = {};
+  private itemsToDelete: Record<string, NativeAttributeValue>[] = [];
 
   constructor(protected options: IntegTestUtilOptions) {
     process.env.AWS_REGION = options.region;
@@ -104,6 +107,25 @@ export class IntegTestUtil {
   }
 
   // DATASTORE
+
+  public async initializeItemsToCleanup() {
+    this.itemsToDelete = [];
+  }
+
+  public async addItemToDeleteAfterTest(key: Record<string, NativeAttributeValue>) {
+    this.itemsToDelete.push(key);
+  }
+
+  public async cleanupItems() {
+    const ddb = DynamoDBDocumentClient.from(new DynamoDBClient({ region: this.options.region }));
+    for (const item of this.itemsToDelete) {
+      try {
+        await ddb.send(new DeleteCommand({ TableName: this.tableName, Key: item }));
+      } catch (error) {
+        console.log(error);
+      }
+    }
+  }
 
   // AUTH
 
