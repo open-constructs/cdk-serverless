@@ -83,7 +83,7 @@ import { Dynamo } from 'dynamodb-onetable/Dynamo';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 
 export const dynamoClient = new Dynamo({ client: new DynamoDBClient({}) })
-export const TABLE_NAME: string = env.TABLE!;
+export const TABLE_NAME: string = env.TABLE ?? 'dummy-table';
 
 ${Object.entries(model.indexes).map(([idx, data]) => `export const Index_${idx}_Name = '${idx}';
 export const Index_${idx}_HashKey = '${data.hash}';
@@ -176,7 +176,10 @@ export class ${this.options.modelName}Datastore extends SingleTableDatastore {
         ],
       }
     });
-    new CfnOutput(this, '${this.options.modelName}${CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME}', { value: this.table.tableName });
+    new CfnOutput(this, '${this.options.modelName}${CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME}', {
+      key: '${this.options.modelName}${CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME}',
+      value: this.table.tableName,
+    });
   }
 
 }`;

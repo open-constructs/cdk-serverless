@@ -118,7 +118,8 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
           validation: aws_certificatemanager.CertificateValidation.fromDns(this.hostedZone),
         }),
       };
-      new CfnOutput(this, `${this.props.apiName}${CFN_OUTPUT_SUFFIX_GRAPHQL_DOMAINNAME}`, {
+      new CfnOutput(this, 'GraphQlApiDomainName', {
+        key: `${this.props.apiName}${CFN_OUTPUT_SUFFIX_GRAPHQL_DOMAINNAME}`,
         value: this.apiFQDN,
       });
     }

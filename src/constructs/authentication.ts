@@ -286,7 +286,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
       }
     }
 
-    new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, { value: this.userpool.userPoolId });
+    new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, { key: CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, value: this.userpool.userPoolId });
 
     if (props.identityPool) {
       this.identityPool = new identitypool.IdentityPool(this, 'IdentityPool', {
@@ -298,15 +298,25 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
           ...props.identityPool.poolConfig?.authenticationProviders,
         },
       });
-      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, { value: this.identityPool.identityPoolId });
-      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_AUTH_ROLEARN, { value: this.identityPool.authenticatedRole.roleArn });
-      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_UNAUTH_ROLEARN, { value: this.identityPool.unauthenticatedRole.roleArn });
+      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, {
+        key: CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID,
+        value: this.identityPool.identityPoolId,
+      });
+      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_AUTH_ROLEARN, {
+        key: CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_AUTH_ROLEARN,
+        value: this.identityPool.authenticatedRole.roleArn,
+      });
+      new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_UNAUTH_ROLEARN, {
+        key: CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_UNAUTH_ROLEARN,
+        value: this.identityPool.unauthenticatedRole.roleArn,
+      });
     }
   }
 
   public addUserPoolClient(id: string, options: UserPoolClientOptions): UserPoolClient {
     const client = this.userpool.addClient(id, options);
     new CfnOutput(this, `${CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID}${id}`, {
+      key: `${CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID}${id}`,
       value: client.userPoolClientId,
     });
     return client;

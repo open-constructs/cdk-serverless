@@ -106,10 +106,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
           validation: aws_certificatemanager.CertificateValidation.fromDns(this.hostedZone),
         }),
       };
-      new cdk.CfnOutput(this, `${this.props.apiName}${CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME}`, {
+      new cdk.CfnOutput(this, 'RestApiDomainName', {
+        key: `${this.props.apiName}${CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME}`,
         value: this.apiFQDN,
       });
-      new cdk.CfnOutput(this, `${this.props.apiName}${CFN_OUTPUT_SUFFIX_RESTAPI_URL}`, {
+      new cdk.CfnOutput(this, 'RestApiUrlOutput', {
+        key: `${this.props.apiName}${CFN_OUTPUT_SUFFIX_RESTAPI_URL}`,
         value: 'https://' + this.apiFQDN,
       });
     }

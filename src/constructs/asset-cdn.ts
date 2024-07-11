@@ -73,12 +73,15 @@ export class AssetCdn extends Construct {
 
 
     new CfnOutput(this, CFN_OUTPUT_SUFFIX_ASSETCDN_BUCKETNAME, {
+      key: CFN_OUTPUT_SUFFIX_ASSETCDN_BUCKETNAME,
       value: this.assetBucket.bucketName,
     });
     new CfnOutput(this, CFN_OUTPUT_SUFFIX_ASSETCDN_DOMAINNAME, {
+      key: CFN_OUTPUT_SUFFIX_ASSETCDN_DOMAINNAME,
       value: this.assetDomainName,
     });
     new CfnOutput(this, CFN_OUTPUT_SUFFIX_ASSETCDN_URL, {
+      key: CFN_OUTPUT_SUFFIX_ASSETCDN_URL,
       value: 'https://' + this.assetDomainName,
     });
 
