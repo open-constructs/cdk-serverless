@@ -1,4 +1,4 @@
-import { AdminAddUserToGroupCommand, AdminCreateUserCommand, AdminDeleteUserCommand, CognitoIdentityProviderClient, MessageActionType } from '@aws-sdk/client-cognito-identity-provider';
+import { AdminAddUserToGroupCommand, AdminCreateUserCommand, AdminDeleteUserCommand, AdminSetUserPasswordCommand, CognitoIdentityProviderClient, MessageActionType } from '@aws-sdk/client-cognito-identity-provider';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DeleteCommand, DynamoDBDocumentClient, NativeAttributeValue } from '@aws-sdk/lib-dynamodb';
 import { Axios, AxiosRequestConfig, HttpStatusCode } from 'axios';
@@ -137,6 +137,7 @@ export class IntegTestUtil {
     const randomPassword: string = Math.random().toString(36).slice(-16);
 
     const cognitoClient: CognitoIdentityProviderClient = new CognitoIdentityProviderClient({ region: this.options.region });
+    // Create a new user in Cognito
     await cognitoClient.send(new AdminCreateUserCommand({
       UserPoolId: this.options.authOptions?.userPoolId,
       Username: email,
@@ -154,6 +155,14 @@ export class IntegTestUtil {
         Value: attr[1],
       }))],
     }));
+    // Make password permanent to get user out of FORCE_CHANGE_PASSWORD
+    await cognitoClient.send(new AdminSetUserPasswordCommand({
+      UserPoolId: this.options.authOptions?.userPoolId,
+      Username: email,
+      Password: randomPassword,
+      Permanent: true,
+    }));
+    // Add user to groups
     for (const group of groups) {
       await cognitoClient.send(new AdminAddUserToGroupCommand({
         UserPoolId: this.options.authOptions?.userPoolId,
