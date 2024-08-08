@@ -108,11 +108,11 @@ export class IntegTestUtil {
 
   // DATASTORE
 
-  public async initializeItemsToCleanup() {
+  public initializeItemsToCleanup() {
     this.itemsToDelete = [];
   }
 
-  public async addItemToDeleteAfterTest(key: Record<string, NativeAttributeValue>) {
+  public addItemToDeleteAfterTest(key: Record<string, NativeAttributeValue>) {
     this.itemsToDelete.push(key);
   }
 
