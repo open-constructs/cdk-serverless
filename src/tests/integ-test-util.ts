@@ -2,6 +2,7 @@ import { AdminAddUserToGroupCommand, AdminCreateUserCommand, AdminDeleteUserComm
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DeleteCommand, DynamoDBDocumentClient, NativeAttributeValue } from '@aws-sdk/lib-dynamodb';
 import { Axios, AxiosRequestConfig, HttpStatusCode } from 'axios';
+import { decode, JwtPayload } from 'jsonwebtoken';
 import { CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID, CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
 
 export interface IntegTestUtilOptions {
@@ -51,11 +52,16 @@ export function parseCfnOutputs(output: any, stackName: string, config: CfnOutpu
   };
 }
 
+interface TokenInfo {
+  readonly token: string;
+  readonly payload: JwtPayload;
+}
+
 export class IntegTestUtil {
 
   public readonly tableName?: string;
 
-  private apiTokens: { [email: string]: string } = {};
+  private apiTokens: { [email: string]: TokenInfo } = {};
   private itemsToDelete: Record<string, NativeAttributeValue>[] = [];
 
   constructor(protected options: IntegTestUtilOptions) {
@@ -99,7 +105,7 @@ export class IntegTestUtil {
     }
     return this.getClient({
       headers: {
-        Authorization: `Bearer ${this.apiTokens[email]}`,
+        Authorization: `Bearer ${this.apiTokens[email].token}`,
         ...(config?.headers ?? {}),
       },
       ...config,
@@ -128,6 +134,10 @@ export class IntegTestUtil {
   }
 
   // AUTH
+
+  public getTokenPayload(email: string): JwtPayload | undefined {
+    return this.apiTokens[email]?.payload;
+  }
 
   public async createUser(email: string, attributes: { [key: string]: string }, groups: string[]) {
     if (!this.options.authOptions?.userPoolId) {
@@ -210,6 +220,10 @@ export class IntegTestUtil {
     if (auth.status !== HttpStatusCode.Ok) {
       throw new Error(`Failed to authenticate user ${email}`);
     }
-    this.apiTokens[email] = JSON.parse(auth.data).AuthenticationResult.IdToken;
+    const token = JSON.parse(auth.data).AuthenticationResult.IdToken;
+    this.apiTokens[email] = {
+      token,
+      payload: decode(this.apiTokens[email].token) as JwtPayload,
+    };
   }
 }
