@@ -33,12 +33,12 @@
   },
   "devDependencies": {
     "@aws-cdk/aws-cognito-identitypool-alpha": "2.120.0-alpha.0",
-    "@aws-sdk/client-cognito-identity-provider": "3.628.0",
-    "@aws-sdk/client-dynamodb": "3.624.0",
-    "@aws-sdk/client-s3": "3.627.0",
-    "@aws-sdk/lib-dynamodb": "3.624.0",
+    "@aws-sdk/client-cognito-identity-provider": "3.637.0",
+    "@aws-sdk/client-dynamodb": "3.637.0",
+    "@aws-sdk/client-s3": "3.637.0",
+    "@aws-sdk/lib-dynamodb": "3.637.0",
     "@hapi/boom": "^10.0.1",
-    "@taimos/projen": "0.0.212",
+    "@taimos/projen": "0.0.213",
     "@types/aws-lambda": "^8.10.143",
     "@types/jest": "^29.5.12",
     "@types/js-yaml": "^4.0.9",
@@ -58,9 +58,9 @@
     "jest": "^29.7.0",
     "jest-junit": "^15",
     "openapi-typescript": "6.7.6",
-    "projen": "^0.85.0",
+    "projen": "^0.85.2",
     "standard-version": "^9",
-    "ts-jest": "^29.2.4",
+    "ts-jest": "^29.2.5",
     "ts-node": "^10.9.2",
     "typedoc": "0.25.0",
     "typescript": "^4.9.5"
@@ -76,14 +76,14 @@
     "openapi-typescript": "^6.7.6"
   },
   "dependencies": {
-    "axios": "^1.7.4",
+    "axios": "^1.7.5",
     "constructs": "^10.3.0",
     "date-fns": "^2.30.0",
     "js-yaml": "^4.1.0",
     "jsonwebtoken": "^9.0.2",
     "jwk-to-pem": "^2.0.6",
     "lambda-log": "^3.1.0",
-    "projen": "^0.85.0",
+    "projen": "^0.85.2",
     "uuid": "^9.0.1"
   },
   "keywords": [
