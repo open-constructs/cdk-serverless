@@ -2,24 +2,27 @@
 
 [![npm version](https://badge.fury.io/js/cdk-serverless.svg)](https://badge.fury.io/js/cdk-serverless)
 
-CDK Serverless is a tool suite to facilitate the use of the AWS Cloud Development Kit (CDK) in serverless architectures. It provides project management features to configure your TypeScript CDK app and also higher-level (L3) constructs for different APIs and resources needed for serverless applications. Additionally, it leverages utility libraries to write Lambda functions and do live updates to Lambda function code during development.
+CDK Serverless is a powerful toolkit designed to simplify serverless application development using the AWS Cloud Development Kit (CDK). It offers project management features, higher-level (L3) constructs, and utility libraries to streamline the creation and management of serverless architectures. Additionally, it leverages utility libraries to write Lambda functions and do live updates to Lambda function code during development.
+
+Video introduction: https://www.youtube.com/watch?v=xhNJ0cXG3O8
 
 ### Features
 
-- Projen helper classes to configure certain use cases easily
-- AWS CDK L3-construct for RestApi and GraphQlApi
-- Zero-config for Lambda functions and VTL templates
-- Live update to Lambda function code using cdk-watch
-- Automatic DynamoDB SingleTable infrastructure
-- Automatic monitoring added for Lambda functions and APIs
-- Full features of CDK usable to implement your special use cases
-- Fully typed auto-completion for routes, resolvers, etc.
-
-Video about the idea behind it: https://www.youtube.com/watch?v=k5L8U39_16k
+* Projen helper classes for easy project configuration
+* AWS CDK L3-constructs for RestApi, GraphQlApi, and more
+* Zero-config Lambda function and VTL template generation
+* Automatic DynamoDB single-table infrastructure setup
+* Built-in monitoring for Lambda functions and APIs
+* Full compatibility with CDK for custom implementations
+* Type-safe auto-completion for routes, resolvers, etc.
+* Support for Cognito authentication and authorization
+* Automated generation of CloudFormation outputs for testing
 
 ## Quick Start
 
-To start a new project we recommend using projen. To use CDK Serverless you can create any projen CDK Typescript app and then add the appropriate aspect provided by this toolkit.
+To begin a new project with CDK Serverless:
+
+Create a new CDK TypeScript app using projen:
 
 ```bash
 $ npx projen new awscdk-app-ts
@@ -30,7 +33,7 @@ Adding CDK Serverless is a two step process:
 1. Add 'cdk-serverless' as a dependency to your project
 2. Run `npx projen` to install it
 
-Now you can use the project type `ServerlessProject` for your repo.
+Now you can use the project type `ServerlessProject` for your app.
 
 ### Adding projen constructs
 
