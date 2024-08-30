@@ -45,7 +45,7 @@
     "@types/jsonwebtoken": "^9.0.6",
     "@types/jwk-to-pem": "^2.0.3",
     "@types/lambda-log": "^2.2.1",
-    "@types/node": "^16",
+    "@types/node": "^18",
     "@types/uuid": "^9.0.8",
     "@typescript-eslint/eslint-plugin": "^7",
     "@typescript-eslint/parser": "^7",
@@ -93,9 +93,6 @@
     "lambda",
     "serverless"
   ],
-  "engines": {
-    "node": ">= v16.14.1"
-  },
   "main": "lib/index.js",
   "license": "Apache-2.0",
   "publishConfig": {

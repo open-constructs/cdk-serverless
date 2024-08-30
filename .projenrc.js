@@ -51,7 +51,6 @@ const project = new TaimosTypescriptLibrary({
     'dynamodb',
   ],
   repository: 'https://github.com/taimos/cdk-serverless',
-  minNodeVersion: 'v16.14.1',
   tsconfig: {
     compilerOptions: {
       lib: [
