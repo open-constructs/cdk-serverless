@@ -1,7 +1,16 @@
-const { TaimosTypescriptLibrary } = require('@taimos/projen');
+const { typescript, javascript, github } = require('projen');
 const { NodePackageManager } = require('projen/lib/javascript');
 
-const project = new TaimosTypescriptLibrary({
+const project = new typescript.TypeScriptProject({
+  authorName: 'Taimos GmbH',
+  authorEmail: 'info@taimos.de',
+  authorOrganization: true,
+  authorUrl: 'https://taimos.de',
+  copyrightOwner: 'Taimos GmbH',
+  copyrightPeriod: '2024',
+  license: 'Apache-2.0',
+  licensed: true,
+  stability: 'experimental',
   name: 'cdk-serverless',
   deps: [
     'date-fns',
@@ -19,9 +28,9 @@ const project = new TaimosTypescriptLibrary({
   minMajorVersion: '2',
   docgen: false,
   devDeps: [
+    'ts-node',
     '@types/aws-lambda',
     '@types/js-yaml',
-    '@taimos/projen',
     '@types/lambda-log',
     '@types/jsonwebtoken',
     '@types/jwk-to-pem',
@@ -50,7 +59,7 @@ const project = new TaimosTypescriptLibrary({
     'lambda',
     'dynamodb',
   ],
-  repository: 'https://github.com/taimos/cdk-serverless',
+  repository: 'https://github.com/open-constructs/cdk-serverless',
   tsconfig: {
     compilerOptions: {
       lib: [
@@ -59,6 +68,44 @@ const project = new TaimosTypescriptLibrary({
       ],
     },
   },
+  releaseToNpm: true,
+  npmAccess: javascript.NpmAccess.PUBLIC,
+  gitpod: true,
+  autoApproveUpgrades: true,
+  autoApproveOptions: { allowedUsernames: ['hoegertn', 'open-constructs-projen[bot]'], secret: 'GITHUB_TOKEN' },
+  depsUpgradeOptions: { workflowOptions: { schedule: javascript.UpgradeDependenciesSchedule.WEEKLY } },
+  githubOptions: {
+    projenCredentials: github.GithubCredentials.fromApp(),
+    pullRequestLintOptions: {
+      semanticTitleOptions: {
+        types: ['feat', 'fix', 'chore', 'ci', 'docs', 'style', 'refactor', 'test', 'revert', 'Revert'],
+      },
+    },
+  },
+  pullRequestTemplateContents: [`* **Please check if the PR fulfills these requirements**
+- [ ] The commit message describes your change
+- [ ] Tests for the changes have been added if possible (for bug fixes / features)
+- [ ] Docs have been added / updated (for bug fixes / features)
+
+
+* **What kind of change does this PR introduce?** (Bug fix, feature, docs update, ...)
+
+
+
+* **What is the current behavior?** (You can also link to an open issue here)
+
+
+
+* **What is the new behavior (if this is a feature change)?**
+
+
+
+* **Does this PR introduce a breaking change?** (What changes might users need to make in their setup due to this PR?)
+
+
+
+* **Other information**:`],
+
 });
 
 const docgen = project.addTask('docgen', {

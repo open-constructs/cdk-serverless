@@ -21,10 +21,6 @@
       "type": "build"
     },
     {
-      "name": "@taimos/projen",
-      "type": "build"
-    },
-    {
       "name": "@types/aws-lambda",
       "type": "build"
     },
