@@ -1,5 +1,4 @@
-const { typescript, javascript, github } = require('projen');
-const { NodePackageManager } = require('projen/lib/javascript');
+const { typescript, javascript, github, ReleasableCommits } = require('projen');
 
 const project = new typescript.TypeScriptProject({
   authorName: 'Taimos GmbH',
@@ -24,7 +23,7 @@ const project = new typescript.TypeScriptProject({
     'constructs',
   ],
   defaultReleaseBranch: 'main',
-  packageManager: NodePackageManager.NPM,
+  packageManager: javascript.NodePackageManager.NPM,
   minMajorVersion: '2',
   docgen: false,
   devDeps: [
@@ -74,6 +73,7 @@ const project = new typescript.TypeScriptProject({
   autoApproveUpgrades: true,
   autoApproveOptions: { allowedUsernames: ['hoegertn', 'open-constructs-projen[bot]'], secret: 'GITHUB_TOKEN' },
   depsUpgradeOptions: { workflowOptions: { schedule: javascript.UpgradeDependenciesSchedule.WEEKLY } },
+  releasableCommits: ReleasableCommits.ofType(['feat', 'fix', 'revert', 'Revert']),
   githubOptions: {
     projenCredentials: github.GithubCredentials.fromApp(),
     pullRequestLintOptions: {
