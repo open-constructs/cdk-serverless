@@ -44,8 +44,8 @@ const project = new typescript.TypeScriptProject({
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable',
-    'aws-cdk-lib@^2.120.0',
-    '@aws-cdk/aws-cognito-identitypool-alpha@^2.120.0-alpha.0',
+    'aws-cdk-lib@>=2.120.0 <3.0.0',
+    '@aws-cdk/aws-cognito-identitypool-alpha@>=2.120.0-alpha.0 <3.0.0',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-dynamodb',
