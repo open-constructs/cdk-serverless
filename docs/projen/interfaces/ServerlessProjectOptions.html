@@ -1032,10 +1032,15 @@ If not specified, we bump the global latest version.</p>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="maxNodeVersion" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>max<wbr/>Node<wbr/>Version</span><a href="#maxNodeVersion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">max<wbr/>Node<wbr/>Version</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>Minimum node.js version to require via <code>engines</code> (inclusive).</p>
+<div class="tsd-comment tsd-typography"><p>The maximum node version supported by this package.
+Most projects should not use this option.</p>
+<p>The value indicates that the package is incompatible with any newer versions of node.
+This requirement is enforced via the engines field.</p>
+<p>You will normally not need to set this option.
+Consider this option only if your package is known to not function with newer versions of node.</p>
 </div>
 <div class="tsd-comment tsd-typography">
-<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-4">max</span>
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-4">maximum</span><span class="hl-1"> </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-4">is</span><span class="hl-1"> </span><span class="hl-4">enforced</span>
 </code><button>Copy</button></pre>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.maxNodeVersion</p></aside></section>
@@ -1079,10 +1084,18 @@ release are not incrementing the major version number.</p>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="minNodeVersion" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>min<wbr/>Node<wbr/>Version</span><a href="#minNodeVersion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">min<wbr/>Node<wbr/>Version</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>Minimum Node.js version to require via package.json <code>engines</code> (inclusive).</p>
+<div class="tsd-comment tsd-typography"><p>The minimum node version required by this package to function.
+Most projects should not use this option.</p>
+<p>The value indicates that the package is incompatible with any older versions of node.
+This requirement is enforced via the engines field.</p>
+<p>You will normally not need to set this option, even if your package is incompatible with EOL versions of node.
+Consider this option only if your package depends on a specific feature, that is not available in other LTS versions.
+Setting this option has very high impact on the consumers of your package,
+as package managers will actively prevent usage with node versions you have marked as incompatible.</p>
+<p>To change the node version of your CI/CD workflows, use <code>workflowNodeVersion</code>.</p>
 </div>
 <div class="tsd-comment tsd-typography">
-<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-2">&quot;engines&quot;</span><span class="hl-1"> </span><span class="hl-4">specified</span>
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-4">minimum</span><span class="hl-1"> </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-4">is</span><span class="hl-1"> </span><span class="hl-4">enforced</span>
 </code><button>Copy</button></pre>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.minNodeVersion</p></aside></section>
@@ -1945,11 +1958,12 @@ Given values either append to default configuration or overwrite values in it.</
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="workflowNodeVersion" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>workflow<wbr/>Node<wbr/>Version</span><a href="#workflowNodeVersion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">workflow<wbr/>Node<wbr/>Version</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>The node version to use in GitHub workflows.</p>
+<div class="tsd-comment tsd-typography"><p>The node version used in GitHub Actions workflows.</p>
+<p>Always use this option if your GitHub Actions workflows require a specific to run.</p>
 </div>
 <div class="tsd-comment tsd-typography">
 <h4>Default</h4><ul>
-<li>same as <code>minNodeVersion</code></li>
+<li><code>minNodeVersion</code> if set, otherwise <code>lts/*</code>.</li>
 </ul>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.workflowNodeVersion</p></aside></section>
