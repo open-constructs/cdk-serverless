@@ -47,6 +47,7 @@
 <a href="ServerlessProjectOptions.html#buildWorkflow" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>build<wbr/>Workflow?</span></a>
 <a href="ServerlessProjectOptions.html#buildWorkflowOptions" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>build<wbr/>Workflow<wbr/>Options?</span></a>
 <a href="ServerlessProjectOptions.html#buildWorkflowTriggers" class="tsd-index-link deprecated tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>build<wbr/>Workflow<wbr/>Triggers?</span></a>
+<a href="ServerlessProjectOptions.html#bumpPackage" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>bump<wbr/>Package?</span></a>
 <a href="ServerlessProjectOptions.html#bundledDeps" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>bundled<wbr/>Deps?</span></a>
 <a href="ServerlessProjectOptions.html#bundlerOptions" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>bundler<wbr/>Options?</span></a>
 <a href="ServerlessProjectOptions.html#cdkAssert" class="tsd-index-link deprecated tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cdk<wbr/>Assert?</span></a>
@@ -114,6 +115,7 @@
 <a href="ServerlessProjectOptions.html#minNodeVersion" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>min<wbr/>Node<wbr/>Version?</span></a>
 <a href="ServerlessProjectOptions.html#mutableBuild" class="tsd-index-link deprecated tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>mutable<wbr/>Build?</span></a>
 <a href="ServerlessProjectOptions.html#name" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>name</span></a>
+<a href="ServerlessProjectOptions.html#nextVersionCommand" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>next<wbr/>Version<wbr/>Command?</span></a>
 <a href="ServerlessProjectOptions.html#npmAccess" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Access?</span></a>
 <a href="ServerlessProjectOptions.html#npmDistTag" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Dist<wbr/>Tag?</span></a>
 <a href="ServerlessProjectOptions.html#npmIgnoreOptions" class="tsd-index-link tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Ignore<wbr/>Options?</span></a>
@@ -382,6 +384,17 @@ code before redeployment.</p>
 </ul>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.buildWorkflowTriggers</p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="bumpPackage" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>bump<wbr/>Package</span><a href="#bumpPackage" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">bump<wbr/>Package</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>The <code>commit-and-tag-version</code> compatible package used to bump the package version, as a dependency string.</p>
+<p>This can be any compatible package version, including the deprecated <code>standard-version@9</code>.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-7">A</span><span class="hl-1"> </span><span class="hl-4">recent</span><span class="hl-1"> </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-5">of</span><span class="hl-1"> </span><span class="hl-2">&quot;commit-and-tag-version&quot;</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.bumpPackage</p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="bundledDeps" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>bundled<wbr/>Deps</span><a href="#bundledDeps" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">bundled<wbr/>Deps</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span><span class="tsd-signature-symbol">[]</span></div>
@@ -1032,10 +1045,15 @@ If not specified, we bump the global latest version.</p>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="maxNodeVersion" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>max<wbr/>Node<wbr/>Version</span><a href="#maxNodeVersion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">max<wbr/>Node<wbr/>Version</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>Minimum node.js version to require via <code>engines</code> (inclusive).</p>
+<div class="tsd-comment tsd-typography"><p>The maximum node version supported by this package.
+Most projects should not use this option.</p>
+<p>The value indicates that the package is incompatible with any newer versions of node.
+This requirement is enforced via the engines field.</p>
+<p>You will normally not need to set this option.
+Consider this option only if your package is known to not function with newer versions of node.</p>
 </div>
 <div class="tsd-comment tsd-typography">
-<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-4">max</span>
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-4">maximum</span><span class="hl-1"> </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-4">is</span><span class="hl-1"> </span><span class="hl-4">enforced</span>
 </code><button>Copy</button></pre>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.maxNodeVersion</p></aside></section>
@@ -1079,10 +1097,18 @@ release are not incrementing the major version number.</p>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="minNodeVersion" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>min<wbr/>Node<wbr/>Version</span><a href="#minNodeVersion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">min<wbr/>Node<wbr/>Version</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>Minimum Node.js version to require via package.json <code>engines</code> (inclusive).</p>
+<div class="tsd-comment tsd-typography"><p>The minimum node version required by this package to function.
+Most projects should not use this option.</p>
+<p>The value indicates that the package is incompatible with any older versions of node.
+This requirement is enforced via the engines field.</p>
+<p>You will normally not need to set this option, even if your package is incompatible with EOL versions of node.
+Consider this option only if your package depends on a specific feature, that is not available in other LTS versions.
+Setting this option has very high impact on the consumers of your package,
+as package managers will actively prevent usage with node versions you have marked as incompatible.</p>
+<p>To change the node version of your CI/CD workflows, use <code>workflowNodeVersion</code>.</p>
 </div>
 <div class="tsd-comment tsd-typography">
-<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-2">&quot;engines&quot;</span><span class="hl-1"> </span><span class="hl-4">specified</span>
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">no</span><span class="hl-1"> </span><span class="hl-4">minimum</span><span class="hl-1"> </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-4">is</span><span class="hl-1"> </span><span class="hl-4">enforced</span>
 </code><button>Copy</button></pre>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.minNodeVersion</p></aside></section>
@@ -1114,6 +1140,33 @@ before a PR is merged.</p>
 
 <h4>Featured</h4></div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.name</p></aside></section>
+<section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="nextVersionCommand" class="tsd-anchor"></a>
+<h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>next<wbr/>Version<wbr/>Command</span><a href="#nextVersionCommand" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
+<div class="tsd-signature"><span class="tsd-kind-property">next<wbr/>Version<wbr/>Command</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
+<div class="tsd-comment tsd-typography"><p>A shell command to control the next version to release.</p>
+<p>If present, this shell command will be run before the bump is executed, and
+it determines what version to release. It will be executed in the following
+environment:</p>
+<ul>
+<li>Working directory: the project directory.</li>
+<li><code>$VERSION</code>: the current version. Looks like <code>1.2.3</code>.</li>
+<li><code>$LATEST_TAG</code>: the most recent tag. Looks like <code>prefix-v1.2.3</code>, or may be unset.</li>
+</ul>
+<p>The command should print one of the following to <code>stdout</code>:</p>
+<ul>
+<li>Nothing: the next version number will be determined based on commit history.</li>
+<li><code>x.y.z</code>: the next version number will be <code>x.y.z</code>.</li>
+<li><code>major|minor|patch</code>: the next version number will be the current version number
+with the indicated component bumped.</li>
+</ul>
+<p>This setting cannot be specified together with <code>minMajorVersion</code>; the invoked
+script can be used to achieve the effects of <code>minMajorVersion</code>.</p>
+</div>
+<div class="tsd-comment tsd-typography">
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-1">- </span><span class="hl-4">The</span><span class="hl-1"> </span><span class="hl-4">next</span><span class="hl-1"> </span><span class="hl-4">version</span><span class="hl-1"> </span><span class="hl-4">will</span><span class="hl-1"> </span><span class="hl-4">be</span><span class="hl-1"> </span><span class="hl-4">determined</span><span class="hl-1"> </span><span class="hl-4">based</span><span class="hl-1"> </span><span class="hl-4">on</span><span class="hl-1"> </span><span class="hl-4">the</span><span class="hl-1"> </span><span class="hl-4">commit</span><span class="hl-1"> </span><span class="hl-4">history</span><span class="hl-1"> </span><span class="hl-4">and</span><span class="hl-1"> </span><span class="hl-4">project</span><span class="hl-1"> </span><span class="hl-4">settings</span><span class="hl-1">.</span>
+</code><button>Copy</button></pre>
+</div><aside class="tsd-sources">
+<p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.nextVersionCommand</p></aside></section>
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="npmAccess" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>npm<wbr/>Access</span><a href="#npmAccess" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">npm<wbr/>Access</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type ">NpmAccess</span></div>
@@ -1300,7 +1353,7 @@ test your module against the lowest peer version required.</p>
 <div class="tsd-comment tsd-typography"><p>The version of PNPM to use if using PNPM as a package manager.</p>
 </div>
 <div class="tsd-comment tsd-typography">
-<h4>Default</h4><pre><code class="language-ts"><span class="hl-2">&quot;7&quot;</span>
+<h4>Default</h4><pre><code class="language-ts"><span class="hl-2">&quot;9&quot;</span>
 </code><button>Copy</button></pre>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.pnpmVersion</p></aside></section>
@@ -1945,11 +1998,12 @@ Given values either append to default configuration or overwrite values in it.</
 <section class="tsd-panel tsd-member tsd-is-inherited tsd-is-external"><a id="workflowNodeVersion" class="tsd-anchor"></a>
 <h3 class="tsd-anchor-link"><code class="tsd-tag ts-flagOptional">Optional</code> <code class="tsd-tag ts-flagReadonly">Readonly</code> <span>workflow<wbr/>Node<wbr/>Version</span><a href="#workflowNodeVersion" aria-label="Permalink" class="tsd-anchor-icon"><svg viewBox="0 0 24 24"><use href="#icon-anchor"></use></svg></a></h3>
 <div class="tsd-signature"><span class="tsd-kind-property">workflow<wbr/>Node<wbr/>Version</span><span class="tsd-signature-symbol">?:</span> <span class="tsd-signature-type">string</span></div>
-<div class="tsd-comment tsd-typography"><p>The node version to use in GitHub workflows.</p>
+<div class="tsd-comment tsd-typography"><p>The node version used in GitHub Actions workflows.</p>
+<p>Always use this option if your GitHub Actions workflows require a specific to run.</p>
 </div>
 <div class="tsd-comment tsd-typography">
 <h4>Default</h4><ul>
-<li>same as <code>minNodeVersion</code></li>
+<li><code>minNodeVersion</code> if set, otherwise <code>lts/*</code>.</li>
 </ul>
 </div><aside class="tsd-sources">
 <p>Inherited from pj.awscdk.AwsCdkTypeScriptAppOptions.workflowNodeVersion</p></aside></section>
@@ -2036,6 +2090,7 @@ Given values either append to default configuration or overwrite values in it.</
 <li><a href="#buildWorkflow" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>build<wbr/>Workflow</span></a></li>
 <li><a href="#buildWorkflowOptions" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>build<wbr/>Workflow<wbr/>Options</span></a></li>
 <li><a href="#buildWorkflowTriggers" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>build<wbr/>Workflow<wbr/>Triggers</span></a></li>
+<li><a href="#bumpPackage" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>bump<wbr/>Package</span></a></li>
 <li><a href="#bundledDeps" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>bundled<wbr/>Deps</span></a></li>
 <li><a href="#bundlerOptions" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>bundler<wbr/>Options</span></a></li>
 <li><a href="#cdkAssert" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>cdk<wbr/>Assert</span></a></li>
@@ -2103,6 +2158,7 @@ Given values either append to default configuration or overwrite values in it.</
 <li><a href="#minNodeVersion" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>min<wbr/>Node<wbr/>Version</span></a></li>
 <li><a href="#mutableBuild" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>mutable<wbr/>Build</span></a></li>
 <li><a href="#name" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>name</span></a></li>
+<li><a href="#nextVersionCommand" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>next<wbr/>Version<wbr/>Command</span></a></li>
 <li><a href="#npmAccess" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Access</span></a></li>
 <li><a href="#npmDistTag" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Dist<wbr/>Tag</span></a></li>
 <li><a href="#npmIgnoreOptions" class="tsd-is-inherited tsd-is-external"><svg class="tsd-kind-icon" viewBox="0 0 24 24"><use href="#icon-1024"></use></svg><span>npm<wbr/>Ignore<wbr/>Options</span></a></li>
