@@ -35,7 +35,7 @@ const project = new typescript.TypeScriptProject({
     '@types/jwk-to-pem',
     '@types/uuid',
     '@hapi/boom',
-    'typedoc@0.25.0',
+    'typedoc@0.27.6',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-dynamodb',
@@ -43,7 +43,7 @@ const project = new typescript.TypeScriptProject({
   ],
   peerDeps: [
     'openapi-typescript',
-    'dynamodb-onetable',
+    'dynamodb-onetable@2.7.5',
     'aws-cdk-lib@>=2.120.0 <3.0.0',
     '@aws-cdk/aws-cognito-identitypool-alpha@>=2.120.0-alpha.0 <3.0.0',
     '@aws-sdk/client-cognito-identity-provider',
