@@ -89,12 +89,12 @@ export class ${this.options.apiName}GraphQlApi extends GraphQlApi<Resolvers> {
 
     new pj.SampleFile(this.project, this.options.definitionFile, {
       contents: `type Query {
-   users: [User]
+  users: [User]
 }
 
 type User {
-   id: ID!
-   name: String
+  id: ID!
+  name: String
 }`,
     });
   }
