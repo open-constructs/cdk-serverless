@@ -14,7 +14,6 @@ const project = new typescript.TypeScriptProject({
   deps: [
     'date-fns',
     'js-yaml',
-    'projen',
     'jsonwebtoken',
     'jwk-to-pem',
     'axios',
@@ -44,6 +43,7 @@ const project = new typescript.TypeScriptProject({
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable@2.7.5',
+    'projen@>=0.91.6 <1.0.0',
     'aws-cdk-lib@>=2.120.0 <3.0.0',
     '@aws-cdk/aws-cognito-identitypool-alpha@>=2.120.0-alpha.0 <3.0.0',
     '@aws-sdk/client-cognito-identity-provider',
