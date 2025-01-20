@@ -156,6 +156,11 @@
       "type": "peer"
     },
     {
+      "name": "projen",
+      "version": ">=0.91.6 <1.0.0",
+      "type": "peer"
+    },
+    {
       "name": "axios",
       "type": "runtime"
     },
@@ -181,10 +186,6 @@
     },
     {
       "name": "lambda-log",
-      "type": "runtime"
-    },
-    {
-      "name": "projen",
       "type": "runtime"
     },
     {
