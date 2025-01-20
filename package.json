@@ -67,10 +67,10 @@
   },
   "peerDependencies": {
     "@aws-cdk/aws-cognito-identitypool-alpha": ">=2.120.0-alpha.0 <3.0.0",
-    "@aws-sdk/client-cognito-identity-provider": "^3.668.0",
-    "@aws-sdk/client-dynamodb": "^3.668.0",
-    "@aws-sdk/client-s3": "^3.668.0",
-    "@aws-sdk/lib-dynamodb": "^3.668.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.731.1",
+    "@aws-sdk/client-dynamodb": "^3.731.1",
+    "@aws-sdk/client-s3": "^3.731.1",
+    "@aws-sdk/lib-dynamodb": "^3.731.1",
     "aws-cdk-lib": ">=2.120.0 <3.0.0",
     "dynamodb-onetable": "2.7.5",
     "openapi-typescript": "^6.7.6"
@@ -83,7 +83,7 @@
     "jsonwebtoken": "^9.0.2",
     "jwk-to-pem": "^2.0.7",
     "lambda-log": "^3.1.0",
-    "projen": "^0.88.1",
+    "projen": "^0.91.6",
     "uuid": "^9.0.1"
   },
   "keywords": [
