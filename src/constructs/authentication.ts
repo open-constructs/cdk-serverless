@@ -52,9 +52,24 @@ export interface CognitoAuthenticationProps {
      *
      * Code has to reside in './src/lambda/cognito.pre-token-generation.ts' with a method 'handler'
      *
+     * You can only use preTokenGeneration or preTokenGenerationv2, not both.
+     *
      * @default false
      */
     readonly preTokenGeneration?: boolean;
+
+    /**
+     * Attaches a lambda function to the pre token generation trigger
+     * new version of the pre token generation trigger with AccessToken support
+     *
+     * Code has to reside in './src/lambda/cognito.pre-token-generation.ts' with a method 'handler'
+     *
+     * You can only use preTokenGeneration or preTokenGenerationv2, not both.
+     *
+     * @default false
+     */
+    readonly preTokenGenerationv2?: boolean;
+
     /**
      * Attaches a lambda function to the pre sign-up trigger
      *
@@ -208,6 +223,10 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
       this.userpool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, this.customMessageFunction);
     }
 
+    if (props.triggers?.preTokenGenerationv2 && props.triggers?.preTokenGeneration) {
+      throw new Error('You can only use preTokenGeneration or preTokenGenerationv2, not both.');
+    }
+
     if (props.triggers?.preTokenGeneration) {
       const entryFile = './src/lambda/cognito.pre-token-generation.ts';
 
@@ -230,6 +249,30 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
         entry: entryFile,
       });
       this.userpool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION, this.preTokenGenerationFunction);
+    }
+
+    if (props.triggers?.preTokenGenerationv2) {
+      const entryFile = './src/lambda/cognito.pre-token-generation.ts';
+
+      if (!fs.existsSync(entryFile)) {
+        fs.writeFileSync(entryFile, `export async function handler(event: AWSLambda.PreTokenGenerationV2TriggerEvent): Promise<AWSLambda.PreTokenGenerationV2TriggerEvent> {
+  console.log(JSON.stringify(event));
+
+  // modify event.response here ...
+
+  return event;
+}`, {
+          encoding: 'utf-8',
+        });
+      }
+
+      this.preTokenGenerationFunction = new LambdaFunction(this, 'PreTokenGenerationFunction', {
+        lambdaOptions: {
+          timeout: Duration.seconds(5),
+        },
+        entry: entryFile,
+      });
+      this.userpool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION_CONFIG, this.preTokenGenerationFunction, cognito.LambdaVersion.V2_0);
     }
 
     if (props.triggers?.preSignUp) {
