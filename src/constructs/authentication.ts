@@ -362,6 +362,16 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
       key: `${CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID}${id}`,
       value: client.userPoolClientId,
     });
+
+    if (this.identityPool) {
+      this.identityPool.addUserPoolAuthentication(
+        new identitypool.UserPoolAuthenticationProvider({
+          userPool: this.userpool,
+          userPoolClient: client,
+        }),
+      );
+    }
+
     return client;
   }
 
