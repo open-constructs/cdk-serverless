@@ -1,8 +1,8 @@
 import { aws_dynamodb as dynamodb, aws_kms as kms } from 'aws-cdk-lib';
-import { GlobalSecondaryIndexProps, LocalSecondaryIndexProps } from 'aws-cdk-lib/aws-dynamodb';
+import { GlobalSecondaryIndexPropsV2, LocalSecondaryIndexProps } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 import { ISingleTableDatastore } from './base-table';
-export interface SingleTableDesign {
+export interface SingleTableDesignV2 {
 
   /**
    * structure of the primary key
@@ -22,7 +22,7 @@ export interface SingleTableDesign {
   /**
    * global secondary indexes
    */
-  globalIndexes?: GlobalSecondaryIndexProps[];
+  globalIndexes?: GlobalSecondaryIndexPropsV2[];
 
   /**
    * local secondary indexes
@@ -30,20 +30,12 @@ export interface SingleTableDesign {
   localIndexes?: LocalSecondaryIndexProps[];
 }
 
-export interface SingleTableDatastoreProps {
+export interface SingleTableDatastoreV2Props {
 
   /**
    * Table design
    */
-  readonly design: SingleTableDesign;
-
-  /**
-   * Whether server-side encryption with an AWS managed customer master key is enabled.
-   *
-   * @default - server-side encryption is enabled with an AWS owned customer master key
-   * @stability stable
-   */
-  readonly encryption?: dynamodb.TableEncryption;
+  readonly design: SingleTableDesignV2;
 
   /**
    * External KMS key to use for table encryption.
@@ -84,15 +76,15 @@ export interface SingleTableDatastoreProps {
  *     ],
  *     timeToLiveAttribute: 'TTL',
  *   },
- *   encryption: dynamodb.TableEncryption.AWS_MANAGED,
+ *   encryptionKey: kms.Key.fromKeyArn(this, 'EncryptionKey', 'arn:aws:kms:us-east-1:123456789012:key/12345678-1234-1234-1234-123456789012'),
  * });
  */
-export class SingleTableDatastore extends Construct implements ISingleTableDatastore {
+export class SingleTableDatastoreV2 extends Construct implements ISingleTableDatastore {
 
   /**
    * The DynamoDB table instance.
    */
-  public readonly table: dynamodb.Table;
+  public readonly table: dynamodb.ITable;
 
   /**
    * Creates an instance of SingleTableDatastore.
@@ -101,11 +93,11 @@ export class SingleTableDatastore extends Construct implements ISingleTableDatas
    * @param id - The scoped construct ID.
    * @param props - The properties of the SingleTableDatastore construct.
    */
-  constructor(scope: Construct, id: string, props: SingleTableDatastoreProps) {
+  constructor(scope: Construct, id: string, props: SingleTableDatastoreV2Props) {
     super(scope, id);
 
-    this.table = new dynamodb.Table(this, 'Resource', {
-      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+    const table = new dynamodb.TableV2(this, 'Resource', {
+      billing: dynamodb.Billing.onDemand(),
       partitionKey: {
         type: dynamodb.AttributeType.STRING,
         name: props.design.primaryKey.partitionKey,
@@ -117,16 +109,20 @@ export class SingleTableDatastore extends Construct implements ISingleTableDatas
         },
       },
       pointInTimeRecovery: true,
-      encryption: props.encryption,
-      encryptionKey: props.encryptionKey,
+      encryption: props.encryptionKey ?
+        dynamodb.TableEncryptionV2.customerManagedKey(props.encryptionKey) :
+        dynamodb.TableEncryptionV2.dynamoOwnedKey(),
       timeToLiveAttribute: props.design.timeToLiveAttribute,
     });
 
     for (const index of props.design.globalIndexes ?? []) {
-      this.table.addGlobalSecondaryIndex(index);
+      table.addGlobalSecondaryIndex(index);
     }
     for (const index of props.design.localIndexes ?? []) {
-      this.table.addLocalSecondaryIndex(index);
+      table.addLocalSecondaryIndex(index);
     }
+
+    this.table = table;
   }
+
 }

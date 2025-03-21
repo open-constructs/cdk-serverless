@@ -9,6 +9,7 @@ import { CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME } from '../shared/outputs';
 export interface DatastoreOptions {
   readonly modelName: string;
   readonly definitionFile: string;
+  readonly useV2?: boolean;
 }
 
 /**
@@ -126,18 +127,21 @@ export const ${typeName}: Model<${typeName}Type> = table.getModel<${typeName}Typ
   protected createConstructFile(file: pj.FileBase): string {
     const model = JSON.parse(fs.readFileSync(join(this.project.outdir, this.options.definitionFile)).toString()) as OneSchema;
 
+    const construct = this.options.useV2 ? 'SingleTableDatastoreV2' : 'SingleTableDatastore';
+    const constructProps = this.options.useV2 ? 'SingleTableDatastoreV2Props' : 'SingleTableDatastoreProps';
+
     return `// ${file.marker}
 /* eslint-disable */
 import { AttributeType, ProjectionType } from 'aws-cdk-lib/aws-dynamodb';
 import { CfnOutput } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import { SingleTableDatastore, SingleTableDatastoreProps } from '${PACKAGE_NAME}/lib/constructs';
+import { ${construct}, ${constructProps} } from '${PACKAGE_NAME}/lib/constructs';
 
-export interface ${this.options.modelName}DatastoreProps extends Omit<SingleTableDatastoreProps, 'design'> {
+export interface ${this.options.modelName}DatastoreProps extends Omit<${constructProps}, 'design'> {
   //
 }
 
-export class ${this.options.modelName}Datastore extends SingleTableDatastore {
+export class ${this.options.modelName}Datastore extends ${construct} {
 
   constructor(scope: Construct, id: string, props: ${this.options.modelName}DatastoreProps = {}) {
     super(scope, id, {

@@ -2,8 +2,8 @@ import { aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { AssetCdn } from './asset-cdn';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
+import { ISingleTableDatastore } from './base-table';
 import { LambdaOptions, LambdaTracingOptions } from './func';
-import { SingleTableDatastore } from './table';
 
 export interface BaseApiProps {
 
@@ -27,7 +27,7 @@ export interface BaseApiProps {
   /**
    * @default none
    */
-  singleTableDatastore?: SingleTableDatastore;
+  singleTableDatastore?: ISingleTableDatastore;
 
   /**
    * Use a Cognito user pool for authorization.
