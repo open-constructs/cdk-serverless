@@ -121,11 +121,6 @@
       "type": "build"
     },
     {
-      "name": "@aws-cdk/aws-cognito-identitypool-alpha",
-      "version": ">=2.177.0-alpha.0 <3.0.0",
-      "type": "peer"
-    },
-    {
       "name": "@aws-sdk/client-cognito-identity-provider",
       "type": "peer"
     },
@@ -143,7 +138,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": ">=2.177.0 <3.0.0",
+      "version": ">=2.187.0 <3.0.0",
       "type": "peer"
     },
     {
