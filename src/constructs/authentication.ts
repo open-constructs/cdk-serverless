@@ -1,17 +1,18 @@
 import * as fs from 'fs';
-import * as identitypool from '@aws-cdk/aws-cognito-identitypool-alpha';
 import {
-  aws_cognito as cognito, CfnOutput, Duration, Stack,
-
+  aws_cognito,
+  aws_cognito_identitypool,
+  CfnOutput,
+  Duration,
+  Stack,
 } from 'aws-cdk-lib';
-import { UserPoolClient, UserPoolClientOptions } from 'aws-cdk-lib/aws-cognito';
 import { Construct } from 'constructs';
 import { LambdaFunction } from './func';
 import { CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_AUTH_ROLEARN, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_UNAUTH_ROLEARN, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID } from '../shared/outputs';
 
 export interface ICognitoAuthentication {
   /** The Cognito user pool that holds user information */
-  readonly userpool: cognito.IUserPool;
+  readonly userpool: aws_cognito.IUserPool;
 }
 
 export interface IJwtAuthentication {
@@ -83,7 +84,7 @@ export interface CognitoAuthenticationProps {
   /**
    * Properties of the Cognito user pool
    */
-  readonly userPoolProps?: cognito.UserPoolProps;
+  readonly userPoolProps?: aws_cognito.UserPoolProps;
 
   /**
    * Configure SES mail sending
@@ -115,7 +116,7 @@ export interface CognitoAuthenticationProps {
   /** Create a new Cognito Identity Pool for the User pool */
   readonly identityPool?: {
     /** configuration of the identity pool */
-    readonly poolConfig?: identitypool.IdentityPoolProps;
+    readonly poolConfig?: aws_cognito_identitypool.IdentityPoolProps;
   };
 }
 
@@ -128,12 +129,12 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
   /**
    * The Cognito User Pool for user authentication.
    */
-  public readonly userpool: cognito.UserPool;
+  public readonly userpool: aws_cognito.UserPool;
 
   /**
    * The optional Cognito Identity Pool for federated identities.
    */
-  public readonly identityPool?: identitypool.IdentityPool;
+  public readonly identityPool?: aws_cognito_identitypool.IdentityPool;
 
   /**
    * The optional Lambda function for custom message trigger.
@@ -160,7 +161,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
   constructor(scope: Construct, id: string, props: CognitoAuthenticationProps) {
     super(scope, id);
 
-    this.userpool = new cognito.UserPool(this, 'UserPool', {
+    this.userpool = new aws_cognito.UserPool(this, 'UserPool', {
       userPoolName: props.userPoolName,
       autoVerify: { email: true },
       passwordPolicy: {
@@ -220,7 +221,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
           timeout: Duration.seconds(5),
         },
       });
-      this.userpool.addTrigger(cognito.UserPoolOperation.CUSTOM_MESSAGE, this.customMessageFunction);
+      this.userpool.addTrigger(aws_cognito.UserPoolOperation.CUSTOM_MESSAGE, this.customMessageFunction);
     }
 
     if (props.triggers?.preTokenGenerationv2 && props.triggers?.preTokenGeneration) {
@@ -248,7 +249,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
         },
         entry: entryFile,
       });
-      this.userpool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION, this.preTokenGenerationFunction);
+      this.userpool.addTrigger(aws_cognito.UserPoolOperation.PRE_TOKEN_GENERATION, this.preTokenGenerationFunction);
     }
 
     if (props.triggers?.preTokenGenerationv2) {
@@ -272,7 +273,11 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
         },
         entry: entryFile,
       });
-      this.userpool.addTrigger(cognito.UserPoolOperation.PRE_TOKEN_GENERATION_CONFIG, this.preTokenGenerationFunction, cognito.LambdaVersion.V2_0);
+      this.userpool.addTrigger(
+        aws_cognito.UserPoolOperation.PRE_TOKEN_GENERATION_CONFIG,
+        this.preTokenGenerationFunction,
+        aws_cognito.LambdaVersion.V2_0,
+      );
     }
 
     if (props.triggers?.preSignUp) {
@@ -307,11 +312,11 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
         },
         entry: entryFile,
       });
-      this.userpool.addTrigger(cognito.UserPoolOperation.PRE_SIGN_UP, this.preSignUpFunction);
+      this.userpool.addTrigger(aws_cognito.UserPoolOperation.PRE_SIGN_UP, this.preSignUpFunction);
     }
 
     if (props.sesEmailSender) {
-      (this.userpool.node.defaultChild as cognito.CfnUserPool).emailConfiguration = {
+      (this.userpool.node.defaultChild as aws_cognito.CfnUserPool).emailConfiguration = {
         emailSendingAccount: 'DEVELOPER',
         from: `${props.sesEmailSender.name} <${props.sesEmailSender.email}>`,
         sourceArn: `arn:aws:ses:${props.sesEmailSender.region ?? Stack.of(this).region}:${Stack.of(this).account}:identity/${props.sesEmailSender.email}`,
@@ -321,7 +326,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
     for (const groupName in props.groups) {
       if (Object.prototype.hasOwnProperty.call(props.groups, groupName)) {
         const groupDescription = props.groups[groupName];
-        new cognito.CfnUserPoolGroup(this, `Group${groupName}`, {
+        new aws_cognito.CfnUserPoolGroup(this, `Group${groupName}`, {
           userPoolId: this.userpool.userPoolId,
           groupName,
           description: groupDescription,
@@ -332,12 +337,12 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
     new CfnOutput(this, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, { key: CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, value: this.userpool.userPoolId });
 
     if (props.identityPool) {
-      this.identityPool = new identitypool.IdentityPool(this, 'IdentityPool', {
+      this.identityPool = new aws_cognito_identitypool.IdentityPool(this, 'IdentityPool', {
         allowUnauthenticatedIdentities: true,
         identityPoolName: props.userPoolName + '-identity',
         ...props.identityPool.poolConfig,
         authenticationProviders: {
-          userPools: [new identitypool.UserPoolAuthenticationProvider({ userPool: this.userpool })],
+          userPools: [new aws_cognito_identitypool.UserPoolAuthenticationProvider({ userPool: this.userpool })],
           ...props.identityPool.poolConfig?.authenticationProviders,
         },
       });
@@ -356,7 +361,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
     }
   }
 
-  public addUserPoolClient(id: string, options: UserPoolClientOptions): UserPoolClient {
+  public addUserPoolClient(id: string, options: aws_cognito.UserPoolClientOptions): aws_cognito.UserPoolClient {
     const client = this.userpool.addClient(id, options);
     new CfnOutput(this, `${CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID}${id}`, {
       key: `${CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID}${id}`,
@@ -365,7 +370,7 @@ export class CognitoAuthentication extends Construct implements ICognitoAuthenti
 
     if (this.identityPool) {
       this.identityPool.addUserPoolAuthentication(
-        new identitypool.UserPoolAuthenticationProvider({
+        new aws_cognito_identitypool.UserPoolAuthenticationProvider({
           userPool: this.userpool,
           userPoolClient: client,
         }),

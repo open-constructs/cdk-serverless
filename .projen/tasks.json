@@ -259,7 +259,7 @@
           "exec": "npm install"
         },
         {
-          "exec": "npm update @aws-sdk/client-cognito-identity-provider @aws-sdk/client-dynamodb @aws-sdk/client-s3 @aws-sdk/lib-dynamodb @hapi/boom @stylistic/eslint-plugin @types/aws-lambda @types/jest @types/js-yaml @types/jsonwebtoken @types/jwk-to-pem @types/lambda-log @types/node @types/uuid @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version constructs eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest ts-node typedoc typescript @aws-cdk/aws-cognito-identitypool-alpha aws-cdk-lib dynamodb-onetable openapi-typescript axios date-fns js-yaml jsonwebtoken jwk-to-pem lambda-log uuid"
+          "exec": "npm update @aws-sdk/client-cognito-identity-provider @aws-sdk/client-dynamodb @aws-sdk/client-s3 @aws-sdk/lib-dynamodb @hapi/boom @stylistic/eslint-plugin @types/aws-lambda @types/jest @types/js-yaml @types/jsonwebtoken @types/jwk-to-pem @types/lambda-log @types/node @types/uuid @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version constructs eslint-import-resolver-typescript eslint-plugin-import eslint jest jest-junit projen ts-jest ts-node typedoc typescript aws-cdk-lib dynamodb-onetable openapi-typescript axios date-fns js-yaml jsonwebtoken jwk-to-pem lambda-log uuid"
         },
         {
           "exec": "npx projen"
