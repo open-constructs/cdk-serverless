@@ -72,6 +72,106 @@ const api = new TestApiRestApi(this, 'Api', {
 
 This will also create Lambda functions for all operations defined in your spec and wire them accordingly.
 
+## Testing Utilities
+
+CDK Serverless provides two powerful test utilities to help you write comprehensive tests for your serverless applications.
+
+### LambdaTestUtil
+
+The `LambdaTestUtil` provides classes for testing both REST and GraphQL Lambda functions in isolation. It's perfect for unit testing your Lambda handlers.
+
+#### REST API Testing
+
+```typescript
+import { LambdaRestUnitTest } from 'cdk-serverless/tests/lambda-test-utils';
+
+const test = new LambdaRestUnitTest(handler, {
+  // Optional default headers for all requests
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  // Optional default Cognito user for all requests
+  cognito: {
+    username: 'test-user',
+    email: 'test@example.com',
+    groups: ['admin'],
+  },
+});
+
+// Test a GET request
+const result = await test.call({
+  path: '/items',
+  method: 'GET',
+});
+
+// Test a POST request with body
+const result = await test.call({
+  path: '/items',
+  method: 'POST',
+  body: JSON.stringify({ name: 'test' }),
+});
+```
+
+#### GraphQL Testing
+
+```typescript
+import { LambdaGraphQLTest } from 'cdk-serverless/tests/lambda-test-utils';
+
+const test = new LambdaGraphQLTest(handler, {
+  // Optional default Cognito user for all requests
+  cognito: {
+    username: 'test-user',
+    email: 'test@example.com',
+    groups: ['admin'],
+  },
+});
+
+// Test a GraphQL query
+const result = await test.call({
+  fieldName: 'getItem',
+  arguments: { id: '123' },
+});
+```
+
+### IntegTestUtil
+
+The `IntegTestUtil` provides a comprehensive set of tools for integration testing your deployed serverless applications. It handles authentication, data cleanup, and API testing.
+
+```typescript
+import { IntegTestUtil } from 'cdk-serverless/tests/integ-test-util';
+
+// Initialize with your stack outputs
+const test = new IntegTestUtil({
+  region: 'us-east-1',
+  apiOptions: {
+    baseURL: 'https://api.example.com',
+  },
+  authOptions: {
+    userPoolId: 'us-east-1_xxxxx',
+    userPoolClientId: 'xxxxxxxx',
+    identityPoolId: 'us-east-1:xxxxxxxx',
+  },
+  datastoreOptions: {
+    tableName: 'MyTable',
+  },
+});
+
+// Create and authenticate a test user
+await test.createUser('test@example.com', {
+  'custom:attribute': 'value',
+}, ['admin']);
+
+// Get an authenticated API client
+const client = await test.getAuthenticatedClient('test@example.com');
+
+// Make API calls
+const response = await client.get('/items');
+
+// Clean up test data
+await test.cleanupItems();
+await test.removeUser('test@example.com');
+```
+
 ## Contribute
 
 ### How to contribute to CDK Serverless
