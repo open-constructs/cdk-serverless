@@ -19,7 +19,8 @@ export interface GraphQlApiOptions {
  */
 export class GraphQlApi extends pj.Component {
 
-  protected readonly codegenConfigFileName: string;
+  public readonly codegenConfigFileName: string;
+  public readonly codegenConfigFile: pj.YamlFile;
 
   constructor(app: pj.awscdk.AwsCdkTypeScriptApp, protected options: GraphQlApiOptions) {
     super(app);
@@ -45,12 +46,23 @@ export class GraphQlApi extends pj.Component {
     app.preCompileTask.prependSpawn(generateTask);
 
     const codegenConfig = {
-      schema: this.options.definitionFile,
+      schema: [
+        this.options.definitionFile,
+        'node_modules/cdk-serverless/files/aws.graphql',
+      ],
       config: {
         scalars: {
           AWSDate: 'string',
           AWSURL: 'string',
+          AWSEmail: 'string',
+          AWSTime: 'string',
+          AWSDateTime: 'string',
+          AWSTimestamp: 'string',
+          AWSPhone: 'string',
+          AWSIPAddress: 'string',
+          AWSJSON: 'string',
         },
+        maybeValue: 'T | undefined',
       },
       generates: {
         [`./src/generated/graphql.${this.options.apiName.toLowerCase()}-model.generated.ts`]: {
@@ -59,7 +71,7 @@ export class GraphQlApi extends pj.Component {
       },
     };
 
-    new pj.YamlFile(this.project, this.codegenConfigFileName, {
+    this.codegenConfigFile = new pj.YamlFile(this.project, this.codegenConfigFileName, {
       obj: codegenConfig,
     });
 
