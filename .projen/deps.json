@@ -26,10 +26,6 @@
       "type": "build"
     },
     {
-      "name": "@types/aws-lambda",
-      "type": "build"
-    },
-    {
       "name": "@types/jest",
       "type": "build"
     },
@@ -154,6 +150,10 @@
       "name": "projen",
       "version": ">=0.91.6 <1.0.0",
       "type": "peer"
+    },
+    {
+      "name": "@types/aws-lambda",
+      "type": "runtime"
     },
     {
       "name": "axios",

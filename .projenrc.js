@@ -12,6 +12,7 @@ const project = new typescript.TypeScriptProject({
   stability: 'experimental',
   name: 'cdk-serverless',
   deps: [
+    '@types/aws-lambda',
     'date-fns',
     'js-yaml',
     'jsonwebtoken',
@@ -27,7 +28,6 @@ const project = new typescript.TypeScriptProject({
   docgen: false,
   devDeps: [
     'ts-node',
-    '@types/aws-lambda',
     '@types/js-yaml',
     '@types/lambda-log',
     '@types/jsonwebtoken',
