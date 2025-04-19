@@ -38,7 +38,6 @@
     "@aws-sdk/lib-dynamodb": "3.726.0",
     "@hapi/boom": "^10.0.1",
     "@stylistic/eslint-plugin": "^2",
-    "@types/aws-lambda": "^8.10.148",
     "@types/jest": "^29.5.14",
     "@types/js-yaml": "^4.0.9",
     "@types/jsonwebtoken": "^9.0.9",
@@ -75,6 +74,7 @@
     "projen": ">=0.91.6 <1.0.0"
   },
   "dependencies": {
+    "@types/aws-lambda": "^8.10.148",
     "axios": "^1.8.4",
     "constructs": "^10.3.0",
     "date-fns": "^4.1.0",
