@@ -43,8 +43,8 @@ export function createContext(): Context {
 export class LambdaRestUnitTest {
 
   constructor(
-    private handler: APIGatewayv1Handler,
-    private defaults?: LambdaRestTestOptionsBase,
+    private readonly handler: APIGatewayv1Handler,
+    private readonly defaults?: LambdaRestTestOptionsBase,
   ) { }
 
   private createRestEvent(options: LambdaRestTestOptions = {}): APIGatewayProxyWithCognitoAuthorizerEvent {
@@ -135,22 +135,22 @@ export interface LambdaGraphQLTestOptionsBase {
   stash?: Record<string, any>;
 }
 
-export interface LambdaGraphQLTestOptions extends LambdaGraphQLTestOptionsBase {
+export interface LambdaGraphQLTestOptions<TArgs, TSource = Record<string, any> | null> extends LambdaGraphQLTestOptionsBase {
   fieldName?: string;
-  arguments?: Record<string, any>;
-  source?: any;
+  arguments?: TArgs;
+  source?: TSource;
   parentTypeName?: string;
   prevResult?: Record<string, any>;
 }
 
-export class LambdaGraphQLTest {
+export class LambdaGraphQLTest<TArgs, TResult, TSource = Record<string, any> | null> {
 
   constructor(
-    private handler: AWSLambda.AppSyncResolverHandler<any, any>,
-    private defaults?: LambdaGraphQLTestOptionsBase,
+    private readonly handler: AWSLambda.AppSyncResolverHandler<TArgs, TResult, TSource>,
+    private readonly defaults?: LambdaGraphQLTestOptionsBase,
   ) { }
 
-  private createGraphQLEvent(options: LambdaGraphQLTestOptions): AWSLambda.AppSyncResolverEvent<Record<string, any>> {
+  private createGraphQLEvent(options: LambdaGraphQLTestOptions<TArgs, TSource>): AWSLambda.AppSyncResolverEvent<TArgs, TSource> {
     const {
       fieldName = 'testField',
       arguments: args = {},
@@ -210,10 +210,10 @@ export class LambdaGraphQLTest {
         ...this.defaults?.stash,
         ...stash,
       },
-    } as AWSLambda.AppSyncResolverEvent<Record<string, any>>;
+    } as AWSLambda.AppSyncResolverEvent<TArgs, TSource>;
   }
 
-  async call(options: LambdaGraphQLTestOptions): Promise<any> {
+  async call(options: LambdaGraphQLTestOptions<TArgs, TSource>): Promise<TResult> {
     const event = this.createGraphQLEvent(options);
     const context = createContext();
     const result = await this.handler(event, context, () => { });
