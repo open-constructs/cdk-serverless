@@ -3,7 +3,7 @@ import { Construct } from 'constructs';
 import { AssetCdn } from './asset-cdn';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { LambdaOptions, LambdaTracingOptions } from './func';
-import { SingleTableDatastore } from './table';
+import { ISingleTableDatastore } from './table';
 
 export interface BaseApiProps {
 
@@ -27,7 +27,7 @@ export interface BaseApiProps {
   /**
    * @default none
    */
-  singleTableDatastore?: SingleTableDatastore;
+  singleTableDatastore?: ISingleTableDatastore;
 
   /**
    * Use a Cognito user pool for authorization.
