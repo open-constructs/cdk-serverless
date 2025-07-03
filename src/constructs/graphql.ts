@@ -152,7 +152,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       this.monitoring.monitorAppSyncApi({
         api: this.api,
       });
-      this.addOperationFunctionMonitoring(props.apiName, this._functions);
+      this.addFunctionMonitoringSegment();
       if (props.singleTableDatastore) {
         this.addSingleTableMonitoring(props.singleTableDatastore);
       }
@@ -241,12 +241,9 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     this._functions[operationId] = fn;
     Tags.of(fn).add('GraphQL', description);
 
-    // if (this.monitoring) {
-    //   this.monitoring.lambdaDurationsWidget.addLeftMetric(fn.metricDuration());
-    //   this.monitoring.lambdaInvokesWidget.addLeftMetric(fn.metricInvocations());
-    //   this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricErrors());
-    //   this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricThrottles());
-    // }
+    if (this.monitoring) {
+      this.addFunctionToMonitoring(operationId, fn);
+    }
 
     const dataSource = new aws_appsync.LambdaDataSource(this, `LambdaDS${operationId}`, {
       api: this.api,

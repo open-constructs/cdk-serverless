@@ -30,6 +30,14 @@ export class AggregatedFunctionMonitoring extends Monitoring {
     this._functions = props.functions;
   }
 
+  addFunction(operationId: string, func: IFunction) {
+    if (Object.keys(this._functions).includes(operationId)) {
+      throw new Error(`Operation '${operationId}' is being registered for monitoring twice!`);
+    }
+    this._functions[operationId] = func;
+    console.log(`Added ${operationId}`);
+  }
+
   createTitleWidget() {
     const descriptionFile = `src/definitions/monitoring/${this.apiName}.description.md`;
     let description = `Create a file named '${descriptionFile}' to add a description to this API`;
@@ -79,6 +87,7 @@ export class AggregatedFunctionMonitoring extends Monitoring {
   }
 
   widgets(): IWidget[] {
+    console.log(`Adding widgets for fucntions ${Object.keys(this._functions).join(', ')}`);
     return [
       this.createTitleWidget(),
       new Row(

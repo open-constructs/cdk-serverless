@@ -224,7 +224,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       });
 
       // FIXME This currently depends on the side effects of having generated the routes further above
-      this.addOperationFunctionMonitoring(props.apiName, this._functions);
+      this.addFunctionMonitoringSegment();
       if (props.singleTableDatastore) {
         this.addSingleTableMonitoring(props.singleTableDatastore);
       }
@@ -358,6 +358,10 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       passthroughBehavior: 'when_no_templates',
       payloadFormatVersion: '1.0',
     };
+
+    if (this.monitoring) {
+      this.addFunctionToMonitoring(operation.operationId!, fn);
+    }
 
     return fn;
   }

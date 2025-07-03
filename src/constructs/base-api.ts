@@ -100,6 +100,7 @@ export abstract class BaseApi extends Construct {
   protected readonly apiDomainName?: string;
   protected readonly apiFQDN?: string;
   public readonly monitoring?: MonitoringFacade;
+  private readonly functionMonitoring?: AggregatedFunctionMonitoring;
 
   constructor(scope: Construct, id: string, props: BaseApiProps) {
     super(scope, id);
@@ -124,6 +125,11 @@ export abstract class BaseApi extends Construct {
           dashboardNamePrefix: props.apiName,
         }),
       });
+      this.functionMonitoring = new AggregatedFunctionMonitoring(this.monitoring, {
+        title: 'Lambda metrics',
+        apiName: props.apiName,
+        functions: {},
+      });
     }
 
   }
@@ -134,14 +140,15 @@ export abstract class BaseApi extends Construct {
     }
   }
 
-  protected addOperationFunctionMonitoring(apiName: string, functions: Record<string, IFunction>) {
-    if (this.monitoring && Object.keys(functions).length > 0) {
-      const functionMonitoring = new AggregatedFunctionMonitoring(this.monitoring, {
-        title: 'Lambda metrics',
-        apiName: apiName,
-        functions: functions,
-      });
-      this.monitoring.addSegment(functionMonitoring);
+  protected addFunctionToMonitoring(operationId: string, fn: IFunction) {
+    if (this.monitoring && this.functionMonitoring) {
+      this.functionMonitoring?.addFunction(operationId, fn);
+    }
+  }
+
+  protected addFunctionMonitoringSegment() {
+    if (this.monitoring && this.functionMonitoring) {
+      this.monitoring.addSegment(this.functionMonitoring);
     }
   }
 
