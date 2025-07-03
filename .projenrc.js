@@ -20,6 +20,7 @@ const project = new typescript.TypeScriptProject({
     'axios',
     'uuid',
     'lambda-log',
+    'cdk-monitoring-constructs',
     'constructs',
   ],
   defaultReleaseBranch: 'main',

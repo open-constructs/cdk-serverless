@@ -1,4 +1,3 @@
-import * as fs from 'fs';
 import {
   aws_certificatemanager,
   aws_iam,
@@ -8,11 +7,11 @@ import {
 } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
-import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
+import { loadYaml } from './load-yaml';
 import { CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
 
 export interface RestApiProps<OPS> extends BaseApiProps {
@@ -95,7 +94,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   constructor(scope: Construct, id: string, private props: RestApiProps<OPS>) {
     super(scope, id, props);
 
-    this.apiSpec = yaml.load(fs.readFileSync(props.definitionFileName).toString()) as OpenAPI3;
+    this.apiSpec = loadYaml(props.definitionFileName);
 
     let customDomainName: aws_apigateway.DomainNameOptions | undefined;
     if (this.apiFQDN) {
@@ -115,28 +114,6 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         value: 'https://' + this.apiFQDN,
       });
     }
-
-    // if ((props.monitoring ?? true) && this.monitoring) {
-    //   this.monitoring.apiErrorsWidget.addLeftMetric(this.api.metricServerError({
-    //     statistic: 'sum',
-    //   }));
-    //   this.monitoring.apiErrorsWidget.addLeftMetric(this.api.metricClientError({
-    //     statistic: 'sum',
-    //   }));
-
-    //   this.monitoring.apiLatencyWidget.addLeftMetric(this.api.metricLatency({
-    //     statistic: 'Average',
-    //   }));
-    //   this.monitoring.apiLatencyWidget.addLeftMetric(this.api.metricLatency({
-    //     statistic: 'p90',
-    //   }));
-    //   this.monitoring.apiLatencyTailWidget.addLeftMetric(this.api.metricLatency({
-    //     statistic: 'p95',
-    //   }));
-    //   this.monitoring.apiLatencyTailWidget.addLeftMetric(this.api.metricLatency({
-    //     statistic: 'p99',
-    //   }));
-    // }
 
     if (props.autoGenerateRoutes ?? true) {
       for (const path in this.apiSpec.paths) {
@@ -239,6 +216,19 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       apiDefinition: aws_apigateway.ApiDefinition.fromInline(this.apiSpec),
       ...props.restApiProps,
     });
+
+    if (this.monitoring) {
+      this.monitoring.addLargeHeader(`${props.apiName} Rest API Monitoring`);
+      this.monitoring.monitorApiGateway({
+        api: this.api,
+      });
+
+      // FIXME This currently depends on the side effects of having generated the routes further above
+      this.addFunctionMonitoringSegment();
+      if (props.singleTableDatastore) {
+        this.addSingleTableMonitoring(props.singleTableDatastore);
+      }
+    }
 
     // add invoke permissions to Lambda functions
     for (const fn of Object.values(this._functions)) {
@@ -352,13 +342,6 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     this._functions[operation.operationId!] = fn;
     cdk.Tags.of(fn).add('OpenAPI', description.replace(/[^\w\s\d_.:/=+\-@]/g, ''));
 
-    // if (this.monitoring) {
-    //   this.monitoring.lambdaDurationsWidget.addLeftMetric(fn.metricDuration());
-    //   this.monitoring.lambdaInvokesWidget.addLeftMetric(fn.metricInvocations());
-    //   this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricErrors());
-    //   this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricThrottles());
-    // }
-
     const hasVersionConfig = lambdaOptions.currentVersionOptions != undefined;
 
     operation['x-amazon-apigateway-integration'] = {
@@ -375,6 +358,10 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       passthroughBehavior: 'when_no_templates',
       payloadFormatVersion: '1.0',
     };
+
+    if (this.monitoring) {
+      this.addFunctionToMonitoring(operation.operationId!, fn);
+    }
 
     return fn;
   }

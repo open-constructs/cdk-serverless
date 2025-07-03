@@ -1,8 +1,11 @@
 import { aws_route53 } from 'aws-cdk-lib';
+import { IFunction } from 'aws-cdk-lib/aws-lambda';
+import { DefaultDashboardFactory, MonitoringFacade } from 'cdk-monitoring-constructs';
 import { Construct } from 'constructs';
 import { AssetCdn } from './asset-cdn';
 import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { LambdaOptions, LambdaTracingOptions } from './func';
+import { AggregatedFunctionMonitoring } from './monitoring/aggregated-function-monitoring';
 import { SingleTableDatastore } from './table';
 
 export interface BaseApiProps {
@@ -96,6 +99,8 @@ export abstract class BaseApi extends Construct {
   protected readonly apiHostName?: string;
   protected readonly apiDomainName?: string;
   protected readonly apiFQDN?: string;
+  public readonly monitoring?: MonitoringFacade;
+  private readonly functionMonitoring?: AggregatedFunctionMonitoring;
 
   constructor(scope: Construct, id: string, props: BaseApiProps) {
     super(scope, id);
@@ -114,6 +119,37 @@ export abstract class BaseApi extends Construct {
       this.apiFQDN = `${this.apiHostName}.${this.apiDomainName}`;
     }
 
+    if (props.monitoring ?? true) {
+      this.monitoring = new MonitoringFacade(this, 'Monitoring', {
+        dashboardFactory: new DefaultDashboardFactory(this, 'DashboardFactory', {
+          dashboardNamePrefix: props.apiName,
+        }),
+      });
+      this.functionMonitoring = new AggregatedFunctionMonitoring(this.monitoring, {
+        title: 'Lambda metrics',
+        apiName: props.apiName,
+        functions: {},
+      });
+    }
+
+  }
+
+  protected addSingleTableMonitoring(dataStore: SingleTableDatastore) {
+    if (this.monitoring) {
+      this.monitoring.monitorDynamoTable({ table: dataStore.table });
+    }
+  }
+
+  protected addFunctionToMonitoring(operationId: string, fn: IFunction) {
+    if (this.monitoring && this.functionMonitoring) {
+      this.functionMonitoring?.addFunction(operationId, fn);
+    }
+  }
+
+  protected addFunctionMonitoringSegment() {
+    if (this.monitoring && this.functionMonitoring) {
+      this.monitoring.addSegment(this.functionMonitoring);
+    }
   }
 
 }
