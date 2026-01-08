@@ -2,6 +2,14 @@ import { aws_dynamodb as dynamodb, aws_kms as kms } from 'aws-cdk-lib';
 import { GlobalSecondaryIndexProps, LocalSecondaryIndexProps } from 'aws-cdk-lib/aws-dynamodb';
 import { Construct } from 'constructs';
 
+export interface ISingleTableDatastore {
+
+  /**
+   * The DynamoDB table instance behind the SingleTableDatastore.
+   */
+  readonly table: dynamodb.Table;
+}
+
 export interface SingleTableDesign {
 
   /**
@@ -87,7 +95,17 @@ export interface SingleTableDatastoreProps {
  *   encryption: dynamodb.TableEncryption.AWS_MANAGED,
  * });
  */
-export class SingleTableDatastore extends Construct {
+export class SingleTableDatastore extends Construct implements ISingleTableDatastore {
+
+  public static fromTable(scope: Construct, id: string, table: dynamodb.Table): ISingleTableDatastore {
+    class ExternalTableDatastore extends Construct implements ISingleTableDatastore {
+      public readonly table = table;
+      constructor() {
+        super(scope, id);
+      }
+    }
+    return new ExternalTableDatastore();
+  }
 
   /**
    * The DynamoDB table instance.
