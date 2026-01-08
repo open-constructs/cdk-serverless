@@ -35,7 +35,7 @@ const project = new typescript.TypeScriptProject({
     '@types/jwk-to-pem',
     '@types/uuid',
     '@hapi/boom',
-    'typedoc@0.27.6',
+    'typedoc',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-dynamodb',

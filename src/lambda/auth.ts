@@ -78,7 +78,7 @@ const promisedVerify = (token: string, issuerUri: string, jwksUri?: string): Pro
       getJwksUri(issuerUri, jwksUri).then(getPublicKeys).then((keys) => {
         cb(null, keys[header.kid!].pem);
       }, cb);
-    }, { issuer: issuerUri, audience: jwtAudience }, (err, decoded) => {
+    }, { issuer: issuerUri, audience: jwtAudience as [string, ...string[]] }, (err: any, decoded: any) => {
       if (err) {
         reject(err);
       } else {
