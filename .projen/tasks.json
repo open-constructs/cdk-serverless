@@ -254,7 +254,7 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cognito-identity-provider,@aws-sdk/client-dynamodb,@aws-sdk/client-s3,@aws-sdk/lib-dynamodb,@hapi/boom,@types/jest,@types/js-yaml,@types/jsonwebtoken,@types/jwk-to-pem,@types/lambda-log,@types/node,@types/uuid,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typescript,openapi-typescript,@types/aws-lambda,axios,constructs,date-fns,js-yaml,jsonwebtoken,jwk-to-pem,lambda-log,uuid"
+          "exec": "npx npm-check-updates@18 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@aws-sdk/client-cognito-identity-provider,@aws-sdk/client-dynamodb,@aws-sdk/client-s3,@aws-sdk/lib-dynamodb,@hapi/boom,@types/jest,@types/js-yaml,@types/jsonwebtoken,@types/jwk-to-pem,@types/lambda-log,@types/node,@types/uuid,eslint-import-resolver-typescript,eslint-plugin-import,jest,projen,ts-jest,ts-node,typedoc,typescript,openapi-typescript,@types/aws-lambda,axios,constructs,date-fns,js-yaml,jsonwebtoken,jwk-to-pem,lambda-log,uuid"
         },
         {
           "exec": "npm install"
