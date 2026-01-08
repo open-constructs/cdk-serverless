@@ -43,7 +43,8 @@ export class GraphQlApi extends pj.Component {
       exec: `graphql-codegen -c ${this.codegenConfigFileName}`,
       description: 'Generate Types from the GraphQL specification',
     });
-    app.preCompileTask.prependSpawn(generateTask);
+    app.defaultTask!.spawn(generateTask);
+    app.preCompileTask.prependSpawn(generateTask); // This is kept for backwards compatibility
 
     const codegenConfig = {
       schema: [
