@@ -1,4 +1,4 @@
-const { typescript, javascript, github, ReleasableCommits } = require('projen');
+import { typescript, javascript, github, ReleasableCommits } from 'projen';
 
 const project = new typescript.TypeScriptProject({
   authorName: 'Taimos GmbH',
@@ -24,7 +24,8 @@ const project = new typescript.TypeScriptProject({
   ],
   defaultReleaseBranch: 'main',
   packageManager: javascript.NodePackageManager.NPM,
-  minMajorVersion: '2',
+  projenrcTs: true,
+  minMajorVersion: 2,
   docgen: false,
   devDeps: [
     'ts-node',
@@ -43,7 +44,7 @@ const project = new typescript.TypeScriptProject({
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable@2.7.5',
-    'projen@>=0.91.6 <1.0.0',
+    'projen@>=0.98.33 <1.0.0',
     'aws-cdk-lib@>=2.187.0 <3.0.0',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
@@ -69,6 +70,7 @@ const project = new typescript.TypeScriptProject({
   },
   releaseToNpm: true,
   npmAccess: javascript.NpmAccess.PUBLIC,
+  npmTrustedPublishing: true,
   gitpod: true,
   autoApproveUpgrades: true,
   autoApproveOptions: { allowedUsernames: ['hoegertn', 'open-constructs-projen[bot]'], secret: 'GITHUB_TOKEN' },

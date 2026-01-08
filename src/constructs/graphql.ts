@@ -217,14 +217,20 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   /**
    *
    */
-  public grantAccess<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(grantee: aws_iam.IGrantable, typeName: TYPE, ...fieldNames: (keyof FIELDTYPE)[]): void {
+  public grantAccess<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    grantee: aws_iam.IGrantable,
+    typeName: TYPE,
+    ...fieldNames: (keyof FIELDTYPE)[]): void {
     this.api.grant(grantee, aws_appsync.IamResource.ofType(typeName as string, ...fieldNames as string[]), 'appsync:GraphQL');
   }
 
   /**
    *
    */
-  public grantAccessUnAuth<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, ...fieldNames: (keyof FIELDTYPE)[]): void {
+  public grantAccessUnAuth<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    ...fieldNames: (keyof FIELDTYPE)[]
+  ): void {
     if (!this.cognitoAuth.identityPool) {
       throw new Error('Cannot grant to Cognito identity pool as none is provided');
     }
@@ -234,7 +240,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   /**
    *
    */
-  public grantAccessAuth<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, ...fieldNames: (keyof FIELDTYPE)[]): void {
+  public grantAccessAuth<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    ...fieldNames: (keyof FIELDTYPE)[]
+  ): void {
     if (!this.cognitoAuth.identityPool) {
       throw new Error('Cannot grant to Cognito identity pool as none is provided');
     }
@@ -245,11 +254,17 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   /**
    * getFunctionForOperation
    */
-  public getFunctionForOperation<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE): LambdaFunction {
+  public getFunctionForOperation<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    fieldName: keyof FIELDTYPE,
+  ): LambdaFunction {
     return this._functions[`${typeName as string}.${fieldName as String}`];
   }
 
-  public addLambdaResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE): LambdaFunction {
+  public addLambdaResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    fieldName: keyof FIELDTYPE,
+  ): LambdaFunction {
     const operationId = `${typeName as string}.${fieldName as String}`;
     const description = `Type ${typeName as string} Field ${fieldName as String} Resolver`;
 
@@ -303,7 +318,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     return fn;
   }
 
-  public addDynamoDbVtlResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE, options?: Omit<VtlResolverOptions, 'dataSource'>): void {
+  public addDynamoDbVtlResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    fieldName: keyof FIELDTYPE,
+    options?: Omit<VtlResolverOptions, 'dataSource'>): void {
     if (!this.tableDataSource) {
       throw new Error('DynamoDB is not initialized');
     }
@@ -313,7 +331,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     });
   }
 
-  public addDynamoDbJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE, options?: JsResolverOptions): void {
+  public addDynamoDbJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    fieldName: keyof FIELDTYPE,
+    options?: JsResolverOptions): void {
     if (!this.tableDataSource) {
       throw new Error('DynamoDB is not initialized');
     }
@@ -326,7 +347,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     });
   }
 
-  public addJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE, dataSource: aws_appsync.BaseDataSource, options?: JsResolverOptions): void {
+  public addJSResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    fieldName: keyof FIELDTYPE,
+    dataSource: aws_appsync.BaseDataSource, options?: JsResolverOptions): void {
     const operationId = `${typeName as string}.${fieldName as String}`;
     const description = `Type ${typeName as string} Field ${fieldName as String} Resolver`;
 
@@ -422,7 +446,10 @@ ${Object.entries(options?.stashValues ?? []).map(val => `      ctx.stash.${val[0
     });
   }
 
-  public addVtlResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(typeName: TYPE, fieldName: keyof FIELDTYPE, options: VtlResolverOptions): void {
+  public addVtlResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
+    typeName: TYPE,
+    fieldName: keyof FIELDTYPE,
+    options: VtlResolverOptions): void {
     const operationId = `${typeName as string}.${fieldName as String}`;
 
     const mappingReqFile = `./src/vtl/${operationId}.req.vtl`;
