@@ -2,7 +2,7 @@
 import { SpawnSyncOptions, spawnSync } from 'child_process';
 import * as fs from 'fs';
 import * as os from 'os';
-import { AssetHashType, BundlingOptions, BundlingOutput, CfnOutput, DockerImage, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
+import { AssetHashType, BundlingOptions, BundlingOutput, CfnOutput, DockerImage, NestedStack, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
@@ -11,6 +11,25 @@ import { CFN_OUTPUT_SUFFIX_GRAPHQL_DOMAINNAME } from '../shared/outputs';
 
 export interface GraphQlApiProps extends BaseApiProps {
   definitionFileName: string;
+
+  /**
+   * If true, resolvers and Lambda functions will be created in nested stacks
+   * grouped by type (Query, Mutation, Subscription, Field).
+   *
+   * WARNING: Only enable this if you are approaching or hitting CloudFormation's
+   * 500 resource limit. Nested stacks have significant downsides:
+   * - Slower deployments due to additional stack operations
+   * - More complex debugging and error tracing
+   * - Harder to navigate in the CloudFormation console
+   * - Cross-stack references add complexity
+   *
+   * WARNING: Changing this setting on an existing stack requires manual intervention.
+   * CloudFormation cannot automatically move resources between stacks. You may need
+   * to delete and recreate resolvers, or perform a two-step deployment.
+   *
+   * @default false
+   */
+  useNestedStacks?: boolean;
 }
 
 export interface VtlResolverOptions {
@@ -91,9 +110,15 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
   /**
+   * Nested stacks for resolvers, grouped by type name.
+   * Only used when useNestedStacks is true.
+   */
+  private readonly nestedStacks: { [typeName: string]: NestedStack } = {};
+
+  /**
    * The Cognito authentication configuration.
    */
-  private cognitoAuth: CognitoAuthentication;
+  private readonly cognitoAuth: CognitoAuthentication;
 
   /**
    * Creates an instance of GraphQlApi.
@@ -102,7 +127,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
    * @param id - The scoped construct ID.
    * @param props - The properties of the GraphQlApi construct.
    */
-  constructor(scope: Construct, id: string, private props: GraphQlApiProps) {
+  constructor(scope: Construct, id: string, private readonly props: GraphQlApiProps) {
     super(scope, id, props);
 
     this.cognitoAuth = props.authentication as CognitoAuthentication;
@@ -274,7 +299,9 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       this.createEntryFile(entryFile, typeName as string, fieldName as string);
     }
 
-    const fn = new LambdaFunction(this, `Fn${operationId}`, {
+    const scope = this.getScopeForTypeName(typeName as string);
+
+    const fn = new LambdaFunction(scope, `Fn${operationId}`, {
       stageName: this.props.stageName,
       additionalEnv: this.props.additionalEnv,
       entry: entryFile,
@@ -303,13 +330,13 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     //   this.monitoring.lambdaErrorsWidget.addLeftMetric(fn.metricThrottles());
     // }
 
-    const dataSource = new aws_appsync.LambdaDataSource(this, `LambdaDS${operationId}`, {
+    const dataSource = new aws_appsync.LambdaDataSource(scope, `LambdaDS${operationId}`, {
       api: this.api,
       name: `Lambda_${typeName as string}_${fieldName as String}`,
       lambdaFunction: fn,
     });
 
-    new aws_appsync.Resolver(this, `Resolver${operationId}`, {
+    new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
       api: this.api,
       typeName: typeName as string,
       fieldName: fieldName as string,
@@ -354,6 +381,8 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
     const operationId = `${typeName as string}.${fieldName as String}`;
     const description = `Type ${typeName as string} Field ${fieldName as String} Resolver`;
 
+    const scope = this.getScopeForTypeName(typeName as string);
+
     const resolverDir = './src/js-resolver/';
     const functions: JsResolverConfig[] = [];
 
@@ -383,7 +412,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
         this.createJSResolverFile(fn, typeName as string, fieldName as string);
       }
 
-      const jsFunction = new aws_appsync.AppsyncFunction(this, fn.functionId, {
+      const jsFunction = new aws_appsync.AppsyncFunction(scope, fn.functionId, {
         api: this.api,
         name: operationId.replace(/\./g, ''),
         description,
@@ -424,7 +453,7 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       pipelineConfig.push(jsFunction);
     }
 
-    new aws_appsync.Resolver(this, `Resolver${operationId}`, {
+    new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
       api: this.api,
       typeName: typeName as string,
       fieldName: fieldName as string,
@@ -463,7 +492,9 @@ ${Object.entries(options?.stashValues ?? []).map(val => `      ctx.stash.${val[0
       fs.writeFileSync(mappingResFile, '$util.toJson($ctx.result)', { encoding: 'utf-8' });
     }
 
-    new aws_appsync.Resolver(this, `Resolver${operationId}`, {
+    const scope = this.getScopeForTypeName(typeName as string);
+
+    new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
       api: this.api,
       typeName: typeName as string,
       fieldName: fieldName as string,
@@ -471,6 +502,34 @@ ${Object.entries(options?.stashValues ?? []).map(val => `      ctx.stash.${val[0
       requestMappingTemplate: aws_appsync.MappingTemplate.fromString(this.substVariables(fs.readFileSync(mappingReqFile).toString('utf-8'), options.variables)),
       responseMappingTemplate: aws_appsync.MappingTemplate.fromString(this.substVariables(fs.readFileSync(mappingResFile).toString('utf-8'), options.variables)),
     });
+  }
+
+  /**
+   * Returns the appropriate scope for creating resources for the given type name.
+   * If useNestedStacks is enabled, returns a nested stack for the type name,
+   * creating it if it doesn't exist. Otherwise, returns this construct.
+   *
+   * Query, Mutation, and Subscription each get their own nested stack.
+   * All other types (field resolvers) share a single "Field" nested stack.
+   *
+   * @param typeName - The GraphQL type name (e.g., 'Query', 'Mutation', 'Subscription', or a custom type)
+   * @returns The construct to use as scope for creating resources
+   */
+  private getScopeForTypeName(typeName: string): Construct {
+    if (!this.props.useNestedStacks) {
+      return this;
+    }
+
+    const rootTypes = ['Query', 'Mutation', 'Subscription'];
+    const stackKey = rootTypes.includes(typeName) ? typeName : 'Field';
+
+    if (!this.nestedStacks[stackKey]) {
+      this.nestedStacks[stackKey] = new NestedStack(this, `${stackKey}Resolvers`, {
+        description: `Nested stack for ${stackKey} resolvers`,
+      });
+    }
+
+    return this.nestedStacks[stackKey];
   }
 
   private substVariables(data: string, vars: { [name: string]: string } = {}): string {
