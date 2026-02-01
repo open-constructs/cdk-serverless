@@ -44,8 +44,8 @@ const project = new typescript.TypeScriptProject({
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable@2.7.5',
-    'projen@>=0.98.33 <1.0.0',
-    'aws-cdk-lib@>=2.187.0 <3.0.0',
+    'projen@>=0.99.9 <1.0.0',
+    'aws-cdk-lib@>=2.236.0 <3.0.0',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-dynamodb',
@@ -75,7 +75,7 @@ const project = new typescript.TypeScriptProject({
   autoApproveUpgrades: true,
   autoApproveOptions: { allowedUsernames: ['hoegertn', 'open-constructs-projen[bot]'], secret: 'GITHUB_TOKEN' },
   depsUpgradeOptions: { workflowOptions: { schedule: javascript.UpgradeDependenciesSchedule.WEEKLY } },
-  releasableCommits: ReleasableCommits.ofType(['feat', 'fix', 'revert', 'Revert']),
+  releasableCommits: ReleasableCommits.ofType(['feat', 'fix', 'revert', 'Revert', 'chore']),
   githubOptions: {
     projenCredentials: github.GithubCredentials.fromApp(),
     pullRequestLintOptions: {
