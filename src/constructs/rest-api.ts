@@ -1,4 +1,4 @@
-import * as fs from 'fs';
+import * as fs from 'node:fs';
 import {
   aws_certificatemanager,
   aws_iam,
@@ -24,25 +24,31 @@ export interface RestApiProps<OPS> extends BaseApiProps {
    *
    * @default true
    */
-  autoGenerateRoutes?: boolean;
+  readonly autoGenerateRoutes?: boolean;
 
   /**
    * custom options for the created HttpApi
    *
    * @default -
    */
-  restApiProps?: aws_apigateway.RestApiBaseProps;
+  readonly restApiProps?: aws_apigateway.RestApiBaseProps;
 
   /**
    * additional options for the underlying Lambda function construct per operationId
    *
    * @default -
    */
-  lambdaOptionsByOperation?: { [operationId in keyof OPS]?: LambdaOptions };
+  readonly lambdaOptionsByOperation?: { [operationId in keyof OPS]?: LambdaOptions };
 
-  definitionFileName: string;
+  /**
+   * The file name of the OpenAPI specification
+   */
+  readonly definitionFileName: string;
 
-  cors: boolean;
+  /**
+   * Enable CORS support
+   */
+  readonly cors: boolean;
 
   /**
    * Configure API Gateway logging
