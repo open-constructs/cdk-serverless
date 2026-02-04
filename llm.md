@@ -87,6 +87,43 @@ const api = new RestApi(this, 'Api', {
 });
 ```
 
+##### Gateway Logging
+
+The RestApi construct supports API Gateway access logging with customizable log format, retention, and encryption.
+
+```typescript
+import { aws_kms, aws_logs } from 'aws-cdk-lib';
+
+const api = new RestApi(this, 'Api', {
+  apiName: 'MyRestApi',
+  stageName: 'dev',
+  definitionFileName: 'openapi.yaml',
+  cors: true,
+  // Enable gateway logging with defaults (creates log group, 1 month retention)
+  gatewayLogging: {},
+});
+
+// Or with custom configuration
+const apiWithCustomLogging = new RestApi(this, 'Api', {
+  apiName: 'MyRestApi',
+  stageName: 'dev',
+  definitionFileName: 'openapi.yaml',
+  cors: true,
+  gatewayLogging: {
+    accessLogGroup: existingLogGroup,           // Optional: use existing log group
+    accessLogFormat: customAccessLogFormat,     // Optional: custom log format
+    logEncryptionKey: kmsKey,                   // Optional: KMS encryption
+    accessLogRetention: aws_logs.RetentionDays.THREE_MONTHS,  // Optional: retention period
+  },
+});
+```
+
+The default log format is a JSON object containing:
+- Request metadata: `requestId`, `requestTime`, `sourceIp`, `requestPath`, `method`
+- WAF information: `waf.error`, `waf.status`, `waf.latency`, `waf.response`
+- Integration details: `integration.error`, `integration.status`, `integration.latency`
+- Response metrics: `responseLatency`, `status`
+
 #### `SingleTableDatastore`
 
 Sets up a DynamoDB table following the single-table design pattern.

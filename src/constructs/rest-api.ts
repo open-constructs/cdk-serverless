@@ -268,11 +268,11 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
     // TODO patch spec for Cognito user pool
 
-    const accessLogGroup = props.autoGenerateRoutes ? (props.gatewayLogging?.accessLogGroup ?? new aws_logs.LogGroup(this, 'AccessLogGroup', {
+    const accessLogGroup = props.gatewayLogging ? (props.gatewayLogging.accessLogGroup ?? new aws_logs.LogGroup(this, 'AccessLogGroup', {
       logGroupName: `${props.apiName}/access-log`,
       removalPolicy: cdk.RemovalPolicy.DESTROY,
-      encryptionKey: props.gatewayLogging?.logEncryptionKey,
-      retention: props.gatewayLogging?.accessLogRetention ?? aws_logs.RetentionDays.ONE_MONTH,
+      encryptionKey: props.gatewayLogging.logEncryptionKey,
+      retention: props.gatewayLogging.accessLogRetention ?? aws_logs.RetentionDays.ONE_MONTH,
     })) : undefined;
 
     this.api = new aws_apigateway.SpecRestApi(this, 'Resource', {
@@ -281,9 +281,11 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       apiDefinition: aws_apigateway.ApiDefinition.fromInline(this.apiSpec),
       ...props.restApiProps,
       deployOptions: {
-        accessLogDestination: accessLogGroup ? new aws_apigateway.LogGroupLogDestination(accessLogGroup) : undefined,
-        accessLogFormat: props.gatewayLogging?.accessLogFormat ?? this.getDefaultAccessLogFormat(),
-        loggingLevel: props.gatewayLogging ? aws_apigateway.MethodLoggingLevel.INFO : undefined,
+        ...props.gatewayLogging && {
+          accessLogDestination: accessLogGroup ? new aws_apigateway.LogGroupLogDestination(accessLogGroup) : undefined,
+          accessLogFormat: props.gatewayLogging.accessLogFormat ?? this.getDefaultAccessLogFormat(),
+          loggingLevel: aws_apigateway.MethodLoggingLevel.INFO,
+        },
         ...props.restApiProps && {
           ...props.restApiProps,
         },

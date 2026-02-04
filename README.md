@@ -72,6 +72,68 @@ const api = new TestApiRestApi(this, 'Api', {
 
 This will also create Lambda functions for all operations defined in your spec and wire them accordingly.
 
+### API Gateway Logging
+
+The `RestApi` construct supports configurable API Gateway access logging. When enabled, access logs are sent to CloudWatch Logs with a detailed JSON format that includes request metadata, WAF information, and integration latency metrics.
+
+```typescript
+import { aws_logs } from 'aws-cdk-lib';
+
+const api = new TestApiRestApi(this, 'Api', {
+  stageName: props.stageName,
+  domainName: props.domainName,
+  apiHostname: 'api',
+  cors: true,
+  // Enable gateway logging with default settings
+  gatewayLogging: {},
+});
+```
+
+#### Configuration Options
+
+| Option | Description | Default |
+|--------|-------------|---------|
+| `accessLogGroup` | CloudWatch Log Group for access logs | A new log group is created |
+| `accessLogFormat` | Custom access log format | Detailed JSON format (see below) |
+| `logEncryptionKey` | KMS key for log encryption | No encryption |
+| `accessLogRetention` | Log retention period | One month |
+
+#### Custom Configuration Example
+
+```typescript
+import { aws_kms, aws_logs } from 'aws-cdk-lib';
+
+const logKey = new aws_kms.Key(this, 'LogKey');
+const logGroup = new aws_logs.LogGroup(this, 'ApiLogs', {
+  logGroupName: '/api/access-logs',
+  retention: aws_logs.RetentionDays.THREE_MONTHS,
+  encryptionKey: logKey,
+});
+
+const api = new TestApiRestApi(this, 'Api', {
+  stageName: props.stageName,
+  gatewayLogging: {
+    accessLogGroup: logGroup,
+    logEncryptionKey: logKey,
+    accessLogRetention: aws_logs.RetentionDays.THREE_MONTHS,
+  },
+});
+```
+
+#### Default Log Format
+
+The default access log format captures the following fields in JSON:
+
+- `requestId` - API Gateway request ID
+- `requestTime` - Timestamp of the request
+- `sourceIp` - Client IP address
+- `requestPath` - Resource path
+- `method` - HTTP method
+- `waf` - WAF error, status, latency, and response code
+- `integration` - Backend error message, status, and latency
+- `responseLatency` - Total response latency
+- `status` - HTTP status code
+
 ## Testing Utilities
 
 CDK Serverless provides two powerful test utilities to help you write comprehensive tests for your serverless applications.
