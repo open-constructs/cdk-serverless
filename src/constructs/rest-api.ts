@@ -5,6 +5,8 @@ import {
   aws_route53,
   aws_route53_targets,
   aws_apigateway,
+  aws_kms,
+  aws_logs,
 } from 'aws-cdk-lib';
 import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
@@ -41,6 +43,39 @@ export interface RestApiProps<OPS> extends BaseApiProps {
   definitionFileName: string;
 
   cors: boolean;
+
+  /**
+   * Configure API Gateway logging
+   *
+   * @default - no logging is configured
+   */
+  readonly gatewayLogging?: {
+    /**
+     * The log group to send the access logs to
+     *
+     * @default - a new log group is created
+     */
+    readonly accessLogGroup?: aws_logs.LogGroup;
+    /**
+     * The format of the access logs
+     *
+     * @default - detailed format is used
+     */
+    readonly accessLogFormat?: aws_apigateway.AccessLogFormat;
+    /**
+     * The key to encrypt the access logs with
+     *
+     * @default - no encryption is used
+     */
+    readonly logEncryptionKey?: aws_kms.IKey;
+    /**
+     * The retention period for the access logs
+     *
+     * @default - one month
+     */
+    readonly accessLogRetention?: aws_logs.RetentionDays;
+  };
+
 }
 
 /**
@@ -92,7 +127,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
    * @param id - The scoped construct ID.
    * @param props - The properties of the RestApi construct.
    */
-  constructor(scope: Construct, id: string, private props: RestApiProps<OPS>) {
+  constructor(scope: Construct, id: string, private readonly props: RestApiProps<OPS>) {
     super(scope, id, props);
 
     this.apiSpec = yaml.load(fs.readFileSync(props.definitionFileName).toString()) as OpenAPI3;
@@ -233,11 +268,26 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
     // TODO patch spec for Cognito user pool
 
+    const accessLogGroup = props.autoGenerateRoutes ? (props.gatewayLogging?.accessLogGroup ?? new aws_logs.LogGroup(this, 'AccessLogGroup', {
+      logGroupName: `${props.apiName}/access-log`,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      encryptionKey: props.gatewayLogging?.logEncryptionKey,
+      retention: props.gatewayLogging?.accessLogRetention ?? aws_logs.RetentionDays.ONE_MONTH,
+    })) : undefined;
+
     this.api = new aws_apigateway.SpecRestApi(this, 'Resource', {
       restApiName: `${props.apiName} [${props.stageName}]`,
       domainName: customDomainName,
       apiDefinition: aws_apigateway.ApiDefinition.fromInline(this.apiSpec),
       ...props.restApiProps,
+      deployOptions: {
+        accessLogDestination: accessLogGroup ? new aws_apigateway.LogGroupLogDestination(accessLogGroup) : undefined,
+        accessLogFormat: props.gatewayLogging?.accessLogFormat ?? this.getDefaultAccessLogFormat(),
+        loggingLevel: props.gatewayLogging ? aws_apigateway.MethodLoggingLevel.INFO : undefined,
+        ...props.restApiProps && {
+          ...props.restApiProps,
+        },
+      },
     });
 
     // add invoke permissions to Lambda functions
@@ -259,6 +309,28 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       });
     }
 
+  }
+  getDefaultAccessLogFormat(): aws_apigateway.AccessLogFormat | undefined {
+    return aws_apigateway.AccessLogFormat.custom(JSON.stringify({
+      requestId: aws_apigateway.AccessLogField.contextRequestId(),
+      requestTime: aws_apigateway.AccessLogField.contextRequestTime(),
+      sourceIp: aws_apigateway.AccessLogField.contextIdentitySourceIp(),
+      requestPath: aws_apigateway.AccessLogField.contextResourcePath(),
+      method: aws_apigateway.AccessLogField.contextHttpMethod(),
+      waf: {
+        error: aws_apigateway.AccessLogField.contextWafError(),
+        status: aws_apigateway.AccessLogField.contextWafStatus(),
+        latency: aws_apigateway.AccessLogField.contextWafLatency(),
+        response: aws_apigateway.AccessLogField.contextWafResponseCode(),
+      },
+      integration: {
+        error: aws_apigateway.AccessLogField.contextIntegrationErrorMessage(),
+        status: aws_apigateway.AccessLogField.contextIntegrationStatus(),
+        latency: aws_apigateway.AccessLogField.contextIntegrationLatency(),
+      },
+      responseLatency: aws_apigateway.AccessLogField.contextResponseLatency(),
+      status: aws_apigateway.AccessLogField.contextStatus(),
+    }));
   }
 
   protected cleanupSpec(spec: { [key: string]: any }): { [key: string]: any } {
