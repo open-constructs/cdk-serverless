@@ -142,7 +142,7 @@ export class LambdaFunction extends lambdaNodejs.NodejsFunction {
     super(scope, id, {
       ...props.lambdaOptions,
       entry: props.entry,
-      runtime: Runtime.NODEJS_18_X,
+      runtime: props.lambdaOptions?.runtime ?? Runtime.NODEJS_LATEST,
       bundling: {
         ...props.lambdaOptions?.bundling,
         externalModules: props.includeSDK ? [] : undefined,
