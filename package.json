@@ -32,10 +32,10 @@
     "organization": true
   },
   "devDependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "3.1013.0",
-    "@aws-sdk/client-dynamodb": "3.1013.0",
-    "@aws-sdk/client-s3": "3.1013.0",
-    "@aws-sdk/lib-dynamodb": "3.1013.0",
+    "@aws-sdk/client-cognito-identity-provider": "3.1019.0",
+    "@aws-sdk/client-dynamodb": "3.1019.0",
+    "@aws-sdk/client-s3": "3.1019.0",
+    "@aws-sdk/lib-dynamodb": "3.1019.0",
     "@hapi/boom": "^10.0.1",
     "@stylistic/eslint-plugin": "^2",
     "@types/jest": "^29.5.14",
@@ -60,7 +60,7 @@
     "projen": "0.99.21",
     "ts-jest": "^29.4.6",
     "ts-node": "^10.9.2",
-    "typedoc": "0.28.17",
+    "typedoc": "0.28.18",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
@@ -75,7 +75,7 @@
   },
   "dependencies": {
     "@types/aws-lambda": "^8.10.161",
-    "axios": "^1.13.6",
+    "axios": "^1.14.0",
     "constructs": "^10.5.1",
     "date-fns": "^4.1.0",
     "js-yaml": "^4.1.1",
