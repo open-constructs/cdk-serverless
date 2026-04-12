@@ -133,12 +133,12 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": ">=2.244.0 <3.0.0",
+      "version": ">=2.248.0 <3.0.0",
       "type": "peer"
     },
     {
       "name": "dynamodb-onetable",
-      "version": "2.7.5",
+      "version": "2.7.7",
       "type": "peer"
     },
     {
@@ -147,7 +147,7 @@
     },
     {
       "name": "projen",
-      "version": ">=0.99.21 <1.0.0",
+      "version": ">=0.99.47 <1.0.0",
       "type": "peer"
     },
     {
