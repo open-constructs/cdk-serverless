@@ -25,6 +25,16 @@
     "strictPropertyInitialization": true,
     "stripInternal": true,
     "target": "ES2020",
+    "types": [
+      "jest",
+      "js-yaml",
+      "jsonwebtoken",
+      "jwk-to-pem",
+      "lambda-log",
+      "node",
+      "uuid",
+      "aws-lambda"
+    ],
     "skipLibCheck": true
   },
   "include": [
