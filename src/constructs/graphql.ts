@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { SpawnSyncOptions, spawnSync } from 'child_process';
-import * as fs from 'fs';
-import * as os from 'os';
+import * as fs from 'node:fs';
+import * as os from 'node:os';
 import { AssetHashType, BundlingOptions, BundlingOutput, CfnOutput, DockerImage, NestedStack, Tags, aws_appsync, aws_certificatemanager, aws_iam, aws_logs, aws_route53 } from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import { CognitoAuthentication } from './authentication';

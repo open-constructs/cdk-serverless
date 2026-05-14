@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import { join } from 'path';
+import * as fs from 'node:fs';
+import { join } from 'node:path';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
 import * as pj from 'projen';
