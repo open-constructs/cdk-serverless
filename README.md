@@ -172,6 +172,70 @@ await test.cleanupItems();
 await test.removeUser('test@example.com');
 ```
 
+## Breaking Change: `axios` Removed
+
+CDK Serverless no longer depends on `axios`. The library now uses the
+platform-native `fetch` API (stable in Node.js 18+; the Lambda functions
+created by this library use `Runtime.NODEJS_LATEST`, currently Node 22).
+
+This removes one third-party runtime dependency from every Lambda bundle that
+imports from `cdk-serverless/lambda` and from every test workspace that
+imports from `cdk-serverless/tests`. It was motivated by repeated axios
+security advisories — landing this as a deliberate breaking change so the
+fix is permanent rather than chasing CVE upgrades.
+
+### Impact on Lambda handlers (`cdk-serverless/lambda`)
+
+None. The internal JWKS / well-known-issuer fetches in the JWT authorizers
+were the only axios call sites in the Lambda runtime code, and their public
+behavior is unchanged. Errors now surface as `Error` (or a `TimeoutError`
+from `AbortSignal.timeout`) instead of `AxiosError`; if you catch errors
+inside the authorizer, the message text is similar but the type guard is
+different.
+
+### Impact on `IntegTestUtil` (`cdk-serverless/tests`)
+
+`IntegTestUtil.getClient()` and `IntegTestUtil.getAuthenticatedClient()`
+previously returned an `Axios` instance. They now return a small
+`HttpClient` exported from `cdk-serverless/tests`. The migration is
+mechanical:
+
+```typescript
+// Before
+const client = await test.getAuthenticatedClient('test@example.com');
+const response = await client.get('/items');
+// response.data is the parsed JSON, response.status is the HTTP status code
+const items = response.data.items;
+
+// After
+const client = await test.getAuthenticatedClient('test@example.com');
+const response = await client.get('/items');
+// response.body is the raw string, response.json() parses it, response.ok
+// reports 2xx, response.status is the HTTP status code
+const items = response.json<{ items: Item[] }>().items;
+```
+
+The `HttpClient` exposes the methods that integration tests in this
+ecosystem actually use:
+
+- `get(path, options?)`
+- `post(path, body?, options?)` — `body` may be a string or any JSON-serializable
+  value; objects are stringified and `Content-Type: application/json` is added
+  automatically if the caller did not set it.
+- `put(path, body?, options?)`, `patch(path, body?, options?)`, `delete(path, options?)`
+
+Configuration accepted by `HttpClient` and by `getClient(config)`:
+
+- `baseURL` — prepended to relative paths.
+- `headers` — default headers applied to every request; per-request `headers`
+  override these on collision.
+
+If you relied on axios-specific features (interceptors, `defaults`,
+`transformRequest` / `transformResponse`, automatic `data` parsing), implement
+the equivalent in your test code or wrap `HttpClient`. If your use case
+needs richer client features and we should expose them, please open an
+issue.
+
 ## Contribute
 
 ### How to contribute to CDK Serverless

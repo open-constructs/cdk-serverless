@@ -74,7 +74,6 @@
   },
   "dependencies": {
     "@types/aws-lambda": "^8.10.161",
-    "axios": "^1.15.0",
     "constructs": "^10.5.1",
     "date-fns": "^4.1.0",
     "js-yaml": "^4.1.1",

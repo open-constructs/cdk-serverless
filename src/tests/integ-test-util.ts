@@ -1,9 +1,11 @@
 import { AdminAddUserToGroupCommand, AdminCreateUserCommand, AdminDeleteUserCommand, AdminSetUserPasswordCommand, CognitoIdentityProviderClient, MessageActionType } from '@aws-sdk/client-cognito-identity-provider';
 import { DynamoDBClient } from '@aws-sdk/client-dynamodb';
 import { DeleteCommand, DynamoDBDocumentClient, NativeAttributeValue } from '@aws-sdk/lib-dynamodb';
-import { Axios, AxiosRequestConfig, HttpStatusCode } from 'axios';
 import { decode, JwtPayload } from 'jsonwebtoken';
+import { HttpClient, HttpClientConfig } from './http-client';
 import { CFN_OUTPUT_SUFFIX_AUTH_IDENTITYPOOL_ID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOLID, CFN_OUTPUT_SUFFIX_AUTH_USERPOOL_CLIENTID, CFN_OUTPUT_SUFFIX_DATASTORE_TABLENAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
+
+export { HttpClient, HttpClientConfig, HttpClientResponse } from './http-client';
 
 export interface IntegTestUtilOptions {
 
@@ -75,28 +77,14 @@ export class IntegTestUtil {
 
   // AUTH
 
-  public getClient(config?: AxiosRequestConfig) {
-    return new Axios({
+  public getClient(config?: HttpClientConfig): HttpClient {
+    return new HttpClient({
       baseURL: this.options.apiOptions?.baseURL,
-      transformResponse: (data) => {
-        try {
-          return JSON.parse(data);
-        } catch (error) {
-          return data;
-        }
-      },
-      transformRequest: (data) => {
-        try {
-          return JSON.stringify(data);
-        } catch (error) {
-          return data;
-        }
-      },
       ...config,
     });
   }
 
-  public async getAuthenticatedClient(email: string, password?: string, config?: AxiosRequestConfig) {
+  public async getAuthenticatedClient(email: string, password?: string, config?: HttpClientConfig): Promise<HttpClient> {
     if (!this.apiTokens[email]) {
       if (!password) {
         throw new Error('No password provided; You can only leave password blank for users created by this utility');
@@ -104,11 +92,11 @@ export class IntegTestUtil {
       await this.loginUser(email, password);
     }
     return this.getClient({
+      ...config,
       headers: {
         Authorization: `Bearer ${this.apiTokens[email].token}`,
         ...(config?.headers ?? {}),
       },
-      ...config,
     });
   }
 
@@ -201,29 +189,29 @@ export class IntegTestUtil {
     if (!this.options.authOptions?.userPoolClientId) {
       throw new Error('No userPoolClientId configured');
     }
-    const cognitoClient = new Axios({
+    const cognitoClient = new HttpClient({
       baseURL: `https://cognito-idp.${this.options.region}.amazonaws.com/`,
     });
-    const auth = await cognitoClient.post('/', JSON.stringify({
+    const auth = await cognitoClient.post('/', {
       AuthParameters: {
         USERNAME: email,
         PASSWORD: password,
       },
       AuthFlow: 'USER_PASSWORD_AUTH',
       ClientId: this.options.authOptions.userPoolClientId,
-    }), {
+    }, {
       headers: {
         'Content-Type': 'application/x-amz-json-1.1',
         'X-Amz-Target': 'AWSCognitoIdentityProviderService.InitiateAuth',
       },
     });
-    if (auth.status !== HttpStatusCode.Ok) {
+    if (!auth.ok) {
       throw new Error(`Failed to authenticate user ${email}`);
     }
-    const token = JSON.parse(auth.data).AuthenticationResult.IdToken;
+    const token = (await auth.json<{ AuthenticationResult: { IdToken: string } }>()).AuthenticationResult.IdToken;
     this.apiTokens[email] = {
       token,
-      payload: decode(this.apiTokens[email].token) as JwtPayload,
+      payload: decode(token) as JwtPayload,
     };
   }
 }
