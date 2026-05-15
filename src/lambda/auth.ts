@@ -1,5 +1,4 @@
 import { env } from 'process';
-import Axios from 'axios';
 import { verify, JwtHeader, SigningKeyCallback } from 'jsonwebtoken';
 import jwkToPem from 'jwk-to-pem';
 import logger from 'lambda-log';
@@ -42,9 +41,17 @@ interface MapOfKidToPublicKey {
 
 let cacheKeys: MapOfKidToPublicKey | undefined;
 
+const fetchJson = async <T>(url: string): Promise<T> => {
+  const res = await fetch(url, { signal: AbortSignal.timeout(5000) });
+  if (!res.ok) {
+    throw new Error(`Request to ${url} failed: ${res.status} ${res.statusText}`);
+  }
+  return (await res.json()) as T;
+};
+
 const getPublicKeys = async (jwksUrl: string): Promise<MapOfKidToPublicKey> => {
   if (!cacheKeys) {
-    const publicKeys: PublicKeys = (await Axios.get<PublicKeys>(jwksUrl)).data;
+    const publicKeys = await fetchJson<PublicKeys>(jwksUrl);
     cacheKeys = publicKeys.keys.reduce((agg, current) => {
       const pem = jwkToPem(current as jwkToPem.JWK);
       agg[current.kid] = { instance: current, pem };
@@ -62,7 +69,7 @@ const getJwksUri = async (discoveryUri: string, jwksUri?: string): Promise<strin
     return jwksUri;
   }
   const wellKnownUri = `${discoveryUri}/.well-known`;
-  const issuerMetadata = (await Axios.get<IssuerMetadata>(wellKnownUri)).data;
+  const issuerMetadata = await fetchJson<IssuerMetadata>(wellKnownUri);
   if (!issuerMetadata.jwks_uri) {
     throw new Error('Issuer does not offer JWKS endpoint');
   }

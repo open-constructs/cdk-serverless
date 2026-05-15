@@ -151,10 +151,6 @@
       "type": "runtime"
     },
     {
-      "name": "axios",
-      "type": "runtime"
-    },
-    {
       "name": "constructs",
       "type": "runtime"
     },

@@ -17,7 +17,6 @@ const project = new typescript.TypeScriptProject({
     'js-yaml',
     'jsonwebtoken',
     'jwk-to-pem',
-    'axios',
     'lambda-log',
     'constructs',
   ],
