@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'node:fs';
 import { AwsCdkTypeScriptApp } from 'projen/lib/awscdk';
 import { synthSnapshot } from 'projen/lib/util/synth';
 import { Datastore } from '../../src/projen';

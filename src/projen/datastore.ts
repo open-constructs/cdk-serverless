@@ -1,5 +1,5 @@
-import * as fs from 'fs';
-import { join } from 'path';
+import * as fs from 'node:fs';
+import { join } from 'node:path';
 import { OneSchema } from 'dynamodb-onetable';
 import * as pj from 'projen';
 import { PACKAGE_NAME } from './core';
@@ -31,10 +31,6 @@ export class Datastore extends pj.Component {
       'dynamodb-onetable',
       '@aws-sdk/client-dynamodb',
       '@aws-sdk/lib-dynamodb',
-      'uuid',
-    );
-    app.addDevDeps(
-      '@types/uuid',
     );
 
     new pj.SampleFile(this.project, this.options.definitionFile, {

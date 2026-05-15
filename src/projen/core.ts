@@ -33,7 +33,6 @@ export class ServerlessProject extends pj.awscdk.AwsCdkTypeScriptApp {
       projenrcTs: true,
       deps: [
         ...options.deps ?? [],
-        'uuid',
         'esbuild',
         'js-yaml',
         '@aws-sdk/client-s3',
@@ -41,7 +40,6 @@ export class ServerlessProject extends pj.awscdk.AwsCdkTypeScriptApp {
       devDeps: [
         ...options.devDeps ?? [],
         '@types/aws-lambda',
-        '@types/uuid',
         '@types/lambda-log',
         '@types/js-yaml',
       ],

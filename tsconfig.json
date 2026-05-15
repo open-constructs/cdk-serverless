@@ -34,7 +34,6 @@
       "jwk-to-pem",
       "lambda-log",
       "node",
-      "uuid",
       "aws-lambda"
     ],
     "skipLibCheck": true
