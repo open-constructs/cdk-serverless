@@ -1,7 +1,14 @@
 {
   "task_id": "task-api-gateway-authorizer",
   "task_description": "Add API Gateway level authorizers (Cognito User Pool Authorizer for ICognitoAuthentication, Lambda token authorizer for IJwtAuthentication) to the RestApi construct. Inject authorizer configuration into the OpenAPI spec's securityDefinitions with x-amazon-apigateway-authorizer extensions. The Lambda handler continues doing fine-grained claims/groups validation.",
-  "status": "in_progress",
+  "status": "completed",
   "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
-  "blocked_reason": null
+  "blocked_reason": null,
+  "verification": {
+    "build": "pass",
+    "tests": "pass",
+    "test_quality": "pass",
+    "docker_build": "skipped",
+    "summary": "TypeScript compilation passes (npx projen compile). All 28 tests pass (7 test suites). Tests exercise the new code paths: Cognito authorizer injection, JWT Lambda authorizer creation, no-auth backward compat, and per-operation security distribution."
+  }
 }

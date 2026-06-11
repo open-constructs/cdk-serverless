@@ -88,6 +88,13 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   private readonly apiMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
 
   /**
+   * The JWT authorizer Lambda function, if JWT authentication is configured.
+   * Stored so the invoke permission can be granted after the SpecRestApi is created.
+   * @private
+   */
+  private _authorizerFn?: LambdaFunction;
+
+  /**
    * Creates an instance of RestApi.
    *
    * @param scope - The scope in which this construct is defined.
@@ -246,6 +253,15 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     // add invoke permissions to Lambda functions
     for (const fn of Object.values(this._functions)) {
       fn.addPermission('RestApiInvoke', {
+        principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
+        action: 'lambda:InvokeFunction',
+        sourceArn: this.api.arnForExecuteApi(),
+      });
+    }
+
+    // Grant API Gateway permission to invoke the JWT authorizer Lambda
+    if (this._authorizerFn) {
+      this._authorizerFn.addPermission('ApiGatewayAuthorizerInvoke', {
         principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
         action: 'lambda:InvokeFunction',
         sourceArn: this.api.arnForExecuteApi(),
@@ -467,17 +483,8 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         },
       };
 
-      // Grant API Gateway permission to invoke the authorizer Lambda
-      authorizerFn.addPermission('ApiGatewayAuthorizerInvoke', {
-        principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
-        action: 'lambda:InvokeFunction',
-        sourceArn: cdk.Stack.of(this).formatArn({
-          service: 'execute-api',
-          resource: this.node.addr,
-          arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
-          resourceName: 'authorizers/*',
-        }),
-      });
+      // Store the authorizer function so we can grant permission after the SpecRestApi is created
+      this._authorizerFn = authorizerFn;
 
       // Ensure global security references the authorizer so patchSecurity distributes it
       if (!spec.security) {

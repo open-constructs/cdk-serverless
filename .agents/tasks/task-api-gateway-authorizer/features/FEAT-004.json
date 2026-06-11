@@ -1,0 +1,24 @@
+{
+  "id": "FEAT-004",
+  "type": "fix",
+  "description": "Address code review findings: fix OIDC discovery URL, add JWKS cache invalidation retry, and fix authorizer sourceArn permission",
+  "status": "in_progress",
+  "steps": [
+    "Fix OIDC discovery URL in src/lambda/rest-api.jwt-authorizer.ts: change '${discoveryUri}/.well-known' to '${discoveryUri}/.well-known/openid-configuration'",
+    "Add JWKS cache-bust retry mechanism in src/lambda/rest-api.jwt-authorizer.ts: when verification fails with a signature error, clear cacheKeys and retry once",
+    "Fix authorizer sourceArn in src/constructs/rest-api.ts: move the authorizer Lambda invoke permission to after SpecRestApi is created, using this.api.arnForExecuteApi()"
+  ],
+  "acceptance_criteria": [
+    "OIDC discovery URL uses the standard /.well-known/openid-configuration path",
+    "JWKS cache is cleared and verification retried when a signature error occurs",
+    "Authorizer Lambda invoke permission uses this.api.arnForExecuteApi() instead of this.node.addr",
+    "npx projen compile succeeds",
+    "npx jest --passWithNoTests passes all tests"
+  ],
+  "verification": [
+    "npx projen compile",
+    "npx jest --passWithNoTests"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}

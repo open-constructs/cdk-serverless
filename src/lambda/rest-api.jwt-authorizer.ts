@@ -61,7 +61,7 @@ const getJwksUri = async (discoveryUri: string, jwksUri?: string): Promise<strin
   if (jwksUri) {
     return jwksUri;
   }
-  const wellKnownUri = `${discoveryUri}/.well-known`;
+  const wellKnownUri = `${discoveryUri}/.well-known/openid-configuration`;
   const issuerMetadata = await fetchJson<IssuerMetadata>(wellKnownUri);
   if (!issuerMetadata.jwks_uri) {
     throw new Error('Issuer does not offer JWKS endpoint');
@@ -117,7 +117,19 @@ export async function handler(event: AWSLambda.APIGatewayTokenAuthorizerEvent): 
   const jwtToken = token.substring('Bearer '.length);
 
   try {
-    const claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
+    let claims: { [name: string]: string };
+    try {
+      claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
+    } catch (err: any) {
+      // If verification failed due to a signature error (possibly rotated keys),
+      // clear the JWKS cache and retry once
+      if (err && err.message && err.message.includes('invalid signature')) {
+        cacheKeys = undefined;
+        claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
+      } else {
+        throw err;
+      }
+    }
 
     const context: { [key: string]: string } = {};
     for (const [key, value] of Object.entries(claims)) {
