@@ -76,7 +76,12 @@ const promisedVerify = (token: string, issuerUri: string, jwksUri?: string): Pro
         cb(new Error('no key id found'));
       }
       getJwksUri(issuerUri, jwksUri).then(getPublicKeys).then((keys) => {
-        cb(null, keys[header.kid!].pem);
+        const key = keys[header.kid!];
+        if (!key) {
+          cb(new Error('signing key not found for kid'));
+          return;
+        }
+        cb(null, key.pem);
       }, cb);
     }, { issuer: issuerUri, audience: jwtAudience as [string, ...string[]] }, (err: any, decoded: any) => {
       if (err) {
@@ -123,7 +128,7 @@ export async function handler(event: AWSLambda.APIGatewayTokenAuthorizerEvent): 
     } catch (err: any) {
       // If verification failed due to a signature error (possibly rotated keys),
       // clear the JWKS cache and retry once
-      if (err && err.message && err.message.includes('invalid signature')) {
+      if (err && err.message && (err.message.includes('invalid signature') || err.message.includes('signing key not found'))) {
         cacheKeys = undefined;
         claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
       } else {
