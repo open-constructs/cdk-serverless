@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "fix",
   "description": "Address v2 review findings: guard against unknown kid in JWKS lookup and broaden retry condition to cover signing key not found errors",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "In src/lambda/rest-api.jwt-authorizer.ts, in the promisedVerify signing key callback, add a guard before accessing keys[header.kid!].pem to handle unknown kid gracefully",
     "In the handler catch block, broaden the retry condition to also trigger on 'signing key not found' errors in addition to 'invalid signature'"
@@ -18,5 +18,5 @@
     "npx jest --passWithNoTests"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "Both v2 review issues fixed. Unknown kid now returns a clean error instead of crashing with TypeError. Retry condition covers both 'invalid signature' and 'signing key not found' messages. All 28 tests pass, compilation succeeds."
 }
