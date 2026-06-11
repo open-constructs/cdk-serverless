@@ -123,6 +123,37 @@ export async function handler(
   return handleTokenEvent(event as AWSLambda.APIGatewayTokenAuthorizerEvent);
 }
 
+/**
+ * Verifies a JWT token and generates an Allow policy with claims context.
+ * Handles JWKS cache invalidation on signature/key-rotation errors with a single retry.
+ */
+async function verifyTokenAndGeneratePolicy(token: string, resource: string): Promise<AWSLambda.APIGatewayAuthorizerResult> {
+  let claims: { [name: string]: string };
+  try {
+    claims = await promisedVerify(token, jwtIssuerUrl, jwtJwksUrl);
+  } catch (err: any) {
+    // If verification failed due to a signature error (possibly rotated keys),
+    // clear the JWKS cache and retry once
+    if (err && err.message && (err.message.includes('invalid signature') || err.message.includes('signing key not found'))) {
+      cacheKeys = undefined;
+      claims = await promisedVerify(token, jwtIssuerUrl, jwtJwksUrl);
+    } else {
+      throw err;
+    }
+  }
+
+  const context: { [key: string]: string } = {};
+  for (const [key, value] of Object.entries(claims)) {
+    if (typeof value === 'string') {
+      context[key] = value;
+    } else {
+      context[key] = JSON.stringify(value);
+    }
+  }
+
+  return generatePolicy(claims.sub || 'user', 'Allow', resource, context);
+}
+
 async function handleTokenEvent(event: AWSLambda.APIGatewayTokenAuthorizerEvent): Promise<AWSLambda.APIGatewayAuthorizerResult> {
   const token = event.authorizationToken;
 
@@ -133,30 +164,7 @@ async function handleTokenEvent(event: AWSLambda.APIGatewayTokenAuthorizerEvent)
   const jwtToken = token.substring('Bearer '.length);
 
   try {
-    let claims: { [name: string]: string };
-    try {
-      claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
-    } catch (err: any) {
-      // If verification failed due to a signature error (possibly rotated keys),
-      // clear the JWKS cache and retry once
-      if (err && err.message && (err.message.includes('invalid signature') || err.message.includes('signing key not found'))) {
-        cacheKeys = undefined;
-        claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
-      } else {
-        throw err;
-      }
-    }
-
-    const context: { [key: string]: string } = {};
-    for (const [key, value] of Object.entries(claims)) {
-      if (typeof value === 'string') {
-        context[key] = value;
-      } else {
-        context[key] = JSON.stringify(value);
-      }
-    }
-
-    return generatePolicy(claims.sub || 'user', 'Allow', event.methodArn, context);
+    return await verifyTokenAndGeneratePolicy(jwtToken, event.methodArn);
   } catch (err) {
     throw new Error('Unauthorized');
   }
@@ -174,30 +182,7 @@ async function handleRequestEvent(event: AWSLambda.APIGatewayRequestAuthorizerEv
   const jwtToken = authHeader.substring('Bearer '.length);
 
   try {
-    let claims: { [name: string]: string };
-    try {
-      claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
-    } catch (err: any) {
-      // If verification failed due to a signature error (possibly rotated keys),
-      // clear the JWKS cache and retry once
-      if (err && err.message && (err.message.includes('invalid signature') || err.message.includes('signing key not found'))) {
-        cacheKeys = undefined;
-        claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
-      } else {
-        throw err;
-      }
-    }
-
-    const context: { [key: string]: string } = {};
-    for (const [key, value] of Object.entries(claims)) {
-      if (typeof value === 'string') {
-        context[key] = value;
-      } else {
-        context[key] = JSON.stringify(value);
-      }
-    }
-
-    return generatePolicy(claims.sub || 'user', 'Allow', resource, context);
+    return await verifyTokenAndGeneratePolicy(jwtToken, resource);
   } catch (err) {
     throw new Error('Unauthorized');
   }

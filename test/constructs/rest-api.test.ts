@@ -341,7 +341,7 @@ describe('RestApi', () => {
       );
     });
 
-    test('setAnonymousOperations replaces the anonymous set', () => {
+    test('setAnonymousOperations replaces the anonymous set and restores security on removed operations', () => {
       writeSpecFile(specWithGlobalSecurity);
 
       const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
@@ -374,13 +374,12 @@ describe('RestApi', () => {
       // getItem should now be anonymous
       expect(body.paths['/items/{id}'].get.security).toEqual([]);
 
-      // getItems should also be anonymous because setAnonymousOperations re-applies
-      // only to matched operations; the previous security was already set to []
-      // Actually, setAnonymousOperations re-applies to all operations in the set
-      // but does not restore security on previously anonymous ops since it only
-      // sets [] on current set members. The spec was already mutated.
-      // Let's verify getItem is anonymous:
-      expect(body.paths['/items/{id}'].get.security).toEqual([]);
+      // getItems should have its security RESTORED (no longer anonymous)
+      expect(body.paths['/items'].get.security).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ CognitoAuthorizer: [] }),
+        ]),
+      );
     });
 
     test('addAnonymousOperations appends to the anonymous set', () => {
@@ -448,7 +447,7 @@ describe('RestApi', () => {
       const authorizer = body.securityDefinitions.JwtAuthorizer['x-amazon-apigateway-authorizer'];
       expect(authorizer.type).toBe('request');
       expect(authorizer.identitySource).toBeUndefined();
-      expect(authorizer.authorizerResultTtlInSeconds).toBe(300);
+      expect(authorizer.authorizerResultTtlInSeconds).toBe(0);
       expect(authorizer.authorizerUri).toBeDefined();
     });
 

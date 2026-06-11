@@ -133,6 +133,14 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   private _anonymousOperations: Set<string> = new Set();
 
   /**
+   * Stores the original per-operation security arrays as assigned by patchSecurity,
+   * keyed by operationId. Used by setAnonymousOperations to restore security on
+   * operations removed from the anonymous set.
+   * @private
+   */
+  private _originalOperationSecurity: Map<string, any[]> = new Map();
+
+  /**
    * Creates an instance of RestApi.
    *
    * @param scope - The scope in which this construct is defined.
@@ -400,7 +408,8 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
   /**
    * Re-applies security settings to all operations based on the current anonymous set.
-   * Operations in the anonymous set get `security: []`; others keep their existing security.
+   * Operations in the anonymous set get `security: []`; operations removed from the set
+   * have their original security restored.
    * @private
    */
   private applyAnonymousSecurity() {
@@ -412,6 +421,9 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]! as OperationObject;
         if (specMethod.operationId && this._anonymousOperations.has(specMethod.operationId)) {
           specMethod.security = [];
+        } else if (specMethod.operationId && this._originalOperationSecurity.has(specMethod.operationId)) {
+          // Restore original security for operations removed from the anonymous set
+          specMethod.security = this._originalOperationSecurity.get(specMethod.operationId);
         }
       }
     }
@@ -596,7 +608,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         'x-amazon-apigateway-authorizer': {
           type: this.props.jwtAuthorizerType === 'request' ? 'request' : 'token',
           authorizerUri: authorizerUri,
-          authorizerResultTtlInSeconds: 300,
+          authorizerResultTtlInSeconds: this.props.jwtAuthorizerType === 'request' ? 0 : 300,
           ...(this.props.jwtAuthorizerType !== 'request' && {
             identitySource: 'method.request.header.Authorization',
           }),
@@ -634,9 +646,20 @@ export class RestApi<PATHS, OPS> extends BaseApi {
           if (!('security' in specMethod)) {
             const operationId = (specMethod as OperationObject).operationId;
             if (operationId && this._anonymousOperations.has(operationId)) {
+              // Store what security would have been applied so we can restore later
+              this._originalOperationSecurity.set(operationId, spec.security as any[]);
               specMethod.security = [];
             } else {
               specMethod.security = spec.security;
+              if (operationId) {
+                this._originalOperationSecurity.set(operationId, spec.security as any[]);
+              }
+            }
+          } else {
+            // Operation already has explicit security defined in the spec
+            const operationId = (specMethod as OperationObject).operationId;
+            if (operationId) {
+              this._originalOperationSecurity.set(operationId, specMethod.security as any[]);
             }
           }
         }
