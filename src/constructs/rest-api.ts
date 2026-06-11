@@ -434,9 +434,9 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       const authorizerName = 'CognitoAuthorizer';
 
       specAny.securityDefinitions[authorizerName] = {
-        type: 'apiKey',
-        name: 'Authorization',
-        in: 'header',
+        'type': 'apiKey',
+        'name': 'Authorization',
+        'in': 'header',
         'x-amazon-apigateway-authtype': 'cognito_user_pools',
         'x-amazon-apigateway-authorizer': {
           type: 'cognito_user_pools',
@@ -471,9 +471,9 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       });
 
       specAny.securityDefinitions[authorizerName] = {
-        type: 'apiKey',
-        name: 'Authorization',
-        in: 'header',
+        'type': 'apiKey',
+        'name': 'Authorization',
+        'in': 'header',
         'x-amazon-apigateway-authtype': 'custom',
         'x-amazon-apigateway-authorizer': {
           type: 'token',
