@@ -85,6 +85,8 @@ export class RestApi<PATHS, OPS> extends BaseApi {
    */
   private _functions: { [operationId: string]: LambdaFunction } = {};
 
+  private readonly apiMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+
   /**
    * Creates an instance of RestApi.
    *
@@ -229,6 +231,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       };
     }
 
+    this.patchSecuritySchemes(this.apiSpec);
     this.patchSecurity(this.apiSpec);
 
     // TODO patch spec for Cognito user pool
@@ -395,6 +398,95 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   }
 
   /**
+   * Injects securityDefinitions into the OpenAPI spec based on the authentication type.
+   * For Cognito: adds a cognito_user_pools authorizer referencing the user pool ARN.
+   * For JWT: creates a Lambda authorizer function and adds a token authorizer referencing its ARN.
+   */
+  protected patchSecuritySchemes(spec: OpenAPI3) {
+    if (!this.props.authentication) {
+      return;
+    }
+
+    const specAny = spec as any;
+    if (!specAny.securityDefinitions) {
+      specAny.securityDefinitions = {};
+    }
+
+    if (this.props.authentication.hasOwnProperty('userpool')) {
+      // Cognito User Pool authorizer
+      const cognitoAuth = this.props.authentication as ICognitoAuthentication;
+      const authorizerName = 'CognitoAuthorizer';
+
+      specAny.securityDefinitions[authorizerName] = {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: 'header',
+        'x-amazon-apigateway-authtype': 'cognito_user_pools',
+        'x-amazon-apigateway-authorizer': {
+          type: 'cognito_user_pools',
+          providerARNs: [cognitoAuth.userpool.userPoolArn],
+        },
+      };
+
+      // Ensure global security references the authorizer so patchSecurity distributes it
+      if (!spec.security) {
+        spec.security = [{ [authorizerName]: [] }];
+      }
+    } else {
+      // JWT (Lambda) authorizer
+      const jwtAuth = this.props.authentication as IJwtAuthentication;
+      const authorizerName = 'JwtAuthorizer';
+
+      const authorizerFn = new LambdaFunction(this, 'JwtAuthorizerFn', {
+        stageName: this.props.stageName,
+        entry: 'src/lambda/rest-api.jwt-authorizer.ts',
+        description: `[${this.props.stageName}] JWT Authorizer for ${this.props.apiName}`,
+        jwt: jwtAuth,
+        lambdaOptions: this.props.lambdaOptions,
+        lambdaTracing: this.props.lambdaTracing,
+      });
+
+      const authorizerUri = cdk.Stack.of(this).formatArn({
+        resource: 'path',
+        service: 'apigateway',
+        account: 'lambda',
+        arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+        resourceName: `2015-03-31/functions/${authorizerFn.functionArn}/invocations`,
+      });
+
+      specAny.securityDefinitions[authorizerName] = {
+        type: 'apiKey',
+        name: 'Authorization',
+        in: 'header',
+        'x-amazon-apigateway-authtype': 'custom',
+        'x-amazon-apigateway-authorizer': {
+          type: 'token',
+          authorizerUri: authorizerUri,
+          authorizerResultTtlInSeconds: 300,
+          identitySource: 'method.request.header.Authorization',
+        },
+      };
+
+      // Grant API Gateway permission to invoke the authorizer Lambda
+      authorizerFn.addPermission('ApiGatewayAuthorizerInvoke', {
+        principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
+        action: 'lambda:InvokeFunction',
+        sourceArn: cdk.Stack.of(this).formatArn({
+          service: 'execute-api',
+          resource: this.node.addr,
+          arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+          resourceName: 'authorizers/*',
+        }),
+      });
+
+      // Ensure global security references the authorizer so patchSecurity distributes it
+      if (!spec.security) {
+        spec.security = [{ [authorizerName]: [] }];
+      }
+    }
+  }
+
+  /**
    * AWS does not properly apply the 'security' option to every single path-method.
    * According to documentation, global security gets applied, if there is no security
    * set for the particular path-method. If there is any, even empty, it will get precedence.
@@ -407,7 +499,6 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     if ('security' in spec) {
       for (const specPath of Object.values(spec.paths || [])) {
         for (const key in specPath) {
-          // @ts-expect-error -> There is a wrong definition for method includes! It allows any value to be given!
           if (!this.apiMethods.includes(key)) {
             continue; // Skip if not http method definition
           }
