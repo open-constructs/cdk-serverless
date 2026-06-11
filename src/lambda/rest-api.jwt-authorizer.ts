@@ -113,7 +113,17 @@ function generatePolicy(principalId: string, effect: 'Allow' | 'Deny', resource:
   };
 }
 
-export async function handler(event: AWSLambda.APIGatewayTokenAuthorizerEvent): Promise<AWSLambda.APIGatewayAuthorizerResult> {
+export async function handler(
+  event: AWSLambda.APIGatewayTokenAuthorizerEvent | AWSLambda.APIGatewayRequestAuthorizerEvent,
+): Promise<AWSLambda.APIGatewayAuthorizerResult> {
+  // Detect event type: TOKEN has event.type === 'TOKEN', REQUEST has event.type === 'REQUEST'
+  if (event.type === 'REQUEST') {
+    return handleRequestEvent(event as AWSLambda.APIGatewayRequestAuthorizerEvent);
+  }
+  return handleTokenEvent(event as AWSLambda.APIGatewayTokenAuthorizerEvent);
+}
+
+async function handleTokenEvent(event: AWSLambda.APIGatewayTokenAuthorizerEvent): Promise<AWSLambda.APIGatewayAuthorizerResult> {
   const token = event.authorizationToken;
 
   if (!token || !token.startsWith('Bearer ')) {
@@ -147,6 +157,47 @@ export async function handler(event: AWSLambda.APIGatewayTokenAuthorizerEvent): 
     }
 
     return generatePolicy(claims.sub || 'user', 'Allow', event.methodArn, context);
+  } catch (err) {
+    throw new Error('Unauthorized');
+  }
+}
+
+async function handleRequestEvent(event: AWSLambda.APIGatewayRequestAuthorizerEvent): Promise<AWSLambda.APIGatewayAuthorizerResult> {
+  const authHeader = event.headers?.Authorization || event.headers?.authorization;
+  const resource = event.methodArn;
+
+  // No Authorization header: allow as anonymous (optional auth behavior)
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return generatePolicy('anonymous', 'Allow', resource, {});
+  }
+
+  const jwtToken = authHeader.substring('Bearer '.length);
+
+  try {
+    let claims: { [name: string]: string };
+    try {
+      claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
+    } catch (err: any) {
+      // If verification failed due to a signature error (possibly rotated keys),
+      // clear the JWKS cache and retry once
+      if (err && err.message && (err.message.includes('invalid signature') || err.message.includes('signing key not found'))) {
+        cacheKeys = undefined;
+        claims = await promisedVerify(jwtToken, jwtIssuerUrl, jwtJwksUrl);
+      } else {
+        throw err;
+      }
+    }
+
+    const context: { [key: string]: string } = {};
+    for (const [key, value] of Object.entries(claims)) {
+      if (typeof value === 'string') {
+        context[key] = value;
+      } else {
+        context[key] = JSON.stringify(value);
+      }
+    }
+
+    return generatePolicy(claims.sub || 'user', 'Allow', resource, context);
   } catch (err) {
     throw new Error('Unauthorized');
   }

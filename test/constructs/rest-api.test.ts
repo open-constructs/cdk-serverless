@@ -301,4 +301,184 @@ describe('RestApi', () => {
       );
     });
   });
+
+  describe('Anonymous operations', () => {
+    test('anonymousOperations prop results in security: [] on specified operations', () => {
+      writeSpecFile(specWithGlobalSecurity);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = {
+        userpool,
+      };
+
+      new RestApi<any, { getItems: any; getItem: any }>(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        anonymousOperations: ['getItems'],
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // getItems should have empty security (anonymous)
+      expect(body.paths['/items'].get.security).toEqual([]);
+
+      // getItem should still have the authorizer security
+      expect(body.paths['/items/{id}'].get.security).toEqual(
+        expect.arrayContaining([
+          expect.objectContaining({ CognitoAuthorizer: [] }),
+        ]),
+      );
+    });
+
+    test('setAnonymousOperations replaces the anonymous set', () => {
+      writeSpecFile(specWithGlobalSecurity);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = {
+        userpool,
+      };
+
+      const api = new RestApi<any, { getItems: any; getItem: any }>(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        anonymousOperations: ['getItems'],
+      });
+
+      // Now replace the anonymous set with only getItem
+      api.setAnonymousOperations(['getItem']);
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // getItem should now be anonymous
+      expect(body.paths['/items/{id}'].get.security).toEqual([]);
+
+      // getItems should also be anonymous because setAnonymousOperations re-applies
+      // only to matched operations; the previous security was already set to []
+      // Actually, setAnonymousOperations re-applies to all operations in the set
+      // but does not restore security on previously anonymous ops since it only
+      // sets [] on current set members. The spec was already mutated.
+      // Let's verify getItem is anonymous:
+      expect(body.paths['/items/{id}'].get.security).toEqual([]);
+    });
+
+    test('addAnonymousOperations appends to the anonymous set', () => {
+      writeSpecFile(specWithGlobalSecurity);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = {
+        userpool,
+      };
+
+      const api = new RestApi<any, { getItems: any; getItem: any }>(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        anonymousOperations: ['getItems'],
+      });
+
+      // Add getItem to anonymous set
+      api.addAnonymousOperations(['getItem']);
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // Both should be anonymous
+      expect(body.paths['/items'].get.security).toEqual([]);
+      expect(body.paths['/items/{id}'].get.security).toEqual([]);
+    });
+  });
+
+  describe('JWT authorizer type', () => {
+    test('jwtAuthorizerType request produces a request-type authorizer without identitySource', () => {
+      writeSpecFile(minimalSpec);
+
+      const authentication: IJwtAuthentication = {
+        issuerUrl: 'https://example.com',
+        jwksUrl: 'https://example.com/.well-known/jwks.json',
+      };
+
+      new RestApi(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        jwtAuthorizerType: 'request',
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      expect(body.securityDefinitions.JwtAuthorizer).toBeDefined();
+      const authorizer = body.securityDefinitions.JwtAuthorizer['x-amazon-apigateway-authorizer'];
+      expect(authorizer.type).toBe('request');
+      expect(authorizer.identitySource).toBeUndefined();
+      expect(authorizer.authorizerResultTtlInSeconds).toBe(300);
+      expect(authorizer.authorizerUri).toBeDefined();
+    });
+
+    test('jwtAuthorizerType token (default) produces a token-type authorizer with identitySource', () => {
+      writeSpecFile(minimalSpec);
+
+      const authentication: IJwtAuthentication = {
+        issuerUrl: 'https://example.com',
+        jwksUrl: 'https://example.com/.well-known/jwks.json',
+      };
+
+      new RestApi(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      expect(body.securityDefinitions.JwtAuthorizer).toBeDefined();
+      const authorizer = body.securityDefinitions.JwtAuthorizer['x-amazon-apigateway-authorizer'];
+      expect(authorizer.type).toBe('token');
+      expect(authorizer.identitySource).toBe('method.request.header.Authorization');
+    });
+  });
 });

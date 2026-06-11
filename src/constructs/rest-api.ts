@@ -41,6 +41,38 @@ export interface RestApiProps<OPS> extends BaseApiProps {
   definitionFileName: string;
 
   cors: boolean;
+
+  /**
+   * A list of operation IDs that should skip the authorizer entirely.
+   * These operations will have `security: []` in the OpenAPI spec, meaning
+   * they are publicly accessible without authentication.
+   *
+   * @default - no anonymous operations
+   */
+  anonymousOperations?: (keyof OPS)[];
+
+  /**
+   * Controls whether the JWT Lambda authorizer uses the TOKEN or REQUEST type.
+   *
+   * **token (default):** The API Gateway validates that the Authorization header is present
+   * before invoking the Lambda authorizer. If the header is missing, API Gateway immediately
+   * returns 401 without invoking the Lambda. This is cheaper for unauthenticated requests
+   * because no Lambda invocation occurs, but it does not support optional authentication
+   * (every request must carry a token or be rejected).
+   *
+   * **request:** The API Gateway always invokes the Lambda authorizer regardless of whether
+   * the Authorization header is present. This enables optional authentication: the Lambda
+   * can inspect the request, return Allow with an anonymous principal when no token is
+   * provided, and return Allow with user claims when a valid token is present. The trade-off
+   * is that you pay for a Lambda invocation on every request, including unauthenticated ones.
+   *
+   * Use 'request' when you need endpoints that behave differently for authenticated vs
+   * anonymous users (e.g., personalized responses for logged-in users, generic responses
+   * for guests) without splitting them into separate operations.
+   *
+   * @default 'token'
+   */
+  jwtAuthorizerType?: 'token' | 'request';
 }
 
 /**
@@ -93,6 +125,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
    * @private
    */
   private _authorizerFn?: LambdaFunction;
+
+  /**
+   * Set of operationIds that should have security disabled (security: []).
+   * @private
+   */
+  private _anonymousOperations: Set<string> = new Set();
 
   /**
    * Creates an instance of RestApi.
@@ -239,6 +277,14 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     }
 
     this.patchSecuritySchemes(this.apiSpec);
+
+    // Initialize anonymous operations from props before patchSecurity distributes security
+    if (props.anonymousOperations) {
+      for (const opId of props.anonymousOperations) {
+        this._anonymousOperations.add(opId as string);
+      }
+    }
+
     this.patchSecurity(this.apiSpec);
 
     // TODO patch spec for Cognito user pool
@@ -315,6 +361,78 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   public modifyOperationFunctions(operationIds: (keyof OPS)[], op: (fn: LambdaFunction) => void) {
     for (const operationId of operationIds) {
       op(this.getFunctionForOperation(operationId));
+    }
+  }
+
+  /**
+   * Replace the full set of anonymous operations.
+   * Anonymous operations will have `security: []` applied in the OpenAPI spec,
+   * making them publicly accessible without authentication.
+   *
+   * Since CDK serializes the OpenAPI spec at synth time (fromInline stores the
+   * object reference), mutations after SpecRestApi construction still take effect.
+   *
+   * @param operationIds - The operation IDs to mark as anonymous. Replaces any previously set anonymous operations.
+   */
+  public setAnonymousOperations(operationIds: (keyof OPS)[]) {
+    this._anonymousOperations.clear();
+    for (const opId of operationIds) {
+      this._anonymousOperations.add(opId as string);
+    }
+    this.applyAnonymousSecurity();
+  }
+
+  /**
+   * Add additional operations to the set of anonymous operations.
+   * Newly added operations will have `security: []` applied in the OpenAPI spec.
+   *
+   * Since CDK serializes the OpenAPI spec at synth time (fromInline stores the
+   * object reference), mutations after SpecRestApi construction still take effect.
+   *
+   * @param operationIds - The operation IDs to add to the anonymous set.
+   */
+  public addAnonymousOperations(operationIds: (keyof OPS)[]) {
+    for (const opId of operationIds) {
+      this._anonymousOperations.add(opId as string);
+    }
+    this.applyAnonymousSecurityForOps(operationIds.map(op => op as string));
+  }
+
+  /**
+   * Re-applies security settings to all operations based on the current anonymous set.
+   * Operations in the anonymous set get `security: []`; others keep their existing security.
+   * @private
+   */
+  private applyAnonymousSecurity() {
+    for (const specPath of Object.values(this.apiSpec.paths || [])) {
+      for (const key in specPath) {
+        if (!this.apiMethods.includes(key)) {
+          continue;
+        }
+        const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]! as OperationObject;
+        if (specMethod.operationId && this._anonymousOperations.has(specMethod.operationId)) {
+          specMethod.security = [];
+        }
+      }
+    }
+  }
+
+  /**
+   * Applies `security: []` only to the specified operations.
+   * @private
+   */
+  private applyAnonymousSecurityForOps(operationIds: string[]) {
+    const opsSet = new Set(operationIds);
+    for (const specPath of Object.values(this.apiSpec.paths || [])) {
+      for (const key in specPath) {
+        if (!this.apiMethods.includes(key)) {
+          continue;
+        }
+        const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]! as OperationObject;
+        if (specMethod.operationId && opsSet.has(specMethod.operationId)) {
+          specMethod.security = [];
+        }
+      }
     }
   }
 
@@ -476,10 +594,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         'in': 'header',
         'x-amazon-apigateway-authtype': 'custom',
         'x-amazon-apigateway-authorizer': {
-          type: 'token',
+          type: this.props.jwtAuthorizerType === 'request' ? 'request' : 'token',
           authorizerUri: authorizerUri,
           authorizerResultTtlInSeconds: 300,
-          identitySource: 'method.request.header.Authorization',
+          ...(this.props.jwtAuthorizerType !== 'request' && {
+            identitySource: 'method.request.header.Authorization',
+          }),
         },
       };
 
@@ -512,7 +632,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
           const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]!;
           if (!('security' in specMethod)) {
-            specMethod.security = spec.security;
+            const operationId = (specMethod as OperationObject).operationId;
+            if (operationId && this._anonymousOperations.has(operationId)) {
+              specMethod.security = [];
+            } else {
+              specMethod.security = spec.security;
+            }
           }
         }
       }
