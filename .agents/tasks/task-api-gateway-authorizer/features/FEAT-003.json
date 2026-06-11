@@ -2,7 +2,7 @@
   "id": "FEAT-003",
   "type": "feat",
   "description": "Add unit tests for the API Gateway authorizer injection in the RestApi construct, covering Cognito, JWT, and no-auth scenarios.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create test/constructs/rest-api.test.ts following the pattern in test/constructs/graphql.test.ts: mock LambdaFunction to avoid esbuild bundling, create a minimal OpenAPI spec inline (yaml dump to temp file), instantiate RestApi with different authentication configurations.",
     "Test case 1 - Cognito authentication: Create a RestApi with ICognitoAuthentication (mock IUserPool). Use Template.fromStack() assertions to verify the SpecRestApi's Body property includes securityDefinitions with x-amazon-apigateway-authorizer of type cognito_user_pools and the correct providerARNs.",
@@ -21,5 +21,5 @@
     "npx jest test/constructs/rest-api.test.ts --passWithNoTests"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 4 test cases pass. Used toContainEqual instead of toContain for asymmetric matcher assertions. The SpecRestApi Body property contains the OpenAPI spec inline, making it straightforward to verify securityDefinitions and per-operation security. All 28 tests (including 24 pre-existing) pass. TypeScript compilation also succeeds."
 }
