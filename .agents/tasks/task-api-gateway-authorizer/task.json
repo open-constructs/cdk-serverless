@@ -1,0 +1,7 @@
+{
+  "task_id": "task-api-gateway-authorizer",
+  "task_description": "Add API Gateway level authorizers (Cognito User Pool Authorizer for ICognitoAuthentication, Lambda token authorizer for IJwtAuthentication) to the RestApi construct. Inject authorizer configuration into the OpenAPI spec's securityDefinitions with x-amazon-apigateway-authorizer extensions. The Lambda handler continues doing fine-grained claims/groups validation.",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003"],
+  "blocked_reason": null
+}

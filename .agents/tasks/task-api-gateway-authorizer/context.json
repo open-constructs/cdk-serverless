@@ -1,0 +1,25 @@
+{
+  "project_type": "AWS CDK construct library (L3 constructs for serverless apps) managed by projen",
+  "language": "TypeScript",
+  "build_system": "projen (npm run build triggers projen build which does: default, pre-compile, compile, post-compile, test, package)",
+  "test_framework": "jest with ts-jest, tests in test/ directory, uses aws-cdk-lib assertions (Template.fromStack), mocks LambdaFunction to avoid bundling",
+  "build_command": "npx projen compile",
+  "test_command": "npx jest --passWithNoTests",
+  "verification_instructions": "1) npm install, 2) npx projen compile (TypeScript compilation), 3) npx jest --passWithNoTests (run unit tests)",
+  "snapshot_or_generated_files": null,
+  "setup_instructions": "cd /projects/sandbox/cdk-serverless && npm install",
+  "environment_constraints": "Open internet - can install packages. Node.js available. No Docker needed.",
+  "contribution_requirements": "Standard projen project. Do not edit generated files. PR against main.",
+  "key_patterns": "RestApi construct loads OpenAPI yaml, patches it with x-amazon-apigateway-integration for Lambda proxy, uses patchSecurity to move global security to per-operation. Tests mock LambdaFunction (NodejsFunction) with plain aws_lambda.Function to avoid esbuild bundling. Authentication can be ICognitoAuthentication (has userpool: IUserPool) or IJwtAuthentication (has issuerUrl, audience?, jwksUrl?).",
+  "relevant_files": [
+    "src/constructs/rest-api.ts",
+    "src/constructs/authentication.ts",
+    "src/constructs/base-api.ts",
+    "src/constructs/func.ts",
+    "src/lambda/auth.ts",
+    "src/lambda/handler.ts",
+    "test/constructs/graphql.test.ts",
+    "test/util/synth.ts"
+  ],
+  "directory_structure": "src/constructs/ - CDK constructs (RestApi, BaseApi, authentication, func), src/lambda/ - Lambda runtime code (auth, handler, errors), test/ - jest tests, test/util/ - test utilities"
+}

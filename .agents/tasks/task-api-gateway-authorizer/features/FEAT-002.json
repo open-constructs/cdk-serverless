@@ -1,0 +1,31 @@
+{
+  "id": "FEAT-002",
+  "type": "feat",
+  "description": "Add API Gateway authorizer injection into the OpenAPI spec for both Cognito User Pool and JWT (Lambda) authorizers in the RestApi construct. Create a Lambda authorizer handler for JWT signature validation.",
+  "status": "pending",
+  "steps": [
+    "In src/constructs/rest-api.ts, add a new method (e.g., patchSecuritySchemes) that injects the securityDefinitions/components.securitySchemes into the OpenAPI spec based on the authentication type. For Cognito: add a security scheme with x-amazon-apigateway-authorizer of type cognito_user_pools referencing the user pool ARN. For JWT: create a Lambda authorizer function and add a security scheme with x-amazon-apigateway-authorizer of type token referencing the Lambda authorizer ARN.",
+    "For the Cognito case in patchSecuritySchemes: Create the security scheme entry under (spec as any).securityDefinitions or spec.components.securitySchemes (use securityDefinitions for OpenAPI 2.0 compat which API Gateway REST API uses) with: { type: 'apiKey', name: 'Authorization', in: 'header', 'x-amazon-apigateway-authtype': 'cognito_user_pools', 'x-amazon-apigateway-authorizer': { type: 'cognito_user_pools', providerARNs: [userPoolArn] } }.",
+    "For the JWT/Lambda authorizer case in patchSecuritySchemes: Create a new LambdaFunction (for the authorizer) using an entry file at src/lambda/rest-api.jwt-authorizer.ts. The security scheme entry should use: { type: 'apiKey', name: 'Authorization', in: 'header', 'x-amazon-apigateway-authtype': 'custom', 'x-amazon-apigateway-authorizer': { type: 'token', authorizerUri: (formatArn for lambda invoke), authorizerResultTtlInSeconds: 300, identitySource: 'method.request.header.Authorization' } }. Grant API Gateway permission to invoke this Lambda.",
+    "Create the Lambda authorizer handler at src/lambda/rest-api.jwt-authorizer.ts that: takes an API Gateway token authorizer event, extracts the Bearer token, validates signature and expiry using the issuerUrl and JWKS URL (using the same promisedVerify / getPublicKeys pattern from src/lambda/auth.ts), and returns an IAM policy document allowing/denying invoke on the API. On success, return 'Allow' with the decoded claims in the context. On failure, throw 'Unauthorized' to return a 401.",
+    "Call the new patchSecuritySchemes method in the RestApi constructor BEFORE the call to patchSecurity(). This ensures the security scheme is defined before security references are moved to per-operation.",
+    "Ensure the patchSecurity method also applies the security scheme reference (e.g., [{ CognitoAuthorizer: [] }] or [{ JwtAuthorizer: [] }]) to each operation that has security defined. If the spec already has named security references, just ensure the scheme definition matches; if not, add the reference.",
+    "Ensure backward compatibility: if props.authentication is undefined/null, skip all authorizer injection - no security schemes are added.",
+    "Add invoke permissions for the JWT Lambda authorizer from apigateway.amazonaws.com (similar to how operation Lambda functions get invoke permissions)."
+  ],
+  "acceptance_criteria": [
+    "When authentication is ICognitoAuthentication, the synthesized OpenAPI spec contains securityDefinitions with a cognito_user_pools authorizer referencing the user pool ARN",
+    "When authentication is IJwtAuthentication, a Lambda authorizer function is created and the synthesized OpenAPI spec contains securityDefinitions with a token authorizer referencing the Lambda ARN",
+    "When no authentication is configured, no security schemes are added to the spec",
+    "The Lambda handler in src/lambda/handler.ts still calls authenticate() for fine-grained authorization (no changes to runtime handler)",
+    "The JWT authorizer Lambda handler validates JWT signature/expiry and returns an IAM policy",
+    "TypeScript compilation passes (npx projen compile)",
+    "All existing and new tests pass (npx jest --passWithNoTests)"
+  ],
+  "verification": [
+    "npx projen compile",
+    "npx jest --passWithNoTests"
+  ],
+  "blocked_reason": null,
+  "findings": ""
+}
