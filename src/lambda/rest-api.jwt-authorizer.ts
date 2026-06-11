@@ -74,6 +74,7 @@ const promisedVerify = (token: string, issuerUri: string, jwksUri?: string): Pro
     verify(token, (header: JwtHeader, cb: SigningKeyCallback) => {
       if (!header.kid) {
         cb(new Error('no key id found'));
+        return;
       }
       getJwksUri(issuerUri, jwksUri).then(getPublicKeys).then((keys) => {
         const key = keys[header.kid!];
