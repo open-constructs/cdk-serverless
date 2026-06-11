@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Add API Gateway authorizer injection into the OpenAPI spec for both Cognito User Pool and JWT (Lambda) authorizers in the RestApi construct. Create a Lambda authorizer handler for JWT signature validation.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "In src/constructs/rest-api.ts, add a new method (e.g., patchSecuritySchemes) that injects the securityDefinitions/components.securitySchemes into the OpenAPI spec based on the authentication type. For Cognito: add a security scheme with x-amazon-apigateway-authorizer of type cognito_user_pools referencing the user pool ARN. For JWT: create a Lambda authorizer function and add a security scheme with x-amazon-apigateway-authorizer of type token referencing the Lambda authorizer ARN.",
     "For the Cognito case in patchSecuritySchemes: Create the security scheme entry under (spec as any).securityDefinitions or spec.components.securitySchemes (use securityDefinitions for OpenAPI 2.0 compat which API Gateway REST API uses) with: { type: 'apiKey', name: 'Authorization', in: 'header', 'x-amazon-apigateway-authtype': 'cognito_user_pools', 'x-amazon-apigateway-authorizer': { type: 'cognito_user_pools', providerARNs: [userPoolArn] } }.",
@@ -27,5 +27,5 @@
     "npx jest --passWithNoTests"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Implementation complete. The @ts-expect-error in patchSecurity was no longer needed after adding the apiMethods string[] property (includes() accepts any value without error). The StatementEffect type for the policy required using 'Allow' | 'Deny' literal types instead of plain string. All 24 existing tests pass. No new tests were added as part of this feature (FEAT-003 likely covers that)."
 }
