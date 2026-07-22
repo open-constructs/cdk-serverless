@@ -41,6 +41,38 @@ export interface RestApiProps<OPS> extends BaseApiProps {
   definitionFileName: string;
 
   cors: boolean;
+
+  /**
+   * A list of operation IDs that should skip the authorizer entirely.
+   * These operations will have `security: []` in the OpenAPI spec, meaning
+   * they are publicly accessible without authentication.
+   *
+   * @default - no anonymous operations
+   */
+  anonymousOperations?: (keyof OPS)[];
+
+  /**
+   * Controls whether the JWT Lambda authorizer uses the TOKEN or REQUEST type.
+   *
+   * **token (default):** The API Gateway validates that the Authorization header is present
+   * before invoking the Lambda authorizer. If the header is missing, API Gateway immediately
+   * returns 401 without invoking the Lambda. This is cheaper for unauthenticated requests
+   * because no Lambda invocation occurs, but it does not support optional authentication
+   * (every request must carry a token or be rejected).
+   *
+   * **request:** The API Gateway always invokes the Lambda authorizer regardless of whether
+   * the Authorization header is present. This enables optional authentication: the Lambda
+   * can inspect the request, return Allow with an anonymous principal when no token is
+   * provided, and return Allow with user claims when a valid token is present. The trade-off
+   * is that you pay for a Lambda invocation on every request, including unauthenticated ones.
+   *
+   * Use 'request' when you need endpoints that behave differently for authenticated vs
+   * anonymous users (e.g., personalized responses for logged-in users, generic responses
+   * for guests) without splitting them into separate operations.
+   *
+   * @default 'token'
+   */
+  jwtAuthorizerType?: 'token' | 'request';
 }
 
 /**
@@ -84,6 +116,29 @@ export class RestApi<PATHS, OPS> extends BaseApi {
    * @private
    */
   private _functions: { [operationId: string]: LambdaFunction } = {};
+
+  private readonly apiMethods = ['get', 'post', 'put', 'delete', 'patch', 'options', 'head'];
+
+  /**
+   * The JWT authorizer Lambda function, if JWT authentication is configured.
+   * Stored so the invoke permission can be granted after the SpecRestApi is created.
+   * @private
+   */
+  private _authorizerFn?: LambdaFunction;
+
+  /**
+   * Set of operationIds that should have security disabled (security: []).
+   * @private
+   */
+  private _anonymousOperations: Set<string> = new Set();
+
+  /**
+   * Stores the original per-operation security arrays as assigned by patchSecurity,
+   * keyed by operationId. Used by setAnonymousOperations to restore security on
+   * operations removed from the anonymous set.
+   * @private
+   */
+  private _originalOperationSecurity: Map<string, any[]> = new Map();
 
   /**
    * Creates an instance of RestApi.
@@ -229,6 +284,15 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       };
     }
 
+    this.patchSecuritySchemes(this.apiSpec);
+
+    // Initialize anonymous operations from props before patchSecurity distributes security
+    if (props.anonymousOperations) {
+      for (const opId of props.anonymousOperations) {
+        this._anonymousOperations.add(opId as string);
+      }
+    }
+
     this.patchSecurity(this.apiSpec);
 
     // TODO patch spec for Cognito user pool
@@ -243,6 +307,15 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     // add invoke permissions to Lambda functions
     for (const fn of Object.values(this._functions)) {
       fn.addPermission('RestApiInvoke', {
+        principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
+        action: 'lambda:InvokeFunction',
+        sourceArn: this.api.arnForExecuteApi(),
+      });
+    }
+
+    // Grant API Gateway permission to invoke the JWT authorizer Lambda
+    if (this._authorizerFn) {
+      this._authorizerFn.addPermission('ApiGatewayAuthorizerInvoke', {
         principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
         action: 'lambda:InvokeFunction',
         sourceArn: this.api.arnForExecuteApi(),
@@ -296,6 +369,82 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   public modifyOperationFunctions(operationIds: (keyof OPS)[], op: (fn: LambdaFunction) => void) {
     for (const operationId of operationIds) {
       op(this.getFunctionForOperation(operationId));
+    }
+  }
+
+  /**
+   * Replace the full set of anonymous operations.
+   * Anonymous operations will have `security: []` applied in the OpenAPI spec,
+   * making them publicly accessible without authentication.
+   *
+   * Since CDK serializes the OpenAPI spec at synth time (fromInline stores the
+   * object reference), mutations after SpecRestApi construction still take effect.
+   *
+   * @param operationIds - The operation IDs to mark as anonymous. Replaces any previously set anonymous operations.
+   */
+  public setAnonymousOperations(operationIds: (keyof OPS)[]) {
+    this._anonymousOperations.clear();
+    for (const opId of operationIds) {
+      this._anonymousOperations.add(opId as string);
+    }
+    this.applyAnonymousSecurity();
+  }
+
+  /**
+   * Add additional operations to the set of anonymous operations.
+   * Newly added operations will have `security: []` applied in the OpenAPI spec.
+   *
+   * Since CDK serializes the OpenAPI spec at synth time (fromInline stores the
+   * object reference), mutations after SpecRestApi construction still take effect.
+   *
+   * @param operationIds - The operation IDs to add to the anonymous set.
+   */
+  public addAnonymousOperations(operationIds: (keyof OPS)[]) {
+    for (const opId of operationIds) {
+      this._anonymousOperations.add(opId as string);
+    }
+    this.applyAnonymousSecurityForOps(operationIds.map(op => op as string));
+  }
+
+  /**
+   * Re-applies security settings to all operations based on the current anonymous set.
+   * Operations in the anonymous set get `security: []`; operations removed from the set
+   * have their original security restored.
+   * @private
+   */
+  private applyAnonymousSecurity() {
+    for (const specPath of Object.values(this.apiSpec.paths || [])) {
+      for (const key in specPath) {
+        if (!this.apiMethods.includes(key)) {
+          continue;
+        }
+        const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]! as OperationObject;
+        if (specMethod.operationId && this._anonymousOperations.has(specMethod.operationId)) {
+          specMethod.security = [];
+        } else if (specMethod.operationId && this._originalOperationSecurity.has(specMethod.operationId)) {
+          // Restore original security for operations removed from the anonymous set
+          specMethod.security = this._originalOperationSecurity.get(specMethod.operationId);
+        }
+      }
+    }
+  }
+
+  /**
+   * Applies `security: []` only to the specified operations.
+   * @private
+   */
+  private applyAnonymousSecurityForOps(operationIds: string[]) {
+    const opsSet = new Set(operationIds);
+    for (const specPath of Object.values(this.apiSpec.paths || [])) {
+      for (const key in specPath) {
+        if (!this.apiMethods.includes(key)) {
+          continue;
+        }
+        const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]! as OperationObject;
+        if (specMethod.operationId && opsSet.has(specMethod.operationId)) {
+          specMethod.security = [];
+        }
+      }
     }
   }
 
@@ -395,6 +544,88 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   }
 
   /**
+   * Injects securityDefinitions into the OpenAPI spec based on the authentication type.
+   * For Cognito: adds a cognito_user_pools authorizer referencing the user pool ARN.
+   * For JWT: creates a Lambda authorizer function and adds a token authorizer referencing its ARN.
+   */
+  protected patchSecuritySchemes(spec: OpenAPI3) {
+    if (!this.props.authentication) {
+      return;
+    }
+
+    const specAny = spec as any;
+    if (!specAny.securityDefinitions) {
+      specAny.securityDefinitions = {};
+    }
+
+    if (this.props.authentication.hasOwnProperty('userpool')) {
+      // Cognito User Pool authorizer
+      const cognitoAuth = this.props.authentication as ICognitoAuthentication;
+      const authorizerName = 'CognitoAuthorizer';
+
+      specAny.securityDefinitions[authorizerName] = {
+        'type': 'apiKey',
+        'name': 'Authorization',
+        'in': 'header',
+        'x-amazon-apigateway-authtype': 'cognito_user_pools',
+        'x-amazon-apigateway-authorizer': {
+          type: 'cognito_user_pools',
+          providerARNs: [cognitoAuth.userpool.userPoolArn],
+        },
+      };
+
+      // Ensure global security references the authorizer so patchSecurity distributes it
+      if (!spec.security) {
+        spec.security = [{ [authorizerName]: [] }];
+      }
+    } else {
+      // JWT (Lambda) authorizer
+      const jwtAuth = this.props.authentication as IJwtAuthentication;
+      const authorizerName = 'JwtAuthorizer';
+
+      const authorizerFn = new LambdaFunction(this, 'JwtAuthorizerFn', {
+        stageName: this.props.stageName,
+        entry: 'src/lambda/rest-api.jwt-authorizer.ts',
+        description: `[${this.props.stageName}] JWT Authorizer for ${this.props.apiName}`,
+        jwt: jwtAuth,
+        lambdaOptions: this.props.lambdaOptions,
+        lambdaTracing: this.props.lambdaTracing,
+      });
+
+      const authorizerUri = cdk.Stack.of(this).formatArn({
+        resource: 'path',
+        service: 'apigateway',
+        account: 'lambda',
+        arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+        resourceName: `2015-03-31/functions/${authorizerFn.functionArn}/invocations`,
+      });
+
+      specAny.securityDefinitions[authorizerName] = {
+        'type': 'apiKey',
+        'name': 'Authorization',
+        'in': 'header',
+        'x-amazon-apigateway-authtype': 'custom',
+        'x-amazon-apigateway-authorizer': {
+          type: this.props.jwtAuthorizerType === 'request' ? 'request' : 'token',
+          authorizerUri: authorizerUri,
+          authorizerResultTtlInSeconds: this.props.jwtAuthorizerType === 'request' ? 0 : 300,
+          ...(this.props.jwtAuthorizerType !== 'request' && {
+            identitySource: 'method.request.header.Authorization',
+          }),
+        },
+      };
+
+      // Store the authorizer function so we can grant permission after the SpecRestApi is created
+      this._authorizerFn = authorizerFn;
+
+      // Ensure global security references the authorizer so patchSecurity distributes it
+      if (!spec.security) {
+        spec.security = [{ [authorizerName]: [] }];
+      }
+    }
+  }
+
+  /**
    * AWS does not properly apply the 'security' option to every single path-method.
    * According to documentation, global security gets applied, if there is no security
    * set for the particular path-method. If there is any, even empty, it will get precedence.
@@ -407,14 +638,29 @@ export class RestApi<PATHS, OPS> extends BaseApi {
     if ('security' in spec) {
       for (const specPath of Object.values(spec.paths || [])) {
         for (const key in specPath) {
-          // @ts-expect-error -> There is a wrong definition for method includes! It allows any value to be given!
           if (!this.apiMethods.includes(key)) {
             continue; // Skip if not http method definition
           }
 
           const specMethod = (specPath as PathItemObject)[key as keyof PathItemObject]!;
           if (!('security' in specMethod)) {
-            specMethod.security = spec.security;
+            const operationId = (specMethod as OperationObject).operationId;
+            if (operationId && this._anonymousOperations.has(operationId)) {
+              // Store what security would have been applied so we can restore later
+              this._originalOperationSecurity.set(operationId, spec.security as any[]);
+              specMethod.security = [];
+            } else {
+              specMethod.security = spec.security;
+              if (operationId) {
+                this._originalOperationSecurity.set(operationId, spec.security as any[]);
+              }
+            }
+          } else {
+            // Operation already has explicit security defined in the spec
+            const operationId = (specMethod as OperationObject).operationId;
+            if (operationId) {
+              this._originalOperationSecurity.set(operationId, specMethod.security as any[]);
+            }
           }
         }
       }

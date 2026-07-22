@@ -1,0 +1,25 @@
+{
+  "id": "FEAT-003",
+  "type": "feat",
+  "description": "Add unit tests for the API Gateway authorizer injection in the RestApi construct, covering Cognito, JWT, and no-auth scenarios.",
+  "status": "completed",
+  "steps": [
+    "Create test/constructs/rest-api.test.ts following the pattern in test/constructs/graphql.test.ts: mock LambdaFunction to avoid esbuild bundling, create a minimal OpenAPI spec inline (yaml dump to temp file), instantiate RestApi with different authentication configurations.",
+    "Test case 1 - Cognito authentication: Create a RestApi with ICognitoAuthentication (mock IUserPool). Use Template.fromStack() assertions to verify the SpecRestApi's Body property includes securityDefinitions with x-amazon-apigateway-authorizer of type cognito_user_pools and the correct providerARNs.",
+    "Test case 2 - JWT authentication: Create a RestApi with IJwtAuthentication ({ issuerUrl, audience, jwksUrl }). Assert the template includes an additional Lambda function for the authorizer and the spec includes a token-type authorizer in securityDefinitions.",
+    "Test case 3 - No authentication: Create a RestApi with no authentication prop. Assert no securityDefinitions or authorizer resources appear in the synthesized template.",
+    "Test case 4 - Verify security is applied per-operation: Create a RestApi with authentication and a spec that has global security set. Assert the synthesized spec has security on each operation (patchSecurity still works correctly with the new scheme)."
+  ],
+  "acceptance_criteria": [
+    "All new tests in test/constructs/rest-api.test.ts pass",
+    "Tests verify the Cognito authorizer configuration in the OpenAPI spec",
+    "Tests verify the JWT Lambda authorizer configuration in the OpenAPI spec",
+    "Tests verify backward compatibility when no auth is configured",
+    "npx jest passes"
+  ],
+  "verification": [
+    "npx jest test/constructs/rest-api.test.ts --passWithNoTests"
+  ],
+  "blocked_reason": null,
+  "findings": "All 4 test cases pass. Used toContainEqual instead of toContain for asymmetric matcher assertions. The SpecRestApi Body property contains the OpenAPI spec inline, making it straightforward to verify securityDefinitions and per-operation security. All 28 tests (including 24 pre-existing) pass. TypeScript compilation also succeeds."
+}
