@@ -73,6 +73,38 @@ export interface RestApiProps<OPS> extends BaseApiProps {
    * @default 'token'
    */
   jwtAuthorizerType?: 'token' | 'request';
+
+  /**
+   * Global OAuth2 scopes required by the Cognito authorizer.
+   *
+   * When scopes are present, API Gateway validates the **access token** and checks
+   * that it contains at least one of the specified scopes. An empty array means no
+   * scopes are required; API Gateway then validates the **ID token** instead,
+   * rejecting access tokens with a 401.
+   *
+   * Use per-operation overrides via `authorizationScopesByOperation` to set
+   * different scopes on individual operations.
+   *
+   * @default ['openid']
+   */
+  authorizationScopes?: string[];
+
+  /**
+   * Per-operation OAuth2 scope overrides for the Cognito authorizer.
+   *
+   * Operations listed here use the specified scopes instead of the global
+   * `authorizationScopes` default. Operations not listed fall back to the
+   * global default.
+   *
+   * @example
+   * authorizationScopesByOperation: {
+   *   createItem: ['openid', 'items:write'],
+   *   deleteItem: ['openid', 'items:delete'],
+   * }
+   *
+   * @default - no per-operation overrides; all operations use authorizationScopes
+   */
+  authorizationScopesByOperation?: { [operationId in keyof OPS]?: string[] };
 }
 
 /**
@@ -577,9 +609,23 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         },
       };
 
+      // Resolve global authorization scopes for the Cognito authorizer.
+      // When scopes are present, API Gateway validates the access token and checks
+      // the token contains at least one of the listed scopes. An empty array means
+      // no scopes are required and API Gateway validates the ID token instead.
+      const globalScopes = this.props.authorizationScopes ?? ['openid'];
+
       // Ensure global security references the authorizer so patchSecurity distributes it
       if (!spec.security) {
-        spec.security = [{ [authorizerName]: [] }];
+        spec.security = [{ [authorizerName]: globalScopes }];
+      } else if (globalScopes.length > 0) {
+        // The spec already has global security defined — patch the authorizer's scopes
+        // so that the configured scopes are distributed to all operations.
+        for (const requirement of spec.security as Array<Record<string, string[]>>) {
+          if (authorizerName in requirement) {
+            requirement[authorizerName] = globalScopes;
+          }
+        }
       }
     } else {
       // JWT (Lambda) authorizer
@@ -657,6 +703,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
    */
   protected patchSecurity(spec: OpenAPI3) {
     if ('security' in spec) {
+      // Resolve per-operation scope overrides from the dedicated prop.
+      const perOperationScopes: Record<string, string[]> | undefined =
+        this.props.authorizationScopesByOperation
+          ? this.props.authorizationScopesByOperation as Record<string, string[]>
+          : undefined;
+
       for (const specPath of Object.values(spec.paths || [])) {
         for (const key in specPath) {
           if (!this.apiMethods.includes(key)) {
@@ -671,9 +723,15 @@ export class RestApi<PATHS, OPS> extends BaseApi {
               this._originalOperationSecurity.set(operationId, spec.security as any[]);
               specMethod.security = [];
             } else {
-              specMethod.security = spec.security;
+              // Apply per-operation scope override if configured
+              const operationSecurity = this.applyOperationScopes(
+                spec.security as any[],
+                operationId,
+                perOperationScopes,
+              );
+              specMethod.security = operationSecurity;
               if (operationId) {
-                this._originalOperationSecurity.set(operationId, spec.security as any[]);
+                this._originalOperationSecurity.set(operationId, operationSecurity);
               }
             }
           } else {
@@ -687,6 +745,31 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       }
       delete spec.security;
     }
+  }
+
+  /**
+   * Applies per-operation scope overrides to a security requirement array.
+   * If the operation has a specific scope override in the map, the authorizer's
+   * scope list is replaced with the override. Otherwise the global security is used as-is.
+   */
+  private applyOperationScopes(
+    globalSecurity: any[],
+    operationId: string | undefined,
+    perOperationScopes: Record<string, string[]> | undefined,
+  ): any[] {
+    if (!operationId || !perOperationScopes || !(operationId in perOperationScopes)) {
+      return globalSecurity;
+    }
+
+    const scopes = perOperationScopes[operationId];
+    // Clone the global security and replace the authorizer scopes
+    return globalSecurity.map((requirement: Record<string, string[]>) => {
+      const patched: Record<string, string[]> = {};
+      for (const [authName, _authScopes] of Object.entries(requirement)) {
+        patched[authName] = scopes;
+      }
+      return patched;
+    });
   }
 
 }
