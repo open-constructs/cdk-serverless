@@ -544,7 +544,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   }
 
   /**
-   * Injects securityDefinitions into the OpenAPI spec based on the authentication type.
+   * Injects the authorizer security scheme into the OpenAPI spec based on the
+   * authentication type, placing it where API Gateway expects it for the spec
+   * version: `components.securitySchemes` for OpenAPI 3.x, or the root
+   * `securityDefinitions` for Swagger 2.0. An authorizer written to the wrong
+   * location is silently ignored on import, deploying an unauthenticated API.
+   *
    * For Cognito: adds a cognito_user_pools authorizer referencing the user pool ARN.
    * For JWT: creates a Lambda authorizer function and adds a token authorizer referencing its ARN.
    */
@@ -553,17 +558,14 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       return;
     }
 
-    const specAny = spec as any;
-    if (!specAny.securityDefinitions) {
-      specAny.securityDefinitions = {};
-    }
+    const schemes = this.securitySchemeContainer(spec);
 
     if (this.props.authentication.hasOwnProperty('userpool')) {
       // Cognito User Pool authorizer
       const cognitoAuth = this.props.authentication as ICognitoAuthentication;
       const authorizerName = 'CognitoAuthorizer';
 
-      specAny.securityDefinitions[authorizerName] = {
+      schemes[authorizerName] = {
         'type': 'apiKey',
         'name': 'Authorization',
         'in': 'header',
@@ -600,7 +602,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         resourceName: `2015-03-31/functions/${authorizerFn.functionArn}/invocations`,
       });
 
-      specAny.securityDefinitions[authorizerName] = {
+      schemes[authorizerName] = {
         'type': 'apiKey',
         'name': 'Authorization',
         'in': 'header',
@@ -623,6 +625,24 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         spec.security = [{ [authorizerName]: [] }];
       }
     }
+  }
+
+  /**
+   * Returns the security-scheme container for the spec, creating it if needed.
+   * OpenAPI 3.x stores schemes under `components.securitySchemes`; Swagger 2.0
+   * uses the root `securityDefinitions`. API Gateway reads only the location that
+   * matches the document's declared version, so the authorizer must go there.
+   */
+  private securitySchemeContainer(spec: OpenAPI3): { [name: string]: any } {
+    const specAny = spec as any;
+    const isOpenApiV3 = typeof specAny.openapi === 'string' && specAny.openapi.startsWith('3');
+    if (isOpenApiV3) {
+      specAny.components = specAny.components ?? {};
+      specAny.components.securitySchemes = specAny.components.securitySchemes ?? {};
+      return specAny.components.securitySchemes;
+    }
+    specAny.securityDefinitions = specAny.securityDefinitions ?? {};
+    return specAny.securityDefinitions;
   }
 
   /**
