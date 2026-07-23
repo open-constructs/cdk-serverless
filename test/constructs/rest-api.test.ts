@@ -525,4 +525,215 @@ describe('RestApi', () => {
       expect(authorizer.identitySource).toBe('method.request.header.Authorization');
     });
   });
+
+  describe('authorizationScopes', () => {
+    test('global scopes array is applied to all secured operations', () => {
+      writeSpecFile(minimalSpec);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = { userpool };
+
+      new RestApi(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        authorizationScopes: ['openid'],
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // Global security should be removed (distributed per-operation)
+      expect(body.security).toBeUndefined();
+
+      // The operation should have scopes applied
+      expect(body.paths['/items'].get.security).toEqual([
+        { CognitoAuthorizer: ['openid'] },
+      ]);
+    });
+
+    test('multiple global scopes are applied correctly', () => {
+      writeSpecFile(specWithGlobalSecurity);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = { userpool };
+
+      new RestApi<any, { getItems: any; getItem: any }>(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        authorizationScopes: ['openid', 'profile'],
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // Both operations should have the global scopes
+      expect(body.paths['/items'].get.security).toEqual([
+        { CognitoAuthorizer: ['openid', 'profile'] },
+      ]);
+      expect(body.paths['/items/{id}'].get.security).toEqual([
+        { CognitoAuthorizer: ['openid', 'profile'] },
+      ]);
+    });
+
+    test('per-operation scopes override the global default', () => {
+      writeSpecFile(specWithGlobalSecurity);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = { userpool };
+
+      new RestApi<any, { getItems: any; getItem: any }>(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        authorizationScopes: {
+          getItems: ['openid'],
+          getItem: ['openid', 'items:read'],
+        },
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // Each operation has its specific scopes
+      expect(body.paths['/items'].get.security).toEqual([
+        { CognitoAuthorizer: ['openid'] },
+      ]);
+      expect(body.paths['/items/{id}'].get.security).toEqual([
+        { CognitoAuthorizer: ['openid', 'items:read'] },
+      ]);
+    });
+
+    test('operations without a per-operation override keep the default empty scopes', () => {
+      writeSpecFile(specWithGlobalSecurity);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = { userpool };
+
+      new RestApi<any, { getItems: any; getItem: any }>(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        authorizationScopes: {
+          getItems: ['openid', 'items:read'],
+        },
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // getItems has per-operation scopes
+      expect(body.paths['/items'].get.security).toEqual([
+        { CognitoAuthorizer: ['openid', 'items:read'] },
+      ]);
+
+      // getItem has no override — keeps the default empty scopes (ID-token-only)
+      expect(body.paths['/items/{id}'].get.security).toEqual([
+        { CognitoAuthorizer: [] },
+      ]);
+    });
+
+    test('empty authorizationScopes array preserves backward-compatible behavior (ID-token-only)', () => {
+      writeSpecFile(minimalSpec);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = { userpool };
+
+      new RestApi(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        authorizationScopes: [],
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // Empty scopes = ID-token-only (backward compatible)
+      expect(body.paths['/items'].get.security).toEqual([
+        { CognitoAuthorizer: [] },
+      ]);
+    });
+
+    test('authorizationScopes combined with anonymousOperations', () => {
+      writeSpecFile(specWithGlobalSecurity);
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+
+      const authentication: ICognitoAuthentication = { userpool };
+
+      new RestApi<any, { getItems: any; getItem: any }>(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+        authorizationScopes: ['openid'],
+        anonymousOperations: ['getItems'],
+      });
+
+      const template = Template.fromStack(stack);
+
+      const apiResources = template.findResources('AWS::ApiGateway::RestApi');
+      const apiResource = Object.values(apiResources)[0];
+      const body = apiResource.Properties.Body;
+
+      // Anonymous operation has no security
+      expect(body.paths['/items'].get.security).toEqual([]);
+
+      // Secured operation has the configured scopes
+      expect(body.paths['/items/{id}'].get.security).toEqual([
+        { CognitoAuthorizer: ['openid'] },
+      ]);
+    });
+  });
 });
