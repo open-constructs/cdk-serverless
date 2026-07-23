@@ -130,7 +130,7 @@ describe('RestApi', () => {
   }
 
   describe('Cognito authentication', () => {
-    test('adds CognitoAuthorizer securityDefinitions to the OpenAPI spec', () => {
+    test('adds CognitoAuthorizer to components.securitySchemes of the OpenAPI 3 spec', () => {
       writeSpecFile(minimalSpec);
 
       const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
@@ -157,11 +157,14 @@ describe('RestApi', () => {
       const apiResource = Object.values(apiResources)[0];
       const body = apiResource.Properties.Body;
 
-      // Verify securityDefinitions.CognitoAuthorizer exists
-      expect(body.securityDefinitions).toBeDefined();
-      expect(body.securityDefinitions.CognitoAuthorizer).toBeDefined();
+      // A 3.x document must carry authorizers under components.securitySchemes,
+      // never the Swagger-2.0 root securityDefinitions (API Gateway ignores the
+      // latter for 3.x specs, silently deploying an unauthenticated API).
+      expect(body.securityDefinitions).toBeUndefined();
+      expect(body.components.securitySchemes).toBeDefined();
+      expect(body.components.securitySchemes.CognitoAuthorizer).toBeDefined();
 
-      const cognitoAuthorizer = body.securityDefinitions.CognitoAuthorizer;
+      const cognitoAuthorizer = body.components.securitySchemes.CognitoAuthorizer;
       expect(cognitoAuthorizer['x-amazon-apigateway-authtype']).toBe('cognito_user_pools');
       expect(cognitoAuthorizer['x-amazon-apigateway-authorizer']).toBeDefined();
       expect(cognitoAuthorizer['x-amazon-apigateway-authorizer'].type).toBe('cognito_user_pools');
@@ -175,8 +178,49 @@ describe('RestApi', () => {
     });
   });
 
+  describe('Swagger 2.0 spec', () => {
+    test('keeps the authorizer under the root securityDefinitions for a 2.0 document', () => {
+      writeSpecFile({
+        swagger: '2.0',
+        info: { title: 'Test API', version: '1.0.0' },
+        paths: {
+          '/items': {
+            get: {
+              operationId: 'getItems',
+              responses: { 200: { description: 'Success' } },
+            },
+          },
+        },
+      });
+
+      const userpool = new aws_cognito.UserPool(stack, 'UserPool', {
+        userPoolName: 'TestPool',
+      });
+      const authentication: ICognitoAuthentication = { userpool };
+
+      new RestApi(stack, 'TestApi', {
+        apiName: 'TestApi',
+        stageName: 'test',
+        definitionFileName: specFilePath,
+        cors: false,
+        authentication,
+        autoGenerateRoutes: true,
+      });
+
+      const template = Template.fromStack(stack);
+      const apiResource = Object.values(template.findResources('AWS::ApiGateway::RestApi'))[0];
+      const body = apiResource.Properties.Body;
+
+      // Swagger 2.0 has no `components` — the authorizer belongs at the root.
+      expect(body.securityDefinitions).toBeDefined();
+      expect(body.securityDefinitions.CognitoAuthorizer).toBeDefined();
+      expect(body.securityDefinitions.CognitoAuthorizer['x-amazon-apigateway-authtype']).toBe('cognito_user_pools');
+      expect(body.components?.securitySchemes).toBeUndefined();
+    });
+  });
+
   describe('JWT authentication', () => {
-    test('adds JwtAuthorizer securityDefinitions and creates Lambda authorizer function', () => {
+    test('adds JwtAuthorizer to components.securitySchemes and creates Lambda authorizer function', () => {
       writeSpecFile(minimalSpec);
 
       const authentication: IJwtAuthentication = {
@@ -200,11 +244,12 @@ describe('RestApi', () => {
       const apiResource = Object.values(apiResources)[0];
       const body = apiResource.Properties.Body;
 
-      // Verify securityDefinitions.JwtAuthorizer exists
-      expect(body.securityDefinitions).toBeDefined();
-      expect(body.securityDefinitions.JwtAuthorizer).toBeDefined();
+      // JWT authorizer must also land in the 3.x location, not securityDefinitions.
+      expect(body.securityDefinitions).toBeUndefined();
+      expect(body.components.securitySchemes).toBeDefined();
+      expect(body.components.securitySchemes.JwtAuthorizer).toBeDefined();
 
-      const jwtAuthorizer = body.securityDefinitions.JwtAuthorizer;
+      const jwtAuthorizer = body.components.securitySchemes.JwtAuthorizer;
       expect(jwtAuthorizer['x-amazon-apigateway-authtype']).toBe('custom');
       expect(jwtAuthorizer['x-amazon-apigateway-authorizer']).toBeDefined();
       expect(jwtAuthorizer['x-amazon-apigateway-authorizer'].type).toBe('token');
@@ -443,8 +488,8 @@ describe('RestApi', () => {
       const apiResource = Object.values(apiResources)[0];
       const body = apiResource.Properties.Body;
 
-      expect(body.securityDefinitions.JwtAuthorizer).toBeDefined();
-      const authorizer = body.securityDefinitions.JwtAuthorizer['x-amazon-apigateway-authorizer'];
+      expect(body.components.securitySchemes.JwtAuthorizer).toBeDefined();
+      const authorizer = body.components.securitySchemes.JwtAuthorizer['x-amazon-apigateway-authorizer'];
       expect(authorizer.type).toBe('request');
       expect(authorizer.identitySource).toBeUndefined();
       expect(authorizer.authorizerResultTtlInSeconds).toBe(0);
@@ -474,8 +519,8 @@ describe('RestApi', () => {
       const apiResource = Object.values(apiResources)[0];
       const body = apiResource.Properties.Body;
 
-      expect(body.securityDefinitions.JwtAuthorizer).toBeDefined();
-      const authorizer = body.securityDefinitions.JwtAuthorizer['x-amazon-apigateway-authorizer'];
+      expect(body.components.securitySchemes.JwtAuthorizer).toBeDefined();
+      const authorizer = body.components.securitySchemes.JwtAuthorizer['x-amazon-apigateway-authorizer'];
       expect(authorizer.type).toBe('token');
       expect(authorizer.identitySource).toBe('method.request.header.Authorization');
     });
