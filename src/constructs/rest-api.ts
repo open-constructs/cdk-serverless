@@ -248,6 +248,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
           'summary': 'CORS support',
           'description': 'Enable CORS by returning correct headers',
           'tags': ['CORS'],
+          'security': [],
           'responses': {
             200: {
               description: 'Default response for CORS method',
