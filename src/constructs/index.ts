@@ -3,6 +3,8 @@ export * from './authentication';
 export * from './base-api';
 export * from './func';
 export * from './graphql';
+export * from './mcp-auth';
+export * from './mcp-cognito-auth';
 export * from './rest-api';
 export * from './table';
 export * from './workflow';
