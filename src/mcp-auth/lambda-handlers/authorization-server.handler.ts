@@ -1,5 +1,5 @@
-import { createAuthorizationServerHandler } from '../handlers/authorization-server';
 import { getConfigFromEnv } from './env-config';
+import { createAuthorizationServerHandler } from '../handlers/authorization-server';
 
 const handler = createAuthorizationServerHandler(getConfigFromEnv());
 

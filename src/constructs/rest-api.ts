@@ -201,7 +201,7 @@ export interface RestApiProps<OPS> extends BaseApiProps {
    * @default - no MCP auth
    */
   mcpAuth?: McpAuthOptions;
-  
+
   /**
    * Global OAuth2 scopes required by the Cognito authorizer.
    *
@@ -958,10 +958,10 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       }
 
       const operation: any = {
-        summary: config.summary,
-        operationId: config.operationId,
-        security: [], // Anonymous — no authorizer
-        responses: {
+        'summary': config.summary,
+        'operationId': config.operationId,
+        'security': [], // Anonymous — no authorizer
+        'responses': {
           200: { description: 'Success' },
           302: { description: 'Redirect' },
         },

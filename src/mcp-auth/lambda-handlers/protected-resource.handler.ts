@@ -1,5 +1,5 @@
-import { createProtectedResourceHandler } from '../handlers/protected-resource';
 import { getConfigFromEnv } from './env-config';
+import { createProtectedResourceHandler } from '../handlers/protected-resource';
 
 const handler = createProtectedResourceHandler(getConfigFromEnv());
 

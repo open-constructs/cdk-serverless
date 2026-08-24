@@ -1,5 +1,5 @@
-import { createRegisterHandler } from '../handlers/register';
 import { getConfigFromEnv } from './env-config';
+import { createRegisterHandler } from '../handlers/register';
 
 const handler = createRegisterHandler(getConfigFromEnv());
 

@@ -1,5 +1,5 @@
-import { createTokenHandler } from '../handlers/token';
 import { getConfigFromEnv } from './env-config';
+import { createTokenHandler } from '../handlers/token';
 
 const handler = createTokenHandler(getConfigFromEnv());
 

@@ -1,5 +1,5 @@
-import { createAuthorizeHandler } from '../handlers/authorize';
 import { getConfigFromEnv } from './env-config';
+import { createAuthorizeHandler } from '../handlers/authorize';
 
 const handler = createAuthorizeHandler(getConfigFromEnv());
 

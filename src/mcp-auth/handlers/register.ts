@@ -1,6 +1,6 @@
 import type { McpAuthConfig } from '../config';
-import { validateRedirectUris } from './validate-redirect-uris';
 import type { McpOAuthHandler, McpOAuthResponse } from './types';
+import { validateRedirectUris } from './validate-redirect-uris';
 
 /**
  * Factory for the `/oauth/register` endpoint (RFC 7591 simplified).

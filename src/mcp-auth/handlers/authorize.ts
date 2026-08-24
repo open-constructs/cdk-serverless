@@ -27,7 +27,7 @@ export function createAuthorizeHandler(config: McpAuthConfig): McpOAuthHandler {
     return {
       statusCode: 302,
       headers: {
-        Location: upstreamUrl,
+        'Location': upstreamUrl,
         'Cache-Control': 'no-cache, no-store',
       },
     };
