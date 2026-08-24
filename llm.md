@@ -343,6 +343,220 @@ describe('Integration Tests', () => {
 });
 ```
 
+## MCP Auth
+
+MCP Auth is a service-agnostic OAuth façade for the [Model Context Protocol](https://spec.modelcontextprotocol.io). It adds OAuth 2.0 discovery, authorization, token exchange, and dynamic client registration endpoints to your API so MCP clients (Claude, ChatGPT, etc.) can authenticate via standard OAuth flows.
+
+### Using with RestApi
+
+The easiest way is via the `mcpAuth` prop on `RestApiProps`. It supports two mutually exclusive modes:
+
+#### Cognito Mode
+
+```typescript
+const api = new RestApi(this, 'Api', {
+  apiName: 'MyApi',
+  stageName: 'dev',
+  definitionFileName: 'openapi.yaml',
+  authentication: auth,
+  domainName: 'example.com',
+  apiHostname: 'api',
+  cors: true,
+  mcpAuth: {
+    cognito: {
+      auth: cognitoAuthentication, // CognitoAuthentication construct
+      authDomain: 'auth.example.com', // Cognito hosted/custom domain
+    },
+    serverInfo: { name: 'my-mcp-server', version: '1.0.0' },
+  },
+});
+```
+
+A dedicated user pool client (auth code + PKCE) is created automatically with callback URLs for known MCP clients.
+
+#### Generic Mode
+
+```typescript
+const api = new RestApi(this, 'Api', {
+  // ...
+  mcpAuth: {
+    generic: {
+      authorizeEndpoint: 'https://auth.example.com/oauth2/authorize',
+      tokenEndpoint: 'https://auth.example.com/oauth2/token',
+      clientId: 'my-pre-provisioned-client-id',
+    },
+    serverInfo: { name: 'my-mcp-server', version: '1.0.0' },
+  },
+});
+```
+
+#### McpAuthOptions
+
+| Property | Default | Description |
+|----------|---------|-------------|
+| `cognito` | — | Cognito-specific config (mutually exclusive with `generic`) |
+| `generic` | — | Any OAuth2 provider config (mutually exclusive with `cognito`) |
+| `serverInfo` | *required* | `{ name, version }` returned in MCP `initialize` response |
+| `allowedRedirectUris` | Claude + ChatGPT callbacks | URIs allowed for dynamic client registration |
+| `protocolVersions` | `['2025-11-25', '2025-03-26', '2024-11-05']` | Supported MCP protocol versions |
+| `scopes` | `['openid', 'email', 'profile']` | OAuth scopes advertised in discovery |
+| `stripParameters` | `['resource']` | Params stripped before proxying to upstream |
+| `lambdaOptions` | — | Lambda config for MCP auth handlers |
+
+### Auto-Injected Endpoints
+
+When `mcpAuth` is configured, 5 anonymous paths are added to the OpenAPI spec:
+
+| Method | Path | RFC | Purpose |
+|--------|------|-----|---------|
+| GET | `/.well-known/oauth-protected-resource` | RFC 9728 | Resource metadata discovery |
+| GET | `/.well-known/oauth-authorization-server` | RFC 8414 | Authorization server metadata |
+| GET | `/oauth/authorize` | — | Proxies to upstream authorize endpoint |
+| POST | `/oauth/token` | — | Proxies to upstream token endpoint |
+| POST | `/oauth/register` | RFC 7591 | Dynamic client registration |
+
+All endpoints bypass the API authorizer (`security: []`). The API domain is derived from the RestApi's own domain configuration.
+
+### Standalone Constructs
+
+For use outside `RestApi` (e.g., with HTTP API or custom integration):
+
+#### McpCognitoAuth
+
+Convenience wrapper that creates a Cognito client + the generic `McpAuth`:
+
+```typescript
+import { McpCognitoAuth } from 'cdk-serverless/constructs';
+
+const mcpAuth = new McpCognitoAuth(this, 'McpAuth', {
+  auth: cognitoAuthentication,
+  apiDomain: 'api.example.com',
+  authDomain: 'auth.example.com',
+  serverInfo: { name: 'my-mcp-server', version: '1.0.0' },
+  stageName: 'dev',
+});
+
+// Access the underlying McpAuth and user pool client
+mcpAuth.mcpAuth.functions;      // Lambda functions for each endpoint
+mcpAuth.mcpAuth.mcpEnvVars;     // Env vars to inject into your MCP handler
+mcpAuth.userPoolClient;          // The created Cognito client
+```
+
+#### McpAuth
+
+Service-agnostic construct for any OAuth2 provider:
+
+```typescript
+import { McpAuth } from 'cdk-serverless/constructs';
+
+const mcpAuth = new McpAuth(this, 'McpAuth', {
+  apiDomain: 'api.example.com',
+  authorizeEndpoint: 'https://auth.example.com/oauth2/authorize',
+  tokenEndpoint: 'https://auth.example.com/oauth2/token',
+  allowedRedirectUris: ['https://claude.ai/oauth/callback'],
+  clientId: 'my-client-id',
+  serverInfo: { name: 'my-mcp-server', version: '1.0.0' },
+  stageName: 'dev',
+});
+
+// Wire functions into your own API Gateway
+mcpAuth.functions.protectedResource; // GET /.well-known/oauth-protected-resource
+mcpAuth.functions.authorizationServer; // GET /.well-known/oauth-authorization-server
+mcpAuth.functions.authorize;          // GET /oauth/authorize
+mcpAuth.functions.token;              // POST /oauth/token
+mcpAuth.functions.register;           // POST /oauth/register
+
+// Inject env vars into your MCP RPC handler Lambda
+mcpAuth.mcpEnvVars; // { MCP_API_DOMAIN, MCP_AUTHORIZE_ENDPOINT, ... }
+```
+
+### Runtime Module (`src/mcp-auth/`)
+
+The `mcp-auth` package provides runtime utilities for building MCP tool servers:
+
+#### MCP JSON-RPC Server
+
+```typescript
+import { createMcpServer } from 'cdk-serverless/mcp-auth';
+
+interface MyPrincipal {
+  userId: string;
+  email: string;
+}
+
+const server = createMcpServer<MyPrincipal>({
+  serverInfo: { name: 'my-server', version: '1.0.0' },
+  protocolVersions: ['2025-11-25', '2025-03-26', '2024-11-05'],
+  resolver: {
+    async resolve(headers) {
+      // Validate Bearer token, return principal or throw McpUnauthorizedError
+      const token = headers.authorization?.replace('Bearer ', '');
+      if (!token) throw new McpUnauthorizedError('Missing token', 'Bearer');
+      return verifyToken(token);
+    },
+  },
+  tools: [
+    {
+      name: 'get_items',
+      description: 'List items for the authenticated user',
+      inputSchema: { type: 'object', properties: { limit: { type: 'number' } } },
+      async invoke(principal, args) {
+        const items = await getItemsForUser(principal.userId);
+        return { content: [{ type: 'text', text: JSON.stringify(items) }] };
+      },
+    },
+  ],
+});
+
+// In your Lambda handler:
+export const handler = async (event: APIGatewayProxyEvent) => {
+  const body = JSON.parse(event.body ?? '{}');
+  const headers = event.headers as Record<string, string | undefined>;
+  const response = await server.handle(body, headers);
+  return response;
+};
+```
+
+#### Key Types
+
+```typescript
+// Tool definition — register tools with the server
+interface McpToolDefinition<TPrincipal> {
+  name: string;
+  description: string | ((principal: TPrincipal) => Promise<string>);
+  inputSchema: object; // JSON Schema
+  invoke(principal: TPrincipal, args: unknown): Promise<McpToolResult>;
+}
+
+// Credential resolver — authenticate incoming requests
+interface McpCredentialResolver<TPrincipal> {
+  resolve(headers: Record<string, string | undefined>): Promise<TPrincipal>;
+}
+
+// Server options
+interface McpServerOptions<TPrincipal> {
+  serverInfo: { name: string; version: string };
+  protocolVersions: string[];
+  resolver: McpCredentialResolver<TPrincipal>;
+  tools: Array<McpToolDefinition<TPrincipal>>;
+}
+
+// Runtime config (read from Lambda env vars)
+interface McpAuthConfig {
+  apiDomain: string;
+  authorizeEndpoint: string;
+  tokenEndpoint: string;
+  allowedRedirectUris: string[];
+  clientId: string;
+  serverInfo: { name: string; version: string };
+  protocolVersions: string[];
+  scopes?: string[];
+  stripParameters?: string[];
+}
+```
+
+The server handles the JSON-RPC protocol (`initialize`, `notifications/initialized`, `tools/list`, `tools/call`), credential resolution via the `McpCredentialResolver`, and per-tool dispatch with typed principals.
+
 ## Common Workflows
 
 ### Creating a New Serverless Project

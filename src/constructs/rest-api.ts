@@ -10,10 +10,117 @@ import * as cdk from 'aws-cdk-lib';
 import { Construct } from 'constructs';
 import * as yaml from 'js-yaml';
 import { OpenAPI3, OperationObject, PathItemObject } from 'openapi-typescript';
-import { ICognitoAuthentication, IJwtAuthentication } from './authentication';
+import { CognitoAuthentication, ICognitoAuthentication, IJwtAuthentication } from './authentication';
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
+import { McpAuth } from './mcp-auth';
+import { McpCognitoAuth } from './mcp-cognito-auth';
 import { CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
+
+/**
+ * Cognito-specific MCP auth configuration.
+ * Creates a dedicated user pool client for MCP connectors automatically.
+ */
+export interface McpAuthCognitoOptions {
+  /**
+   * The CognitoAuthentication construct managing the user pool.
+   * A dedicated client with auth code + PKCE will be created.
+   */
+  readonly auth: CognitoAuthentication;
+
+  /**
+   * The Cognito auth domain (custom or Cognito-hosted).
+   * Required — never inferred from apiDomain.
+   * Example: 'auth.example.com'
+   */
+  readonly authDomain: string;
+
+  /**
+   * Construct ID for the user pool client (affects CloudFormation logical ID).
+   * @default 'mcpConnector'
+   */
+  readonly clientConstructId?: string;
+
+  /**
+   * Additional OAuth callback URLs for the Cognito client beyond the allowedRedirectUris.
+   */
+  readonly additionalCallbackUrls?: string[];
+}
+
+/**
+ * Generic (non-Cognito) MCP auth configuration.
+ * Requires explicit authorize and token endpoint URLs.
+ */
+export interface McpAuthGenericOptions {
+  /**
+   * The upstream OAuth authorize endpoint URL.
+   * Example: 'https://auth.example.com/oauth2/authorize'
+   */
+  readonly authorizeEndpoint: string;
+
+  /**
+   * The upstream OAuth token endpoint URL.
+   * Example: 'https://auth.example.com/oauth2/token'
+   */
+  readonly tokenEndpoint: string;
+
+  /**
+   * The pre-provisioned OAuth client ID returned by the register endpoint.
+   */
+  readonly clientId: string;
+}
+
+/**
+ * MCP auth configuration for the RestApi.
+ * Provide either `cognito` (for Cognito-backed auth) or `generic` (for any OAuth2 provider).
+ */
+export interface McpAuthOptions {
+  /**
+   * Cognito-specific configuration. Mutually exclusive with `generic`.
+   * Creates a user pool client and derives endpoints automatically.
+   */
+  readonly cognito?: McpAuthCognitoOptions;
+
+  /**
+   * Generic OAuth2 provider configuration. Mutually exclusive with `cognito`.
+   * Requires explicit endpoint URLs and client ID.
+   */
+  readonly generic?: McpAuthGenericOptions;
+
+  /**
+   * MCP server info returned in the 'initialize' response.
+   */
+  readonly serverInfo: { readonly name: string; readonly version: string };
+
+  /**
+   * Allowed redirect URIs for dynamic client registration.
+   * @default ['https://claude.ai/oauth/callback', 'https://claude.ai/api/mcp/auth_callback', 'https://chatgpt.com/oauth/callback']
+   */
+  readonly allowedRedirectUris?: string[];
+
+  /**
+   * Supported MCP protocol versions (newest first).
+   * @default ['2025-11-25', '2025-03-26', '2024-11-05']
+   */
+  readonly protocolVersions?: string[];
+
+  /**
+   * OAuth scopes to advertise in discovery metadata.
+   * @default ['openid', 'email', 'profile']
+   */
+  readonly scopes?: string[];
+
+  /**
+   * Parameters to strip from authorize/token proxy requests.
+   * @default ['resource']
+   */
+  readonly stripParameters?: string[];
+
+  /**
+   * Lambda function options for MCP auth handlers.
+   */
+  readonly lambdaOptions?: LambdaOptions;
+}
 
 export interface RestApiProps<OPS> extends BaseApiProps {
 
@@ -73,6 +180,27 @@ export interface RestApiProps<OPS> extends BaseApiProps {
    * @default 'token'
    */
   jwtAuthorizerType?: 'token' | 'request';
+
+  /**
+   * MCP Auth configuration to wire into this API.
+   * When provided, the following paths are automatically added to the OpenAPI spec
+   * with Lambda proxy integrations:
+   *
+   * - GET  /.well-known/oauth-protected-resource
+   * - GET  /.well-known/oauth-authorization-server
+   * - GET  /oauth/authorize
+   * - POST /oauth/token
+   * - POST /oauth/register
+   *
+   * All MCP auth endpoints are anonymous (no authorizer).
+   * The API domain is derived from the RestApi's own domain configuration.
+   *
+   * Provide either `cognito` (creates a Cognito client automatically) or
+   * `generic` (for any OAuth2 provider with explicit endpoint URLs).
+   *
+   * @default - no MCP auth
+   */
+  mcpAuth?: McpAuthOptions;
 
   /**
    * Global OAuth2 scopes required by the Cognito authorizer.
@@ -157,6 +285,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
    * @private
    */
   private _authorizerFn?: LambdaFunction;
+
+  /**
+   * The MCP auth construct, if mcpAuth options were provided.
+   * @private
+   */
+  private _mcpAuth?: McpAuth;
 
   /**
    * Set of operationIds that should have security disabled (security: []).
@@ -326,6 +460,14 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       }
     }
 
+    // Inject MCP auth paths into the OpenAPI spec.
+    // IMPORTANT: This MUST happen before patchSecurity() so that the MCP auth
+    // operation IDs are already in _anonymousOperations when security is distributed.
+    if (props.mcpAuth) {
+      this._mcpAuth = this.createMcpAuth(props.mcpAuth);
+      this.injectMcpAuthPaths(this._mcpAuth);
+    }
+
     this.patchSecurity(this.apiSpec);
 
     // TODO patch spec for Cognito user pool
@@ -353,6 +495,21 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         action: 'lambda:InvokeFunction',
         sourceArn: this.api.arnForExecuteApi(),
       });
+    }
+
+    // Grant API Gateway permission to invoke MCP auth Lambda functions.
+    // These need explicit addPermission because they are injected directly into
+    // the OpenAPI spec (via injectMcpAuthPaths), not through addRestResource which
+    // would register them in this._functions for the bulk grant above.
+    if (this._mcpAuth) {
+      const mcpFunctions = this._mcpAuth.functions;
+      for (const [name, fn] of Object.entries(mcpFunctions)) {
+        fn.addPermission(`McpAuth${name}Invoke`, {
+          principal: new aws_iam.ServicePrincipal('apigateway.amazonaws.com'),
+          action: 'lambda:InvokeFunction',
+          sourceArn: this.api.arnForExecuteApi(),
+        });
+      }
     }
 
     if (customDomainName && this.api.domainName) {
@@ -671,6 +828,155 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       if (!spec.security) {
         spec.security = [{ [authorizerName]: [] }];
       }
+    }
+  }
+
+  /**
+   * Returns the MCP auth construct if mcpAuth was configured.
+   * Useful for accessing the created Lambda functions or env vars.
+   */
+  public getMcpAuth(): McpAuth | undefined {
+    return this._mcpAuth;
+  }
+
+  /**
+   * Creates the McpAuth construct from the provided options.
+   * Derives apiDomain from the RestApi's own domain config.
+   * For Cognito, creates a user pool client automatically.
+   */
+  private createMcpAuth(options: McpAuthOptions): McpAuth {
+    const apiDomain = this.apiFQDN;
+    if (!apiDomain) {
+      throw new Error('mcpAuth requires a domain name to be configured on the RestApi (domainName or hostedZone + apiHostname)');
+    }
+
+    if (options.cognito && options.generic) {
+      throw new Error('mcpAuth: provide either cognito or generic, not both');
+    }
+    if (!options.cognito && !options.generic) {
+      throw new Error('mcpAuth: provide either cognito or generic configuration');
+    }
+
+    const allowedRedirectUris = options.allowedRedirectUris ?? [
+      'https://claude.ai/oauth/callback',
+      'https://claude.ai/api/mcp/auth_callback',
+      'https://chatgpt.com/oauth/callback',
+    ];
+
+    if (options.cognito) {
+      const cognitoOpts = options.cognito;
+
+      // Delegate to McpCognitoAuth which handles user pool client creation
+      const mcpCognito = new McpCognitoAuth(this, 'McpCognitoAuth', {
+        auth: cognitoOpts.auth,
+        apiDomain,
+        authDomain: cognitoOpts.authDomain,
+        allowedRedirectUris,
+        serverInfo: options.serverInfo,
+        protocolVersions: options.protocolVersions,
+        scopes: options.scopes,
+        lambdaOptions: options.lambdaOptions,
+        stageName: this.props.stageName,
+        clientConstructId: cognitoOpts.clientConstructId,
+        additionalCallbackUrls: cognitoOpts.additionalCallbackUrls,
+      });
+
+      return mcpCognito.mcpAuth;
+    } else {
+      const genericOpts = options.generic!;
+
+      return new McpAuth(this, 'McpAuth', {
+        apiDomain,
+        authorizeEndpoint: genericOpts.authorizeEndpoint,
+        tokenEndpoint: genericOpts.tokenEndpoint,
+        allowedRedirectUris,
+        clientId: genericOpts.clientId,
+        serverInfo: options.serverInfo,
+        protocolVersions: options.protocolVersions,
+        scopes: options.scopes,
+        stripParameters: options.stripParameters,
+        lambdaOptions: options.lambdaOptions,
+        stageName: this.props.stageName,
+      });
+    }
+  }
+
+  /**
+   * Injects MCP OAuth paths into the OpenAPI spec with Lambda proxy integrations
+   * pointing to the MCP auth construct's functions. All paths are anonymous (security: []).
+   */
+  private injectMcpAuthPaths(mcpAuth: McpAuth) {
+    const fns = mcpAuth.functions;
+
+    const mcpPaths: Record<string, { fn: LambdaFunction; method: string; operationId: string; summary: string }> = {
+      '/.well-known/oauth-protected-resource': {
+        fn: fns.protectedResource,
+        method: 'get',
+        operationId: 'mcpOAuthProtectedResource',
+        summary: 'OAuth Protected Resource Metadata (RFC 9728)',
+      },
+      '/.well-known/oauth-authorization-server': {
+        fn: fns.authorizationServer,
+        method: 'get',
+        operationId: 'mcpOAuthAuthorizationServer',
+        summary: 'OAuth Authorization Server Metadata (RFC 8414)',
+      },
+      '/oauth/authorize': {
+        fn: fns.authorize,
+        method: 'get',
+        operationId: 'mcpOAuthAuthorize',
+        summary: 'OAuth Authorize Proxy',
+      },
+      '/oauth/token': {
+        fn: fns.token,
+        method: 'post',
+        operationId: 'mcpOAuthToken',
+        summary: 'OAuth Token Proxy',
+      },
+      '/oauth/register': {
+        fn: fns.register,
+        method: 'post',
+        operationId: 'mcpOAuthRegister',
+        summary: 'OAuth Dynamic Client Registration (RFC 7591)',
+      },
+    };
+
+    for (const [path, config] of Object.entries(mcpPaths)) {
+      if (!this.apiSpec.paths) {
+        this.apiSpec.paths = {};
+      }
+
+      const operation: any = {
+        'summary': config.summary,
+        'operationId': config.operationId,
+        'security': [], // Anonymous — no authorizer
+        'responses': {
+          200: { description: 'Success' },
+          302: { description: 'Redirect' },
+        },
+        'x-amazon-apigateway-integration': {
+          type: 'aws_proxy',
+          httpMethod: 'POST',
+          uri: cdk.Stack.of(this).formatArn({
+            resource: 'path',
+            service: 'apigateway',
+            account: 'lambda',
+            arnFormat: cdk.ArnFormat.SLASH_RESOURCE_NAME,
+            resourceName: `2015-03-31/functions/${config.fn.functionArn}/invocations`,
+          }),
+          passthroughBehavior: 'when_no_templates',
+          payloadFormatVersion: '1.0',
+        },
+      };
+
+      if (!this.apiSpec.paths[path]) {
+        this.apiSpec.paths[path] = {};
+      }
+
+      (this.apiSpec.paths[path] as any)[config.method] = operation;
+
+      // Mark as anonymous so patchSecurity doesn't override it
+      this._anonymousOperations.add(config.operationId);
     }
   }
 
