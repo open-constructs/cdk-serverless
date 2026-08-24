@@ -1,10 +1,10 @@
 import type { McpAuthConfig } from '../../src/mcp-auth/config';
-import type { McpOAuthEvent } from '../../src/mcp-auth/handlers/types';
-import { createProtectedResourceHandler } from '../../src/mcp-auth/handlers/protected-resource';
 import { createAuthorizationServerHandler } from '../../src/mcp-auth/handlers/authorization-server';
 import { createAuthorizeHandler } from '../../src/mcp-auth/handlers/authorize';
-import { createTokenHandler } from '../../src/mcp-auth/handlers/token';
+import { createProtectedResourceHandler } from '../../src/mcp-auth/handlers/protected-resource';
 import { createRegisterHandler } from '../../src/mcp-auth/handlers/register';
+import { createTokenHandler } from '../../src/mcp-auth/handlers/token';
+import type { McpOAuthEvent } from '../../src/mcp-auth/handlers/types';
 import { validateRedirectUris, DEFAULT_ALLOWED_REDIRECT_URIS } from '../../src/mcp-auth/handlers/validate-redirect-uris';
 
 const baseConfig: McpAuthConfig = {
@@ -89,7 +89,7 @@ describe('createAuthorizeHandler', () => {
     expect(result.statusCode).toBe(302);
     expect(result.headers['Cache-Control']).toBe('no-cache, no-store');
 
-    const location = result.headers['Location'];
+    const location = result.headers.Location;
     expect(location).toContain('https://auth.example.com/oauth2/authorize?');
     expect(location).toContain('client_id=my-client');
     expect(location).toContain('redirect_uri=');
@@ -107,7 +107,7 @@ describe('createAuthorizeHandler', () => {
       },
     }));
 
-    const location = result.headers['Location'];
+    const location = result.headers.Location;
     expect(location).not.toContain('resource=');
     expect(location).toContain('client_id=my-client');
     expect(location).toContain('response_type=code');
@@ -125,7 +125,7 @@ describe('createAuthorizeHandler', () => {
       },
     }));
 
-    const location = result.headers['Location'];
+    const location = result.headers.Location;
     expect(location).not.toContain('resource=');
     expect(location).not.toContain('audience=');
     expect(location).toContain('client_id=my-client');
@@ -141,7 +141,7 @@ describe('createAuthorizeHandler', () => {
       },
     }));
 
-    const location = result.headers['Location'];
+    const location = result.headers.Location;
     expect(location).not.toContain('resource=');
   });
 });

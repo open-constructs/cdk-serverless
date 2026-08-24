@@ -1,5 +1,5 @@
-import { createMcpServer, McpServerHandle } from '../../src/mcp-auth/mcp/server';
 import { McpUnauthorizedError } from '../../src/mcp-auth/mcp/errors';
+import { createMcpServer, McpServerHandle } from '../../src/mcp-auth/mcp/server';
 import type { McpCredentialResolver, McpToolDefinition, McpServerOptions } from '../../src/mcp-auth/mcp/types';
 
 interface TestPrincipal {
