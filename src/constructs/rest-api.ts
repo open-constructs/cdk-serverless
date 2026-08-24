@@ -989,7 +989,8 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       // Mark as anonymous so patchSecurity doesn't override it
       this._anonymousOperations.add(config.operationId);
     }
-  
+  }
+
   /**
    * Returns the security-scheme container for the spec, creating it if needed.
    * OpenAPI 3.x stores schemes under `components.securitySchemes`; Swagger 2.0
