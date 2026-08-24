@@ -190,6 +190,14 @@ All MCP auth endpoints are anonymous (no API authorizer applied).
 
 ### With Cognito
 
+MCP clients like Claude enforce that all OAuth endpoints (discovery, authorize, token, register) live on the **same origin** as the API itself. Cognito's hosted UI lives on a different domain (`auth.example.com`), so MCP clients cannot talk to it directly. Additionally:
+
+- Cognito Managed Login v2 requires the RFC 8707 `resource` parameter for custom scopes in authorize requests — MCP clients do not send this parameter.
+- MCP clients construct the token endpoint URL from the OAuth metadata `issuer` field rather than using the explicit `token_endpoint` — so the token exchange must be proxied through the API domain.
+- Dynamic Client Registration (RFC 7591) is not natively supported by Cognito.
+
+The MCP auth proxy solves all three problems: it serves discovery metadata on the API domain, strips unsupported parameters before forwarding to Cognito, and implements a simplified registration endpoint that returns a pre-provisioned client ID.
+
 If your API already uses `CognitoAuthentication`, add MCP auth with minimal config — a dedicated user pool client is created automatically:
 
 ```typescript
