@@ -157,7 +157,7 @@ export class McpAuth extends Construct {
 
     const protectedResource = new LambdaFunction(this, 'ProtectedResourceFn', {
       stageName: props.stageName,
-      entry: path.join(handlersDir, 'protected-resource.handler.ts'),
+      entry: path.join(handlersDir, 'protected-resource.handler.js'),
       description: `[${props.stageName}] MCP OAuth Protected Resource`,
       additionalEnv: env,
       lambdaOptions: baseLambdaOptions,
@@ -165,7 +165,7 @@ export class McpAuth extends Construct {
 
     const authorizationServer = new LambdaFunction(this, 'AuthorizationServerFn', {
       stageName: props.stageName,
-      entry: path.join(handlersDir, 'authorization-server.handler.ts'),
+      entry: path.join(handlersDir, 'authorization-server.handler.js'),
       description: `[${props.stageName}] MCP OAuth Authorization Server`,
       additionalEnv: env,
       lambdaOptions: baseLambdaOptions,
@@ -173,7 +173,7 @@ export class McpAuth extends Construct {
 
     const authorize = new LambdaFunction(this, 'AuthorizeFn', {
       stageName: props.stageName,
-      entry: path.join(handlersDir, 'authorize.handler.ts'),
+      entry: path.join(handlersDir, 'authorize.handler.js'),
       description: `[${props.stageName}] MCP OAuth Authorize Proxy`,
       additionalEnv: env,
       lambdaOptions: baseLambdaOptions,
@@ -181,7 +181,7 @@ export class McpAuth extends Construct {
 
     const token = new LambdaFunction(this, 'TokenFn', {
       stageName: props.stageName,
-      entry: path.join(handlersDir, 'token.handler.ts'),
+      entry: path.join(handlersDir, 'token.handler.js'),
       description: `[${props.stageName}] MCP OAuth Token Proxy`,
       additionalEnv: env,
       lambdaOptions: baseLambdaOptions,
@@ -189,7 +189,7 @@ export class McpAuth extends Construct {
 
     const register = new LambdaFunction(this, 'RegisterFn', {
       stageName: props.stageName,
-      entry: path.join(handlersDir, 'register.handler.ts'),
+      entry: path.join(handlersDir, 'register.handler.js'),
       description: `[${props.stageName}] MCP OAuth Register`,
       additionalEnv: env,
       lambdaOptions: baseLambdaOptions,
