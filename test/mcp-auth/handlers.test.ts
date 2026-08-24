@@ -249,6 +249,48 @@ describe('createTokenHandler', () => {
     expect(result.statusCode).toBe(400);
     expect(JSON.parse(result.body!).error).toBe('invalid_grant');
   });
+
+  test('rejects missing grant_type with 400', async () => {
+    const handler = createTokenHandler(baseConfig);
+    const result = await handler(makeEvent({
+      httpMethod: 'POST',
+      body: 'code=abc123&redirect_uri=https%3A%2F%2Fexample.com%2Fcallback',
+    }));
+
+    expect(result.statusCode).toBe(400);
+    const body = JSON.parse(result.body!);
+    expect(body.error).toBe('unsupported_grant_type');
+  });
+
+  test('rejects unsupported grant_type with 400', async () => {
+    const handler = createTokenHandler(baseConfig);
+    const result = await handler(makeEvent({
+      httpMethod: 'POST',
+      body: 'grant_type=client_credentials&client_id=abc',
+    }));
+
+    expect(result.statusCode).toBe(400);
+    const body = JSON.parse(result.body!);
+    expect(body.error).toBe('unsupported_grant_type');
+    expect(body.error_description).toContain('authorization_code');
+    expect(body.error_description).toContain('refresh_token');
+  });
+
+  test('accepts refresh_token grant_type', async () => {
+    global.fetch = jest.fn().mockResolvedValue({
+      status: 200,
+      text: () => Promise.resolve('{"access_token":"new_tok"}'),
+    });
+
+    const handler = createTokenHandler(baseConfig);
+    const result = await handler(makeEvent({
+      httpMethod: 'POST',
+      body: 'grant_type=refresh_token&refresh_token=rt_abc',
+    }));
+
+    expect(result.statusCode).toBe(200);
+    expect(global.fetch).toHaveBeenCalled();
+  });
 });
 
 describe('createRegisterHandler', () => {

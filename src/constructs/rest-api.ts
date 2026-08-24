@@ -1,7 +1,6 @@
 import * as fs from 'node:fs';
 import {
   aws_certificatemanager,
-  aws_cognito,
   aws_iam,
   aws_route53,
   aws_route53_targets,
@@ -15,6 +14,7 @@ import { CognitoAuthentication, ICognitoAuthentication, IJwtAuthentication } fro
 import { BaseApi, BaseApiProps } from './base-api';
 import { LambdaFunction, LambdaOptions } from './func';
 import { McpAuth } from './mcp-auth';
+import { McpCognitoAuth } from './mcp-cognito-auth';
 import { CFN_OUTPUT_SUFFIX_RESTAPI_DOMAINNAME, CFN_OUTPUT_SUFFIX_RESTAPI_URL } from '../shared/outputs';
 
 /**
@@ -460,7 +460,9 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       }
     }
 
-    // Inject MCP auth paths into the OpenAPI spec
+    // Inject MCP auth paths into the OpenAPI spec.
+    // IMPORTANT: This MUST happen before patchSecurity() so that the MCP auth
+    // operation IDs are already in _anonymousOperations when security is distributed.
     if (props.mcpAuth) {
       this._mcpAuth = this.createMcpAuth(props.mcpAuth);
       this.injectMcpAuthPaths(this._mcpAuth);
@@ -495,7 +497,10 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       });
     }
 
-    // Grant API Gateway permission to invoke MCP auth Lambda functions
+    // Grant API Gateway permission to invoke MCP auth Lambda functions.
+    // These need explicit addPermission because they are injected directly into
+    // the OpenAPI spec (via injectMcpAuthPaths), not through addRestResource which
+    // would register them in this._functions for the bulk grant above.
     if (this._mcpAuth) {
       const mcpFunctions = this._mcpAuth.functions;
       for (const [name, fn] of Object.entries(mcpFunctions)) {
@@ -860,39 +865,23 @@ export class RestApi<PATHS, OPS> extends BaseApi {
 
     if (options.cognito) {
       const cognitoOpts = options.cognito;
-      const clientConstructId = cognitoOpts.clientConstructId ?? 'mcpConnector';
 
-      // Create a Cognito user pool client with auth code + PKCE
-      const client = cognitoOpts.auth.addUserPoolClient(clientConstructId, {
-        generateSecret: false,
-        oAuth: {
-          flows: { authorizationCodeGrant: true },
-          scopes: [
-            aws_cognito.OAuthScope.OPENID,
-            aws_cognito.OAuthScope.EMAIL,
-            aws_cognito.OAuthScope.PROFILE,
-          ],
-          callbackUrls: [
-            ...allowedRedirectUris,
-            ...(cognitoOpts.additionalCallbackUrls ?? []),
-          ],
-        },
-        authFlows: { userSrp: true },
-      });
-
-      return new McpAuth(this, 'McpAuth', {
+      // Delegate to McpCognitoAuth which handles user pool client creation
+      const mcpCognito = new McpCognitoAuth(this, 'McpCognitoAuth', {
+        auth: cognitoOpts.auth,
         apiDomain,
-        authorizeEndpoint: `https://${cognitoOpts.authDomain}/oauth2/authorize`,
-        tokenEndpoint: `https://${cognitoOpts.authDomain}/oauth2/token`,
+        authDomain: cognitoOpts.authDomain,
         allowedRedirectUris,
-        clientId: client.userPoolClientId,
         serverInfo: options.serverInfo,
         protocolVersions: options.protocolVersions,
         scopes: options.scopes,
-        stripParameters: options.stripParameters,
         lambdaOptions: options.lambdaOptions,
         stageName: this.props.stageName,
+        clientConstructId: cognitoOpts.clientConstructId,
+        additionalCallbackUrls: cognitoOpts.additionalCallbackUrls,
       });
+
+      return mcpCognito.mcpAuth;
     } else {
       const genericOpts = options.generic!;
 

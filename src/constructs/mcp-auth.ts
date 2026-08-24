@@ -151,7 +151,7 @@ export class McpAuth extends Construct {
     const handlersDir = path.join(__dirname, '..', 'mcp-auth', 'lambda-handlers');
 
     const baseLambdaOptions: LambdaOptions = {
-      timeout: Duration.seconds(10),
+      timeout: Duration.seconds(15),
       ...props.lambdaOptions,
     };
 

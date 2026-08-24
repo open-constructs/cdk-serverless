@@ -1,6 +1,8 @@
 import type { McpAuthConfig } from '../config';
 import type { McpOAuthHandler, McpOAuthResponse } from './types';
 
+const ALLOWED_GRANT_TYPES = ['authorization_code', 'refresh_token'];
+
 /**
  * Factory for the `/oauth/token` proxy endpoint.
  * Forwards token exchange to the upstream token endpoint,
@@ -11,21 +13,33 @@ export function createTokenHandler(config: McpAuthConfig): McpOAuthHandler {
     const tokenUrl = config.tokenEndpoint;
 
     // Decode body if base64-encoded
-    let body = event.isBase64Encoded
+    const rawBody = event.isBase64Encoded
       ? Buffer.from(event.body ?? '', 'base64').toString('utf-8')
       : (event.body ?? '');
 
-    // Strip unsupported parameters from form-encoded body
-    const stripParams = config.stripParameters ?? ['resource'];
-    for (const param of stripParams) {
-      body = body.replace(new RegExp(`&${param}=[^&]*`, 'g'), '');
-      body = body.replace(new RegExp(`^${param}=[^&]*&?`), '');
+    // Parse form-encoded body and strip unsupported parameters
+    const params = new URLSearchParams(rawBody);
+    const stripParamsList = config.stripParameters ?? ['resource'];
+    for (const param of stripParamsList) {
+      params.delete(param);
     }
+
+    // Validate grant_type
+    const grantType = params.get('grant_type');
+    if (!grantType || !ALLOWED_GRANT_TYPES.includes(grantType)) {
+      return {
+        statusCode: 400,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ error: 'unsupported_grant_type', error_description: `grant_type must be one of: ${ALLOWED_GRANT_TYPES.join(', ')}` }),
+      };
+    }
+
+    const body = params.toString();
 
     console.log(JSON.stringify({
       event: 'oauth-token-proxy',
       tokenUrl,
-      grantType: body.match(/grant_type=([^&]*)/)?.[1],
+      grantType,
     }));
 
     let responseBody: string;
