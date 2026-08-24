@@ -172,6 +172,109 @@ await test.cleanupItems();
 await test.removeUser('test@example.com');
 ```
 
+## MCP Auth
+
+CDK Serverless includes built-in support for adding [Model Context Protocol (MCP)](https://spec.modelcontextprotocol.io) OAuth authentication to your API. This enables MCP clients like Claude and ChatGPT to authenticate with your API using standard OAuth 2.0 flows.
+
+When activated, the following endpoints are automatically added to your OpenAPI spec:
+
+| Endpoint | Method | RFC | Purpose |
+|----------|--------|-----|---------|
+| `/.well-known/oauth-protected-resource` | GET | RFC 9728 | Resource metadata discovery |
+| `/.well-known/oauth-authorization-server` | GET | RFC 8414 | Authorization server metadata |
+| `/oauth/authorize` | GET | — | Authorize proxy (redirect to upstream) |
+| `/oauth/token` | POST | — | Token proxy (forward to upstream) |
+| `/oauth/register` | POST | RFC 7591 | Dynamic client registration |
+
+All MCP auth endpoints are anonymous (no API authorizer applied).
+
+### With Cognito
+
+If your API already uses `CognitoAuthentication`, add MCP auth with minimal config — a dedicated user pool client is created automatically:
+
+```typescript
+const api = new TestApiRestApi(this, 'Api', {
+  stageName: 'dev',
+  domainName: 'example.com',
+  apiHostname: 'api',
+  authentication: cognitoAuth,
+  cors: true,
+  mcpAuth: {
+    cognito: {
+      auth: cognitoAuth,           // your CognitoAuthentication construct
+      authDomain: 'auth.example.com', // Cognito custom/hosted domain (required)
+    },
+    serverInfo: { name: 'my-mcp-server', version: '1.0.0' },
+  },
+});
+```
+
+The `apiDomain` is derived from the RestApi's own domain config (`apiHostname` + `domainName`), and `stageName` is reused — no duplication needed.
+
+### With any OAuth2 provider
+
+For non-Cognito providers, use `generic` mode with explicit endpoint URLs:
+
+```typescript
+const api = new TestApiRestApi(this, 'Api', {
+  // ...
+  mcpAuth: {
+    generic: {
+      authorizeEndpoint: 'https://auth.example.com/authorize',
+      tokenEndpoint: 'https://auth.example.com/token',
+      clientId: 'my-pre-provisioned-client-id',
+    },
+    serverInfo: { name: 'my-mcp-server', version: '1.0.0' },
+  },
+});
+```
+
+### Configuration options
+
+| Option | Default | Description |
+|--------|---------|-------------|
+| `serverInfo` | (required) | `{ name, version }` returned in MCP initialize |
+| `allowedRedirectUris` | Claude + ChatGPT callbacks | Allowlist for dynamic registration |
+| `protocolVersions` | `['2025-11-25', '2025-03-26', '2024-11-05']` | Supported MCP versions |
+| `scopes` | `['openid', 'email', 'profile']` | Advertised OAuth scopes |
+| `stripParameters` | `['resource']` | Params stripped from authorize/token proxying |
+| `lambdaOptions` | — | Lambda config for MCP auth handlers |
+
+### MCP Server runtime
+
+The `cdk-serverless/mcp-auth` module also exports a JSON-RPC server for implementing the MCP tool endpoint itself:
+
+```typescript
+import { createMcpServer } from 'cdk-serverless/mcp-auth';
+
+const server = createMcpServer({
+  serverInfo: { name: 'my-server', version: '1.0.0' },
+  protocolVersions: ['2025-11-25'],
+  resolver: {
+    async resolve(headers) {
+      // Validate Bearer token, return principal or throw McpUnauthorizedError
+      const token = headers.authorization?.replace('Bearer ', '');
+      if (!token) throw new McpUnauthorizedError('Bearer');
+      return verifyToken(token);
+    },
+  },
+  tools: [
+    {
+      name: 'search',
+      description: 'Search documents',
+      inputSchema: { type: 'object', properties: { query: { type: 'string' } } },
+      async invoke(principal, args) {
+        const results = await search(principal, (args as any).query);
+        return { content: [{ type: 'text', text: JSON.stringify(results) }] };
+      },
+    },
+  ],
+});
+
+// In your Lambda handler:
+const response = await server.handle(parsedBody, event.headers);
+```
+
 ## Breaking Change: `axios` Removed
 
 CDK Serverless no longer depends on `axios`. The library now uses the
