@@ -201,6 +201,38 @@ export interface RestApiProps<OPS> extends BaseApiProps {
    * @default - no MCP auth
    */
   mcpAuth?: McpAuthOptions;
+  
+  /**
+   * Global OAuth2 scopes required by the Cognito authorizer.
+   *
+   * When scopes are present, API Gateway validates the **access token** and checks
+   * that it contains at least one of the specified scopes. An empty array means no
+   * scopes are required; API Gateway then validates the **ID token** instead,
+   * rejecting access tokens with a 401.
+   *
+   * Use per-operation overrides via `authorizationScopesByOperation` to set
+   * different scopes on individual operations.
+   *
+   * @default ['openid']
+   */
+  authorizationScopes?: string[];
+
+  /**
+   * Per-operation OAuth2 scope overrides for the Cognito authorizer.
+   *
+   * Operations listed here use the specified scopes instead of the global
+   * `authorizationScopes` default. Operations not listed fall back to the
+   * global default.
+   *
+   * @example
+   * authorizationScopesByOperation: {
+   *   createItem: ['openid', 'items:write'],
+   *   deleteItem: ['openid', 'items:delete'],
+   * }
+   *
+   * @default - no per-operation overrides; all operations use authorizationScopes
+   */
+  authorizationScopesByOperation?: { [operationId in keyof OPS]?: string[] };
 }
 
 /**
@@ -382,6 +414,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
           'summary': 'CORS support',
           'description': 'Enable CORS by returning correct headers',
           'tags': ['CORS'],
+          'security': [],
           'responses': {
             200: {
               description: 'Default response for CORS method',
@@ -696,7 +729,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
   }
 
   /**
-   * Injects securityDefinitions into the OpenAPI spec based on the authentication type.
+   * Injects the authorizer security scheme into the OpenAPI spec based on the
+   * authentication type, placing it where API Gateway expects it for the spec
+   * version: `components.securitySchemes` for OpenAPI 3.x, or the root
+   * `securityDefinitions` for Swagger 2.0. An authorizer written to the wrong
+   * location is silently ignored on import, deploying an unauthenticated API.
+   *
    * For Cognito: adds a cognito_user_pools authorizer referencing the user pool ARN.
    * For JWT: creates a Lambda authorizer function and adds a token authorizer referencing its ARN.
    */
@@ -705,17 +743,14 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       return;
     }
 
-    const specAny = spec as any;
-    if (!specAny.securityDefinitions) {
-      specAny.securityDefinitions = {};
-    }
+    const schemes = this.securitySchemeContainer(spec);
 
     if (this.props.authentication.hasOwnProperty('userpool')) {
       // Cognito User Pool authorizer
       const cognitoAuth = this.props.authentication as ICognitoAuthentication;
       const authorizerName = 'CognitoAuthorizer';
 
-      specAny.securityDefinitions[authorizerName] = {
+      schemes[authorizerName] = {
         'type': 'apiKey',
         'name': 'Authorization',
         'in': 'header',
@@ -726,9 +761,23 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         },
       };
 
+      // Resolve global authorization scopes for the Cognito authorizer.
+      // When scopes are present, API Gateway validates the access token and checks
+      // the token contains at least one of the listed scopes. An empty array means
+      // no scopes are required and API Gateway validates the ID token instead.
+      const globalScopes = this.props.authorizationScopes ?? ['openid'];
+
       // Ensure global security references the authorizer so patchSecurity distributes it
       if (!spec.security) {
-        spec.security = [{ [authorizerName]: [] }];
+        spec.security = [{ [authorizerName]: globalScopes }];
+      } else if (globalScopes.length > 0) {
+        // The spec already has global security defined — patch the authorizer's scopes
+        // so that the configured scopes are distributed to all operations.
+        for (const requirement of spec.security as Array<Record<string, string[]>>) {
+          if (authorizerName in requirement) {
+            requirement[authorizerName] = globalScopes;
+          }
+        }
       }
     } else {
       // JWT (Lambda) authorizer
@@ -752,7 +801,7 @@ export class RestApi<PATHS, OPS> extends BaseApi {
         resourceName: `2015-03-31/functions/${authorizerFn.functionArn}/invocations`,
       });
 
-      specAny.securityDefinitions[authorizerName] = {
+      schemes[authorizerName] = {
         'type': 'apiKey',
         'name': 'Authorization',
         'in': 'header',
@@ -940,6 +989,23 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       // Mark as anonymous so patchSecurity doesn't override it
       this._anonymousOperations.add(config.operationId);
     }
+  
+  /**
+   * Returns the security-scheme container for the spec, creating it if needed.
+   * OpenAPI 3.x stores schemes under `components.securitySchemes`; Swagger 2.0
+   * uses the root `securityDefinitions`. API Gateway reads only the location that
+   * matches the document's declared version, so the authorizer must go there.
+   */
+  private securitySchemeContainer(spec: OpenAPI3): { [name: string]: any } {
+    const specAny = spec as any;
+    const isOpenApiV3 = typeof specAny.openapi === 'string' && specAny.openapi.startsWith('3');
+    if (isOpenApiV3) {
+      specAny.components = specAny.components ?? {};
+      specAny.components.securitySchemes = specAny.components.securitySchemes ?? {};
+      return specAny.components.securitySchemes;
+    }
+    specAny.securityDefinitions = specAny.securityDefinitions ?? {};
+    return specAny.securityDefinitions;
   }
 
   /**
@@ -953,6 +1019,12 @@ export class RestApi<PATHS, OPS> extends BaseApi {
    */
   protected patchSecurity(spec: OpenAPI3) {
     if ('security' in spec) {
+      // Resolve per-operation scope overrides from the dedicated prop.
+      const perOperationScopes: Record<string, string[]> | undefined =
+        this.props.authorizationScopesByOperation
+          ? this.props.authorizationScopesByOperation as Record<string, string[]>
+          : undefined;
+
       for (const specPath of Object.values(spec.paths || [])) {
         for (const key in specPath) {
           if (!this.apiMethods.includes(key)) {
@@ -967,9 +1039,15 @@ export class RestApi<PATHS, OPS> extends BaseApi {
               this._originalOperationSecurity.set(operationId, spec.security as any[]);
               specMethod.security = [];
             } else {
-              specMethod.security = spec.security;
+              // Apply per-operation scope override if configured
+              const operationSecurity = this.applyOperationScopes(
+                spec.security as any[],
+                operationId,
+                perOperationScopes,
+              );
+              specMethod.security = operationSecurity;
               if (operationId) {
-                this._originalOperationSecurity.set(operationId, spec.security as any[]);
+                this._originalOperationSecurity.set(operationId, operationSecurity);
               }
             }
           } else {
@@ -983,6 +1061,31 @@ export class RestApi<PATHS, OPS> extends BaseApi {
       }
       delete spec.security;
     }
+  }
+
+  /**
+   * Applies per-operation scope overrides to a security requirement array.
+   * If the operation has a specific scope override in the map, the authorizer's
+   * scope list is replaced with the override. Otherwise the global security is used as-is.
+   */
+  private applyOperationScopes(
+    globalSecurity: any[],
+    operationId: string | undefined,
+    perOperationScopes: Record<string, string[]> | undefined,
+  ): any[] {
+    if (!operationId || !perOperationScopes || !(operationId in perOperationScopes)) {
+      return globalSecurity;
+    }
+
+    const scopes = perOperationScopes[operationId];
+    // Clone the global security and replace the authorizer scopes
+    return globalSecurity.map((requirement: Record<string, string[]>) => {
+      const patched: Record<string, string[]> = {};
+      for (const [authName, _authScopes] of Object.entries(requirement)) {
+        patched[authName] = scopes;
+      }
+      return patched;
+    });
   }
 
 }

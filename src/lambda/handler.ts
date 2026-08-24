@@ -185,6 +185,16 @@ export const createHttpHandler =
   };
 
 /**
+ * Looks up a header value case-insensitively.
+ * HTTP header names are case-insensitive per RFC 9110 §5.1.
+ */
+function headerValue(headers: Record<string, string | undefined> | null | undefined, name: string): string | undefined {
+  if (!headers) return undefined;
+  const key = Object.keys(headers).find(k => k.toLowerCase() === name.toLowerCase());
+  return key ? headers[key] : undefined;
+}
+
+/**
  * This function takes an event object representing an API Gateway Proxy event
  * with a Cognito authorizer, and extracts and parses the request body, if present.
  *
@@ -201,7 +211,7 @@ function parseBody<T>(event: AWSLambda.APIGatewayProxyWithCognitoAuthorizerEvent
   }
 
   // If the request body is in JSON format, parse it into a JavaScript object
-  if (event.headers && event.headers['content-type']?.includes('application/json')) {
+  if (headerValue(event.headers, 'content-type')?.includes('application/json')) {
     return JSON.parse(body ?? '{}');
   }
 
@@ -217,9 +227,10 @@ function parseBody<T>(event: AWSLambda.APIGatewayProxyWithCognitoAuthorizerEvent
  * @returns An object containing the CORS headers.
  */
 function corsHeader(event: AWSLambda.APIGatewayProxyWithCognitoAuthorizerEvent): { [name: string]: string } {
+  const origin = headerValue(event?.headers, 'origin');
   return {
-    'Access-Control-Allow-Origin': event?.headers?.origin ?? '*', // Allow requests from the origin header, or allow any origin if not present
-    'Access-Control-Allow-Credentials': event?.headers?.origin ? 'true' : 'false', // Include cookies in cross-origin requests if the origin header is present
+    'Access-Control-Allow-Origin': origin ?? '*', // Allow requests from the origin header, or allow any origin if not present
+    'Access-Control-Allow-Credentials': origin ? 'true' : 'false', // Include cookies in cross-origin requests if the origin header is present
     'Access-Control-Allow-Methods': '*', // Allow any HTTP method
     'Access-Control-Allow-Headers': 'Authorization, *', // Allow the Authorization header and any other headers
   };
