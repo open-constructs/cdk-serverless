@@ -60,8 +60,56 @@ describe('createMcpServer', () => {
       expect(body.result.protocolVersion).toBe('2025-03-26');
     });
 
-    test('rejects unsupported protocol version', async () => {
-      const server = makeServer();
+    test('echoes back 2025-06-18 when it is supported', async () => {
+      const server = makeServer({
+        protocolVersions: ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'],
+      });
+      const result = await server.handle(
+        rpcBody('initialize', { protocolVersion: '2025-06-18' }),
+        {},
+      );
+
+      expect(result.statusCode).toBe(200);
+      const body = JSON.parse(result.body);
+      expect(body.error).toBeUndefined();
+      expect(body.result.protocolVersion).toBe('2025-06-18');
+    });
+
+    test('negotiates down to the highest supported version not newer than requested', async () => {
+      // Client asks for a version we do not support; the closest older version
+      // we share is 2025-03-26 (2025-06-18 would be newer than the request).
+      const server = makeServer({
+        protocolVersions: ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'],
+      });
+      const result = await server.handle(
+        rpcBody('initialize', { protocolVersion: '2025-05-01' }),
+        {},
+      );
+
+      expect(result.statusCode).toBe(200);
+      const body = JSON.parse(result.body);
+      expect(body.error).toBeUndefined();
+      expect(body.result.protocolVersion).toBe('2025-03-26');
+    });
+
+    test('negotiates down for an unknown future version instead of erroring', async () => {
+      const server = makeServer({
+        protocolVersions: ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05'],
+      });
+      const result = await server.handle(
+        rpcBody('initialize', { protocolVersion: '2030-01-01' }),
+        {},
+      );
+
+      expect(result.statusCode).toBe(200);
+      const body = JSON.parse(result.body);
+      expect(body.error).toBeUndefined();
+      // Highest supported version, since all supported versions are older.
+      expect(body.result.protocolVersion).toBe('2025-11-25');
+    });
+
+    test('errors only when no supported version is old enough to downgrade to', async () => {
+      const server = makeServer({ protocolVersions: ['2025-11-25', '2025-06-18'] });
       const result = await server.handle(
         rpcBody('initialize', { protocolVersion: '1999-01-01' }),
         {},

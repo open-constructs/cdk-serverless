@@ -47,7 +47,7 @@ export interface McpAuthProps {
 
   /**
    * Supported MCP protocol versions (newest first).
-   * @default ['2025-11-25', '2025-03-26', '2024-11-05']
+   * @default ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05']
    */
   readonly protocolVersions?: string[];
 
@@ -139,7 +139,7 @@ export class McpAuth extends Construct {
       MCP_CLIENT_ID: props.clientId,
       MCP_SERVER_NAME: props.serverInfo.name,
       MCP_SERVER_VERSION: props.serverInfo.version,
-      MCP_PROTOCOL_VERSIONS: (props.protocolVersions ?? ['2025-11-25', '2025-03-26', '2024-11-05']).join(','),
+      MCP_PROTOCOL_VERSIONS: (props.protocolVersions ?? ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05']).join(','),
       MCP_SCOPES: (props.scopes ?? ['openid', 'email', 'profile']).join(','),
       MCP_ALLOWED_REDIRECT_URIS: props.allowedRedirectUris.join(','),
       MCP_STRIP_PARAMETERS: (props.stripParameters ?? ['resource']).join(','),
