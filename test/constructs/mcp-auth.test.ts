@@ -129,7 +129,7 @@ describe('McpAuth', () => {
           MCP_CLIENT_ID: 'test-client-id',
           MCP_SERVER_NAME: 'test-server',
           MCP_SERVER_VERSION: '1.0.0',
-          MCP_PROTOCOL_VERSIONS: '2025-11-25,2025-03-26,2024-11-05',
+          MCP_PROTOCOL_VERSIONS: '2025-11-25,2025-06-18,2025-03-26,2024-11-05',
           MCP_SCOPES: 'openid,email,profile',
           MCP_ALLOWED_REDIRECT_URIS: 'https://claude.ai/oauth/callback',
           MCP_STRIP_PARAMETERS: 'resource',
