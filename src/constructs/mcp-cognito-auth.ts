@@ -42,7 +42,7 @@ export interface McpCognitoAuthProps {
 
   /**
    * Supported MCP protocol versions (newest first).
-   * @default ['2025-11-25', '2025-03-26', '2024-11-05']
+   * @default ['2025-11-25', '2025-06-18', '2025-03-26', '2024-11-05']
    */
   readonly protocolVersions?: string[];
 
