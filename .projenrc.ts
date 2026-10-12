@@ -23,6 +23,7 @@ const project = new typescript.TypeScriptProject({
   defaultReleaseBranch: 'main',
   packageManager: javascript.NodePackageManager.NPM,
   projenrcTs: true,
+  jestOptions: { jestVersion: '^30' },
   minMajorVersion: 2,
   docgen: false,
   devDeps: [
@@ -41,8 +42,8 @@ const project = new typescript.TypeScriptProject({
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable@2.7.7',
-    'projen@>=0.99.47 <1.0.0',
-    'aws-cdk-lib@>=2.248.0 <3.0.0',
+    'projen@>=0.104.5 <1.0.0',
+    'aws-cdk-lib@>=2.273.0 <3.0.0',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-dynamodb',
@@ -106,6 +107,20 @@ const project = new typescript.TypeScriptProject({
 * **Other information**:`],
 
 });
+
+// Force patched versions of transitive dependencies flagged by npm audit.
+// These are pulled in by devDeps/peerDeps and have no direct version lever,
+// so we pin them via npm overrides. Each entry clears a specific advisory.
+project.package.addPackageResolutions(
+  'handlebars@^4.7.10', // CRITICAL: JS injection via unsafe inline embedding (via ts-jest)
+  'browserslist@^4.29.3', // HIGH: unbounded memory growth (via @babel/core)
+  'fast-uri@^3.1.8', // HIGH: host confusion via literal backslash (via ajv)
+  'fast-xml-parser@^5.7.0', // MODERATE: XML comment/CDATA injection (via @aws-sdk)
+  'baseline-browser-mapping@^2.11.0', // MODERATE: DoS on invalid input (via browserslist)
+  '@babel/core@^7.29.7', // LOW: arbitrary file read via sourceMappingURL
+  '@humanfs/node@^0.16.8', // MODERATE: recursive copy follows symlinks (via eslint)
+  'brace-expansion@^5.0.12', // HIGH: multiple DoS advisories (via minimatch); 5.x ships dual CJS/ESM
+);
 
 const docgen = project.addTask('docgen', {
   description: 'Generate TypeScript API reference',
