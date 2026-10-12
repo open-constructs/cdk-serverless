@@ -119,8 +119,22 @@ project.package.addPackageResolutions(
   'baseline-browser-mapping@^2.11.0', // MODERATE: DoS on invalid input (via browserslist)
   '@babel/core@^7.29.7', // LOW: arbitrary file read via sourceMappingURL
   '@humanfs/node@^0.16.8', // MODERATE: recursive copy follows symlinks (via eslint)
-  'brace-expansion@^5.0.12', // HIGH: multiple DoS advisories (via minimatch); 5.x ships dual CJS/ESM
 );
+
+// brace-expansion ReDoS (HIGH, GHSA-v6h2-p8h4-qcjw) spans the 1.x, 2.x and 5.x
+// lines, so every minimatch instance in the tree needs a patched release. A
+// single global override is NOT safe: brace-expansion 5.x dropped the callable
+// default export that 1.x/2.x shipped as `module.exports = expand`, and
+// minimatch 3.1.5 (eslint, eslint-plugin-import, commit-and-tag-version's
+// dotgitignore) still does `require('brace-expansion')(pattern)`. Forcing 5.x
+// there throws "expand is not a function" on any brace pattern. So we scope the
+// override by minimatch major: the modern minimatch lines (5.x/9.x/10.x, which
+// declare ^5) get the patched 5.0.12, and minimatch 3.x keeps a patched 1.x
+// (1.1.21 > the 1.1.12 fix) that preserves the callable export. Both ends clear
+// the advisory. addPackageResolutions renders only flat string overrides, so
+// the nested minimatch@3 override is written through the package.json file API.
+project.package.addPackageResolutions('brace-expansion@^5.0.12');
+project.package.file.addOverride('overrides.minimatch@3', { 'brace-expansion': '^1.1.21' });
 
 const docgen = project.addTask('docgen', {
   description: 'Generate TypeScript API reference',

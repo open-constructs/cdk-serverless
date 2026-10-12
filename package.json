@@ -90,7 +90,10 @@
     "browserslist": "^4.29.3",
     "fast-uri": "^3.1.8",
     "fast-xml-parser": "^5.7.0",
-    "handlebars": "^4.7.10"
+    "handlebars": "^4.7.10",
+    "minimatch@3": {
+      "brace-expansion": "^1.1.21"
+    }
   },
   "keywords": [
     "aws",
