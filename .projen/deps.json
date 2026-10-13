@@ -115,46 +115,6 @@
       "type": "build"
     },
     {
-      "name": "@babel/core",
-      "version": "^7.29.7",
-      "type": "override"
-    },
-    {
-      "name": "@humanfs/node",
-      "version": "^0.16.8",
-      "type": "override"
-    },
-    {
-      "name": "baseline-browser-mapping",
-      "version": "^2.11.0",
-      "type": "override"
-    },
-    {
-      "name": "brace-expansion",
-      "version": "^5.0.12",
-      "type": "override"
-    },
-    {
-      "name": "browserslist",
-      "version": "^4.29.3",
-      "type": "override"
-    },
-    {
-      "name": "fast-uri",
-      "version": "^3.1.8",
-      "type": "override"
-    },
-    {
-      "name": "fast-xml-parser",
-      "version": "^5.7.0",
-      "type": "override"
-    },
-    {
-      "name": "handlebars",
-      "version": "^4.7.10",
-      "type": "override"
-    },
-    {
       "name": "@aws-sdk/client-cognito-identity-provider",
       "type": "peer"
     },

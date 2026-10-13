@@ -33,10 +33,10 @@
     "organization": true
   },
   "devDependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "3.1029.0",
-    "@aws-sdk/client-dynamodb": "3.1029.0",
-    "@aws-sdk/client-s3": "3.1029.0",
-    "@aws-sdk/lib-dynamodb": "3.1029.0",
+    "@aws-sdk/client-cognito-identity-provider": "3.1150.0",
+    "@aws-sdk/client-dynamodb": "3.1150.0",
+    "@aws-sdk/client-s3": "3.1150.0",
+    "@aws-sdk/lib-dynamodb": "3.1150.0",
     "@hapi/boom": "^10.0.1",
     "@stylistic/eslint-plugin": "^2",
     "@types/jest": "^30",
@@ -81,19 +81,6 @@
     "jsonwebtoken": "^9.0.3",
     "jwk-to-pem": "^2.0.7",
     "lambda-log": "^3.1.0"
-  },
-  "overrides": {
-    "@babel/core": "^7.29.7",
-    "@humanfs/node": "^0.16.8",
-    "baseline-browser-mapping": "^2.11.0",
-    "brace-expansion": "^5.0.12",
-    "browserslist": "^4.29.3",
-    "fast-uri": "^3.1.8",
-    "fast-xml-parser": "^5.7.0",
-    "handlebars": "^4.7.10",
-    "minimatch@3": {
-      "brace-expansion": "^1.1.21"
-    }
   },
   "keywords": [
     "aws",
