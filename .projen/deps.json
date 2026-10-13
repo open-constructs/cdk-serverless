@@ -27,6 +27,7 @@
     },
     {
       "name": "@types/jest",
+      "version": "^30",
       "type": "build"
     },
     {
@@ -61,7 +62,7 @@
     },
     {
       "name": "commit-and-tag-version",
-      "version": "^12",
+      "version": "^13",
       "type": "build"
     },
     {
@@ -83,12 +84,13 @@
       "type": "build"
     },
     {
-      "name": "jest",
+      "name": "jest-junit",
+      "version": "^17",
       "type": "build"
     },
     {
-      "name": "jest-junit",
-      "version": "^16",
+      "name": "jest",
+      "version": "^30",
       "type": "build"
     },
     {
@@ -97,6 +99,7 @@
     },
     {
       "name": "ts-jest",
+      "version": "^29",
       "type": "build"
     },
     {
@@ -129,7 +132,7 @@
     },
     {
       "name": "aws-cdk-lib",
-      "version": ">=2.248.0 <3.0.0",
+      "version": ">=2.273.0 <3.0.0",
       "type": "peer"
     },
     {
@@ -143,7 +146,7 @@
     },
     {
       "name": "projen",
-      "version": ">=0.99.47 <1.0.0",
+      "version": ">=0.104.5 <1.0.0",
       "type": "peer"
     },
     {

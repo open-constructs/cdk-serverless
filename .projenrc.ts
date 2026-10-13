@@ -23,6 +23,7 @@ const project = new typescript.TypeScriptProject({
   defaultReleaseBranch: 'main',
   packageManager: javascript.NodePackageManager.NPM,
   projenrcTs: true,
+  jestOptions: { jestVersion: '^30' },
   minMajorVersion: 2,
   docgen: false,
   devDeps: [
@@ -41,8 +42,8 @@ const project = new typescript.TypeScriptProject({
   peerDeps: [
     'openapi-typescript',
     'dynamodb-onetable@2.7.7',
-    'projen@>=0.99.47 <1.0.0',
-    'aws-cdk-lib@>=2.248.0 <3.0.0',
+    'projen@>=0.104.5 <1.0.0',
+    'aws-cdk-lib@>=2.273.0 <3.0.0',
     '@aws-sdk/client-cognito-identity-provider',
     '@aws-sdk/client-s3',
     '@aws-sdk/client-dynamodb',
