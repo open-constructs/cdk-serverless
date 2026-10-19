@@ -368,6 +368,14 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       return fn;
     }
 
+    // Couple the handler to this pipeline. createAppSyncHandler returns the
+    // error envelope only when APPSYNC_TYPED_ERRORS === 'true'; otherwise it
+    // rethrows the typed error. Inject the flag here (and only here) so the
+    // envelope behavior is active exactly on the path that has the response
+    // handler to interpret it. The default UNIT path above leaves the env var
+    // unset, so a handler that throws an AppSyncError there fails loudly.
+    fn.addEnvironment('APPSYNC_TYPED_ERRORS', 'true');
+
     // The Lambda invoke runs as a pipeline function (a single Invoke passthrough),
     // and the resolver's response handler interprets the error envelope that
     // createAppSyncHandler returns. A direct-Lambda resolver without a response

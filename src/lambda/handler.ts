@@ -290,13 +290,20 @@ export const createAppSyncHandler =
         // invoke the handler function with the context
         return await handler(ctx);
       } catch (error: any) {
-        if (error instanceof appsyncErrors.AppSyncError) {
-          // log the expected error at warn level and return the error envelope.
-          // The APPSYNC_JS resolver wired by GraphQlApi.addLambdaResolver has a
-          // response handler that reads this envelope and calls
+        if (error instanceof appsyncErrors.AppSyncError && process.env.APPSYNC_TYPED_ERRORS === 'true') {
+          // The envelope-return is gated on APPSYNC_TYPED_ERRORS === 'true'.
+          // GraphQlApi.addLambdaResolver injects that env var only on its
+          // typedErrors: true path, whose APPSYNC_JS resolver has a response
+          // handler that reads this envelope and calls
           // util.error(errorMessage, errorType, null, errorInfo), turning it into
           // a GraphQL error on a successful invocation. Returning (not throwing)
           // keeps the invocation off the Lambda Errors metric.
+          //
+          // When the env var is absent (the default UNIT resolver path, or a
+          // hand-wired handler used without GraphQlApi) the AppSyncError falls
+          // through to the rethrow below, so the invocation fails loudly instead
+          // of surfacing the envelope as field data. Any value other than the
+          // exact string 'true' means rethrow.
           //
           // __appSyncError is a reserved sentinel key the resolver response
           // handler keys on to recognise this envelope. Branching on the sentinel

@@ -45,6 +45,24 @@ const context: AWSLambda.Context = {
 const noopCallback = undefined as unknown as AWSLambda.Callback<any>;
 
 describe('createAppSyncHandler typed-error behavior', () => {
+  // The envelope-return is gated on process.env.APPSYNC_TYPED_ERRORS === 'true'.
+  // Save and restore the exact original value (which may be undefined) so cases
+  // do not leak into one another.
+  let originalFlag: string | undefined;
+
+  beforeEach(() => {
+    originalFlag = process.env.APPSYNC_TYPED_ERRORS;
+    delete process.env.APPSYNC_TYPED_ERRORS;
+  });
+
+  afterEach(() => {
+    if (originalFlag === undefined) {
+      delete process.env.APPSYNC_TYPED_ERRORS;
+    } else {
+      process.env.APPSYNC_TYPED_ERRORS = originalFlag;
+    }
+  });
+
   test('happy path: resolver return value is passed through unchanged', async () => {
     const handler = createAppSyncHandler<{ id: string }, { id: string; name: string }>(
       async (ctx) => ({ id: ctx.event.arguments.id, name: 'Widget' }),
@@ -71,15 +89,16 @@ describe('createAppSyncHandler typed-error behavior', () => {
     expect(result.__appSyncError).toBeUndefined();
   });
 
-  test('NotFoundError resolves to an error envelope instead of rejecting', async () => {
+  // (a) flag on + AppSyncError -> resolves to the sentinel envelope.
+  test('APPSYNC_TYPED_ERRORS=true: NotFoundError resolves to an error envelope instead of rejecting', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
     const handler = createAppSyncHandler<{ id: string }, { id: string }>(
       async () => {
         throw new errors.appsync.NotFoundError('Item not found');
       },
     );
 
-    // Must resolve, not reject. This would fail if the FEAT-002 catch block
-    // reverted to rethrowing AppSync errors.
     const result: any = await handler(buildEvent({ id: 'missing' }), context, noopCallback);
 
     expect(result).toEqual({
@@ -91,7 +110,10 @@ describe('createAppSyncHandler typed-error behavior', () => {
     });
   });
 
-  test('ValidationError propagates errorInfo and errorType in the envelope', async () => {
+  // (a) flag on + AppSyncError -> envelope carries errorInfo and errorType.
+  test('APPSYNC_TYPED_ERRORS=true: ValidationError propagates errorInfo and errorType in the envelope', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
     const errorInfo = { field: 'email', reason: 'invalid format' };
     const handler = createAppSyncHandler<Record<string, never>, unknown>(
       async () => {
@@ -108,7 +130,32 @@ describe('createAppSyncHandler typed-error behavior', () => {
     expect(result.errorInfo).toEqual(errorInfo);
   });
 
-  test('plain Error rejects (untyped errors still fail the invocation)', async () => {
+  // (b) flag absent + AppSyncError -> rethrows (default UNIT path, loud failure).
+  test('APPSYNC_TYPED_ERRORS unset: AppSyncError rethrows instead of returning an envelope', async () => {
+    const handler = createAppSyncHandler<{ id: string }, { id: string }>(
+      async () => {
+        throw new errors.appsync.NotFoundError('Item not found');
+      },
+    );
+
+    await expect(handler(buildEvent({ id: 'missing' }), context, noopCallback)).rejects.toThrow('Item not found');
+  });
+
+  // (c) flag absent + untyped Error -> rejects as before.
+  test('APPSYNC_TYPED_ERRORS unset: plain Error rejects (untyped errors still fail the invocation)', async () => {
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        throw new Error('boom');
+      },
+    );
+
+    await expect(handler(buildEvent({}), context, noopCallback)).rejects.toThrow('boom');
+  });
+
+  // (d) flag on + untyped Error -> still rejects (the flag only affects AppSyncError).
+  test('APPSYNC_TYPED_ERRORS=true: plain Error still rejects', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
     const handler = createAppSyncHandler<Record<string, never>, unknown>(
       async () => {
         throw new Error('boom');

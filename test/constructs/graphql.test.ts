@@ -181,6 +181,14 @@ type Post {
         Description: '[test] Type Query Field getUser Resolver',
       });
 
+      // On the default UNIT path the resolver Lambda carries no
+      // APPSYNC_TYPED_ERRORS env var, so createAppSyncHandler rethrows typed
+      // errors instead of returning the envelope as field data.
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+        Environment: Match.absent(),
+      });
+
       // Verify no nested stacks
       template.resourceCountIs('AWS::CloudFormation::Stack', 0);
     });
@@ -247,6 +255,17 @@ type Post {
       // Verify Lambda function is created
       template.hasResourceProperties('AWS::Lambda::Function', {
         Description: '[test] Type Query Field getUser Resolver',
+      });
+
+      // On the typedErrors path addLambdaResolver injects APPSYNC_TYPED_ERRORS=true
+      // so createAppSyncHandler returns the envelope the response handler expects.
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+        Environment: {
+          Variables: {
+            APPSYNC_TYPED_ERRORS: 'true',
+          },
+        },
       });
 
       // Verify no nested stacks
