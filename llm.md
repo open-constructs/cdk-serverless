@@ -200,6 +200,10 @@ export const handler = createAppSyncHandler<GetItemQuery, Item>(async (ctx) => {
 
 The envelope only becomes a GraphQL error when the resolver is wired via `GraphQlApi.addLambdaResolver`. That method creates an `APPSYNC_JS` pipeline resolver whose response handler reads the envelope and calls `util.error(errorMessage, errorType, null, errorInfo)` (and `util.appendError` for invoke-level errors), turning the typed error into a GraphQL error with the matching `errorType` and `errorInfo`. A plain direct-Lambda resolver with no response handler would surface the envelope as the field's data instead. If you build the resolver yourself, replicate that response handler.
 
+The response handler recognises the envelope by a reserved `__appSyncError` sentinel key that `createAppSyncHandler` stamps, not by the presence of an `errorMessage` field. A resolver whose real return type happens to include an `errorMessage` field is therefore passed through unchanged.
+
+Upgrade note: `addLambdaResolver` now synthesizes an `APPSYNC_JS` pipeline resolver instead of a direct-Lambda unit resolver. Each Lambda-backed field gains a new `AWS::AppSync::FunctionConfiguration` (`LambdaFn${type}.${field}`), and the resolver flips from a `dataSource` unit resolver to a `pipelineConfig` + `code` resolver. The data source and resolver logical IDs are unchanged, so the resolver updates in place rather than being replaced, but the new per-field function resource is additive. Run `cdk diff` before deploying an upgrade to review the topology change.
+
 Two classes share the short names `ForbiddenError` and `NotFoundError`, so pick the namespace deliberately:
 
 - `errors.ForbiddenError` / `errors.NotFoundError` are HTTP errors (HTTP 403 / 404) for `createHttpHandler`. They carry a `statusCode`.

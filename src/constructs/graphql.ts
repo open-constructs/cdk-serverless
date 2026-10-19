@@ -381,13 +381,18 @@ export function request(ctx) {
 // util.error / util.appendError take (message, errorType, data, errorInfo), so
 // errorType and errorInfo reach the client. Without this, AppSync would surface
 // the envelope object as the field result instead of as a GraphQL error.
+//
+// The envelope is recognised by its reserved __appSyncError sentinel key, which
+// createAppSyncHandler stamps. Branching on the sentinel (not on a bare
+// errorMessage) means a legitimate result that merely has an errorMessage field
+// is returned unchanged instead of being misread as a typed error.
 export function response(ctx) {
   if (ctx.error) {
     util.appendError(ctx.error.message, ctx.error.type, ctx.result);
     return ctx.result;
   }
   const result = ctx.prev.result;
-  if (result && result.errorMessage) {
+  if (result && result.__appSyncError) {
     util.error(result.errorMessage, result.errorType, null, result.errorInfo);
   }
   return result;

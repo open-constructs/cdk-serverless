@@ -174,7 +174,24 @@ type Post {
           Name: 'APPSYNC_JS',
           RuntimeVersion: '1.0.0',
         },
+        Code: Match.stringLikeRegexp('if \\(result && result\\.__appSyncError\\)'),
+      });
+
+      // The error branch keys on the __appSyncError sentinel and raises the
+      // typed error via util.error, so a legitimate result that merely has an
+      // errorMessage field is not misclassified.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
         Code: Match.stringLikeRegexp('util\\.error\\(result\\.errorMessage, result\\.errorType, null, result\\.errorInfo\\)'),
+      });
+
+      // The success path returns the resolver result unchanged. A result without
+      // the sentinel falls through the error branch and is passed through as-is.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Code: Match.stringLikeRegexp('return result;'),
       });
 
       // The response handler also appends invoke-level errors.

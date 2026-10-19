@@ -50,9 +50,25 @@ describe('createAppSyncHandler typed-error behavior', () => {
       async (ctx) => ({ id: ctx.event.arguments.id, name: 'Widget' }),
     );
 
-    const result = await handler(buildEvent({ id: '42' }), context, noopCallback);
+    const result: any = await handler(buildEvent({ id: '42' }), context, noopCallback);
 
     expect(result).toEqual({ id: '42', name: 'Widget' });
+    // A legitimate result does not carry the sentinel, so the resolver response
+    // handler returns it unchanged rather than converting it into a GraphQL error.
+    expect(result.__appSyncError).toBeUndefined();
+  });
+
+  test('a legitimate result containing an errorMessage field is not stamped with the sentinel', async () => {
+    const handler = createAppSyncHandler<Record<string, never>, { errorMessage: string }>(
+      async () => ({ errorMessage: 'this is a real field value, not a typed error' }),
+    );
+
+    const result: any = await handler(buildEvent({}), context, noopCallback);
+
+    // The sentinel is what the resolver response handler keys on, so a result
+    // that merely has an errorMessage field is passed through unchanged.
+    expect(result).toEqual({ errorMessage: 'this is a real field value, not a typed error' });
+    expect(result.__appSyncError).toBeUndefined();
   });
 
   test('NotFoundError resolves to an error envelope instead of rejecting', async () => {
@@ -67,6 +83,7 @@ describe('createAppSyncHandler typed-error behavior', () => {
     const result: any = await handler(buildEvent({ id: 'missing' }), context, noopCallback);
 
     expect(result).toEqual({
+      __appSyncError: true,
       data: null,
       errorType: 'NotFound',
       errorMessage: 'Item not found',
@@ -84,6 +101,7 @@ describe('createAppSyncHandler typed-error behavior', () => {
 
     const result: any = await handler(buildEvent({}), context, noopCallback);
 
+    expect(result.__appSyncError).toBe(true);
     expect(result.data).toBeNull();
     expect(result.errorType).toBe('ValidationError');
     expect(result.errorMessage).toBe('Validation failed');

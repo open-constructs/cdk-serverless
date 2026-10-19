@@ -293,12 +293,19 @@ export const createAppSyncHandler =
         if (error instanceof appsyncErrors.AppSyncError) {
           // log the expected error at warn level and return the error envelope.
           // The APPSYNC_JS resolver wired by GraphQlApi.addLambdaResolver has a
-          // response handler that reads this { data, errorType, errorMessage, errorInfo }
-          // envelope and calls util.error(errorMessage, errorType, null, errorInfo),
-          // turning it into a GraphQL error on a successful invocation. Returning
-          // (not throwing) keeps the invocation off the Lambda Errors metric.
+          // response handler that reads this envelope and calls
+          // util.error(errorMessage, errorType, null, errorInfo), turning it into
+          // a GraphQL error on a successful invocation. Returning (not throwing)
+          // keeps the invocation off the Lambda Errors metric.
+          //
+          // __appSyncError is a reserved sentinel key the resolver response
+          // handler keys on to recognise this envelope. Branching on the sentinel
+          // (rather than on a bare errorMessage) means a legitimate resolver result
+          // that merely contains an errorMessage field is not misclassified as a
+          // typed error.
           ctx.logger.warn(error.message, { errorType: error.errorType, errorInfo: error.errorInfo });
           return {
+            __appSyncError: true,
             data: null,
             errorType: error.errorType,
             errorMessage: error.message,
