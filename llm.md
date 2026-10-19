@@ -182,7 +182,7 @@ export const handler = createAppSyncHandler<GetItemsQuery, GetItemsResult>(async
 });
 ```
 
-AppSync resolvers can throw typed errors from the `errors.appsync` namespace. `createAppSyncHandler` converts them to GraphQL errors (`errorType`/`errorMessage`) without failing the Lambda invocation, so they stay off the Lambda Errors metric. A plain `Error` still fails the invocation.
+AppSync resolvers can throw typed errors from the `errors.appsync` namespace. `createAppSyncHandler` catches them, logs at `warn`, and returns a `{ data, errorType, errorMessage, errorInfo }` envelope instead of rethrowing, so the invocation stays off the Lambda Errors metric. A plain `Error` still fails the invocation.
 
 ```typescript
 import { createAppSyncHandler, errors } from 'cdk-serverless/lambda';
@@ -197,6 +197,13 @@ export const handler = createAppSyncHandler<GetItemQuery, Item>(async (ctx) => {
   return item;
 });
 ```
+
+The envelope only becomes a GraphQL error when the resolver is wired via `GraphQlApi.addLambdaResolver`. That method creates an `APPSYNC_JS` pipeline resolver whose response handler reads the envelope and calls `util.error(errorMessage, errorType, null, errorInfo)` (and `util.appendError` for invoke-level errors), turning the typed error into a GraphQL error with the matching `errorType` and `errorInfo`. A plain direct-Lambda resolver with no response handler would surface the envelope as the field's data instead. If you build the resolver yourself, replicate that response handler.
+
+Two classes share the short names `ForbiddenError` and `NotFoundError`, so pick the namespace deliberately:
+
+- `errors.ForbiddenError` / `errors.NotFoundError` are HTTP errors (HTTP 403 / 404) for `createHttpHandler`. They carry a `statusCode`.
+- `errors.appsync.ForbiddenError` / `errors.appsync.NotFoundError` are AppSync errors for `createAppSyncHandler`. They carry a GraphQL `errorType` (`'Forbidden'` / `'NotFound'`), not an HTTP status code.
 
 #### Error Handling
 

@@ -291,10 +291,12 @@ export const createAppSyncHandler =
         return await handler(ctx);
       } catch (error: any) {
         if (error instanceof appsyncErrors.AppSyncError) {
-          // log the expected error at warn level and return the direct-Lambda error envelope.
-          // AppSync's direct-Lambda integration maps a returned { data, errorType, errorMessage }
-          // object to a GraphQL error on a successful invocation, so returning (not throwing)
-          // keeps the invocation off the Lambda Errors metric.
+          // log the expected error at warn level and return the error envelope.
+          // The APPSYNC_JS resolver wired by GraphQlApi.addLambdaResolver has a
+          // response handler that reads this { data, errorType, errorMessage, errorInfo }
+          // envelope and calls util.error(errorMessage, errorType, null, errorInfo),
+          // turning it into a GraphQL error on a successful invocation. Returning
+          // (not throwing) keeps the invocation off the Lambda Errors metric.
           ctx.logger.warn(error.message, { errorType: error.errorType, errorInfo: error.errorInfo });
           return {
             data: null,

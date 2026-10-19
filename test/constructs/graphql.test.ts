@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { App, Stack } from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { CognitoAuthentication, GraphQlApi } from '../../src/constructs';
 
 // Define a resolver type for testing
@@ -163,10 +163,33 @@ type Post {
 
       const template = Template.fromStack(stack);
 
-      // Verify resolver is created in the main stack
+      // Verify resolver is created in the main stack as an APPSYNC_JS pipeline
+      // resolver whose response handler converts the error envelope into a
+      // GraphQL error via util.error / util.appendError.
       template.hasResourceProperties('AWS::AppSync::Resolver', {
         TypeName: 'Query',
         FieldName: 'getUser',
+        Kind: 'PIPELINE',
+        Runtime: {
+          Name: 'APPSYNC_JS',
+          RuntimeVersion: '1.0.0',
+        },
+        Code: Match.stringLikeRegexp('util\\.error\\(result\\.errorMessage, result\\.errorType, null, result\\.errorInfo\\)'),
+      });
+
+      // The response handler also appends invoke-level errors.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Code: Match.stringLikeRegexp('util\\.appendError\\(ctx\\.error\\.message, ctx\\.error\\.type, ctx\\.result\\)'),
+      });
+
+      // The Lambda invoke runs as an APPSYNC_JS pipeline function.
+      template.hasResourceProperties('AWS::AppSync::FunctionConfiguration', {
+        Runtime: {
+          Name: 'APPSYNC_JS',
+          RuntimeVersion: '1.0.0',
+        },
       });
 
       // Verify Lambda function is created
