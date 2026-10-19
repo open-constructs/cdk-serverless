@@ -261,6 +261,29 @@ export type AppSyncHandler<T, R> = (
 ) => Promise<R>;
 
 /**
+ * Maps an HTTP status code to the GraphQL errorType reported to AppSync.
+ *
+ * Local (non-exported) helper used only by createAppSyncHandler when it
+ * translates an errors.HttpError into a typed AppSync error. The explicit
+ * default keeps any unmapped status (for example a 418 or a 5xx) reported as
+ * the generic 'Error' errorType rather than leaking the raw status code.
+ */
+function httpStatusToErrorType(statusCode: number): string {
+  switch (statusCode) {
+    case 400:
+      return 'BadRequest';
+    case 401:
+      return 'Unauthorized';
+    case 403:
+      return 'Forbidden';
+    case 404:
+      return 'NotFound';
+    default:
+      return 'Error';
+  }
+}
+
+/**
  * Creates an AppSync resolver handler from the given AppSyncHandler.
  * Returns a function that can be used as an AppSync resolver.
  *
@@ -290,7 +313,30 @@ export const createAppSyncHandler =
         // invoke the handler function with the context
         return await handler(ctx);
       } catch (error: any) {
-        if (error instanceof appsyncErrors.AppSyncError && process.env.APPSYNC_TYPED_ERRORS === 'true') {
+        // Normalise the two recognised typed-error shapes to a common
+        // { errorType, message, errorInfo } so the gate, envelope and rethrow
+        // below are a single code path.
+        //
+        // - appsyncErrors.AppSyncError carries its own GraphQL errorType and an
+        //   optional errorInfo, which flow through unchanged.
+        // - errors.HttpError (the HTTP base thrown by the shared JwtAuthorizer
+        //   via assertAuthenticated/assertGroup/assertAdmin, and by resolver
+        //   code directly) has no GraphQL errorType, so map its statusCode with
+        //   httpStatusToErrorType. HttpError carries no errorInfo, so errorInfo
+        //   is undefined.
+        //
+        // The two instanceof checks are disjoint: HttpError and AppSyncError
+        // share no ancestry, so an appsync.ForbiddenError takes the AppSyncError
+        // branch and an errors.ForbiddenError the HttpError branch. Anything that
+        // is neither (plain Error, Boom) leaves typed undefined and rethrows.
+        let typed: { errorType: string; message: string; errorInfo?: Record<string, any> } | undefined;
+        if (error instanceof appsyncErrors.AppSyncError) {
+          typed = { errorType: error.errorType, message: error.message, errorInfo: error.errorInfo };
+        } else if (error instanceof errors.HttpError) {
+          typed = { errorType: httpStatusToErrorType(error.statusCode), message: error.message, errorInfo: undefined };
+        }
+
+        if (typed && process.env.APPSYNC_TYPED_ERRORS === 'true') {
           // The envelope-return is gated on APPSYNC_TYPED_ERRORS === 'true'.
           // GraphQlApi.addLambdaResolver injects that env var only on its
           // typedErrors: true path, whose APPSYNC_JS resolver has a response
@@ -300,23 +346,25 @@ export const createAppSyncHandler =
           // keeps the invocation off the Lambda Errors metric.
           //
           // When the env var is absent (the default UNIT resolver path, or a
-          // hand-wired handler used without GraphQlApi) the AppSyncError falls
+          // hand-wired handler used without GraphQlApi) the typed error falls
           // through to the rethrow below, so the invocation fails loudly instead
           // of surfacing the envelope as field data. Any value other than the
-          // exact string 'true' means rethrow.
+          // exact string 'true' means rethrow. This is why a default UNIT
+          // resolver whose handler hits an auth assertion (an HttpError) still
+          // fails loudly unless typedErrors is active.
           //
           // __appSyncError is a reserved sentinel key the resolver response
           // handler keys on to recognise this envelope. Branching on the sentinel
           // (rather than on a bare errorMessage) means a legitimate resolver result
           // that merely contains an errorMessage field is not misclassified as a
           // typed error.
-          ctx.logger.warn(error.message, { errorType: error.errorType, errorInfo: error.errorInfo });
+          ctx.logger.warn(typed.message, { errorType: typed.errorType, errorInfo: typed.errorInfo });
           return {
             __appSyncError: true,
             data: null,
-            errorType: error.errorType,
-            errorMessage: error.message,
-            errorInfo: error.errorInfo,
+            errorType: typed.errorType,
+            errorMessage: typed.message,
+            errorInfo: typed.errorInfo,
           } as unknown as R;
         }
         // log the error and throw it again

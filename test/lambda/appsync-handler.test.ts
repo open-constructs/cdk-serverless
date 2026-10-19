@@ -164,4 +164,159 @@ describe('createAppSyncHandler typed-error behavior', () => {
 
     await expect(handler(buildEvent({}), context, noopCallback)).rejects.toThrow('boom');
   });
+
+  // The shared JwtAuthorizer base throws errors.UnauthenticatedError/ForbiddenError
+  // from assertAuthenticated/assertGroup/assertAdmin. Mirror that real failure site
+  // with an object method that throws, rather than a bare throw in the handler body.
+  const authLike = {
+    // mirrors auth.assertAuthenticated()
+    assertAuthenticated() {
+      throw new errors.UnauthenticatedError('Not authenticated');
+    },
+    // mirrors auth.assertGroup()/assertAdmin()
+    assertGroup() {
+      throw new errors.ForbiddenError('Not a member of required group');
+    },
+  };
+
+  // flag on + HttpError (401 from the auth path) -> envelope with errorType 'Unauthorized'.
+  test('APPSYNC_TYPED_ERRORS=true: UnauthenticatedError from the auth path resolves to an Unauthorized envelope', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        authLike.assertAuthenticated();
+        return {};
+      },
+    );
+
+    const result: any = await handler(buildEvent({}), context, noopCallback);
+
+    expect(result).toEqual({
+      __appSyncError: true,
+      data: null,
+      errorType: 'Unauthorized',
+      errorMessage: 'Not authenticated',
+      errorInfo: undefined,
+    });
+  });
+
+  // flag on + HttpError (403 from the auth path) -> envelope with errorType 'Forbidden'.
+  test('APPSYNC_TYPED_ERRORS=true: ForbiddenError from the auth path resolves to a Forbidden envelope', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        authLike.assertGroup();
+        return {};
+      },
+    );
+
+    const result: any = await handler(buildEvent({}), context, noopCallback);
+
+    expect(result).toEqual({
+      __appSyncError: true,
+      data: null,
+      errorType: 'Forbidden',
+      errorMessage: 'Not a member of required group',
+      errorInfo: undefined,
+    });
+  });
+
+  // flag on + HttpError 404 -> envelope with errorType 'NotFound'.
+  test('APPSYNC_TYPED_ERRORS=true: HTTP NotFoundError resolves to a NotFound envelope', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        throw new errors.NotFoundError('Item not found');
+      },
+    );
+
+    const result: any = await handler(buildEvent({}), context, noopCallback);
+
+    expect(result).toEqual({
+      __appSyncError: true,
+      data: null,
+      errorType: 'NotFound',
+      errorMessage: 'Item not found',
+      errorInfo: undefined,
+    });
+  });
+
+  // flag on + HttpError 400 -> envelope with errorType 'BadRequest'.
+  test('APPSYNC_TYPED_ERRORS=true: HTTP BadRequestError resolves to a BadRequest envelope', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        throw new errors.BadRequestError('Missing parameter');
+      },
+    );
+
+    const result: any = await handler(buildEvent({}), context, noopCallback);
+
+    expect(result).toEqual({
+      __appSyncError: true,
+      data: null,
+      errorType: 'BadRequest',
+      errorMessage: 'Missing parameter',
+      errorInfo: undefined,
+    });
+  });
+
+  // flag on + unmapped HTTP status -> envelope with the default errorType 'Error'.
+  test('APPSYNC_TYPED_ERRORS=true: an unmapped HTTP status (418) maps to the default Error errorType', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        throw new errors.HttpError(418, 'teapot');
+      },
+    );
+
+    const result: any = await handler(buildEvent({}), context, noopCallback);
+
+    expect(result).toEqual({
+      __appSyncError: true,
+      data: null,
+      errorType: 'Error',
+      errorMessage: 'teapot',
+      errorInfo: undefined,
+    });
+  });
+
+  // flag absent + HttpError -> rethrows (default UNIT path, loud failure).
+  test('APPSYNC_TYPED_ERRORS unset: HttpError rethrows instead of returning an envelope', async () => {
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        authLike.assertAuthenticated();
+        return {};
+      },
+    );
+
+    await expect(handler(buildEvent({}), context, noopCallback)).rejects.toThrow('Not authenticated');
+  });
+
+  // regression: the AppSyncError branch is unchanged. errors.appsync.ForbiddenError
+  // (disjoint from errors.HttpError) still maps to errorType 'Forbidden'.
+  test('APPSYNC_TYPED_ERRORS=true: appsync.ForbiddenError still resolves via the AppSyncError branch', async () => {
+    process.env.APPSYNC_TYPED_ERRORS = 'true';
+
+    const handler = createAppSyncHandler<Record<string, never>, unknown>(
+      async () => {
+        throw new errors.appsync.ForbiddenError('Access denied');
+      },
+    );
+
+    const result: any = await handler(buildEvent({}), context, noopCallback);
+
+    expect(result).toEqual({
+      __appSyncError: true,
+      data: null,
+      errorType: 'Forbidden',
+      errorMessage: 'Access denied',
+      errorInfo: undefined,
+    });
+  });
 });
