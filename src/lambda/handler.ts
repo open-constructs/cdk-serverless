@@ -1,5 +1,6 @@
 import { env } from 'process';
 import logger, { LambdaLog } from 'lambda-log';
+import * as appsyncErrors from './appsync-errors';
 import {
   ApiGatewayv1CognitoAuthorizer,
   ApiGatewayv1JwtAuthorizer,
@@ -289,6 +290,19 @@ export const createAppSyncHandler =
         // invoke the handler function with the context
         return await handler(ctx);
       } catch (error: any) {
+        if (error instanceof appsyncErrors.AppSyncError) {
+          // log the expected error at warn level and return the direct-Lambda error envelope.
+          // AppSync's direct-Lambda integration maps a returned { data, errorType, errorMessage }
+          // object to a GraphQL error on a successful invocation, so returning (not throwing)
+          // keeps the invocation off the Lambda Errors metric.
+          ctx.logger.warn(error.message, { errorType: error.errorType, errorInfo: error.errorInfo });
+          return {
+            data: null,
+            errorType: error.errorType,
+            errorMessage: error.message,
+            errorInfo: error.errorInfo,
+          } as unknown as R;
+        }
         // log the error and throw it again
         ctx.logger.error(error);
         throw error;

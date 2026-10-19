@@ -182,6 +182,22 @@ export const handler = createAppSyncHandler<GetItemsQuery, GetItemsResult>(async
 });
 ```
 
+AppSync resolvers can throw typed errors from the `errors.appsync` namespace. `createAppSyncHandler` converts them to GraphQL errors (`errorType`/`errorMessage`) without failing the Lambda invocation, so they stay off the Lambda Errors metric. A plain `Error` still fails the invocation.
+
+```typescript
+import { createAppSyncHandler, errors } from 'cdk-serverless/lambda';
+
+export const handler = createAppSyncHandler<GetItemQuery, Item>(async (ctx) => {
+  const item = await getItem(ctx.arguments.id);
+
+  if (!item) {
+    throw new errors.appsync.NotFoundError('Item not found');
+  }
+
+  return item;
+});
+```
+
 #### Error Handling
 
 ```typescript

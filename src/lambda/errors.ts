@@ -68,3 +68,5 @@ export class NotFoundError extends HttpError {
     super(404, message);
   }
 }
+
+export * as appsync from './appsync-errors';
