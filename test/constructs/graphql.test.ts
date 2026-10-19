@@ -163,9 +163,44 @@ type Post {
 
       const template = Template.fromStack(stack);
 
-      // Verify resolver is created in the main stack as an APPSYNC_JS pipeline
-      // resolver whose response handler converts the error envelope into a
-      // GraphQL error via util.error / util.appendError.
+      // Without typedErrors (the default), the resolver is a plain UNIT
+      // direct-Lambda resolver (the pre-#385 shape): no APPSYNC_JS pipeline, no
+      // inline Code and no PipelineConfig.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Code: Match.absent(),
+        PipelineConfig: Match.absent(),
+      });
+
+      // The default path creates no APPSYNC_JS pipeline function.
+      template.resourceCountIs('AWS::AppSync::FunctionConfiguration', 0);
+
+      // Verify Lambda function is created
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+      });
+
+      // Verify no nested stacks
+      template.resourceCountIs('AWS::CloudFormation::Stack', 0);
+    });
+
+    test('creates APPSYNC_JS pipeline Lambda resolver when typedErrors is enabled', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+        typedErrors: true,
+      });
+
+      api.addLambdaResolver('Query', 'getUser');
+
+      const template = Template.fromStack(stack);
+
+      // With typedErrors enabled, the resolver is an APPSYNC_JS pipeline resolver
+      // whose response handler converts the error envelope into a GraphQL error
+      // via util.error / util.appendError.
       template.hasResourceProperties('AWS::AppSync::Resolver', {
         TypeName: 'Query',
         FieldName: 'getUser',

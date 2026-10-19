@@ -30,6 +30,24 @@ export interface GraphQlApiProps extends BaseApiProps {
    * @default false
    */
   useNestedStacks?: boolean;
+
+  /**
+   * If true, addLambdaResolver synthesizes an APPSYNC_JS pipeline resolver whose
+   * response handler converts the errors.appsync.* envelope returned by
+   * createAppSyncHandler into a typed GraphQL error.
+   *
+   * When false (the default), addLambdaResolver synthesizes a plain UNIT
+   * direct-Lambda resolver (the pre-#385 behavior) with no response handler. On
+   * that path, if a handler throws an AppSyncError the sentinel envelope is
+   * returned as field data instead of becoming a GraphQL error.
+   *
+   * This flag applies to ALL Lambda resolvers on the API. Enabling it changes
+   * the resolver topology from UNIT to PIPELINE, which produces a cdk diff for
+   * every Lambda resolver, so opt in deliberately.
+   *
+   * @default false
+   */
+  typedErrors?: boolean;
 }
 
 export interface VtlResolverOptions {
@@ -335,6 +353,20 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       name: `Lambda_${typeName as string}_${fieldName as String}`,
       lambdaFunction: fn,
     });
+
+    if (!this.props.typedErrors) {
+      // Default (pre-#385) shape: a plain UNIT resolver with the Lambda data
+      // source set directly. No response handler, so the error envelope from
+      // createAppSyncHandler would be surfaced as field data rather than a
+      // GraphQL error. Opt in via `typedErrors: true` to get the pipeline below.
+      new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
+        api: this.api,
+        typeName: typeName as string,
+        fieldName: fieldName as string,
+        dataSource,
+      });
+      return fn;
+    }
 
     // The Lambda invoke runs as a pipeline function (a single Invoke passthrough),
     // and the resolver's response handler interprets the error envelope that
