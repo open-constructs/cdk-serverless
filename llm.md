@@ -182,6 +182,16 @@ export const handler = createAppSyncHandler<GetItemsQuery, GetItemsResult>(async
 });
 ```
 
+For AppSync BatchInvoke, use `createAppSyncBatchHandler`. It takes an array of resolver events and returns an array of results in the same order (array in, array out, order preserved). It uses the same context as `createAppSyncHandler`, with the logger and the Cognito authorizer resolved once per batch off the first event. The context exposes both the first event as `ctx.event` (so handler code that reads `ctx.event.arguments` / `ctx.event.identity` keeps working) and the full batch as `ctx.events`. The typed-error model is identical to `createAppSyncHandler`: with `APPSYNC_TYPED_ERRORS === 'true'` a thrown `errors.appsync.*` or `errors.HttpError` returns an array of error envelopes aligned to the batch length, and otherwise rethrows. A plain `Error` always fails the invocation.
+
+```typescript
+import { createAppSyncBatchHandler } from 'cdk-serverless/lambda';
+
+export const handler = createAppSyncBatchHandler<GetItemQuery, Item>(async (ctx) => {
+  return Promise.all(ctx.events.map((event) => getItem(event.arguments.id)));
+});
+```
+
 AppSync resolvers can throw typed errors from the `errors.appsync` namespace. `createAppSyncHandler` catches them and logs at `warn`. Whether it returns a `{ data, errorType, errorMessage, errorInfo }` envelope or rethrows is gated on the `APPSYNC_TYPED_ERRORS` environment variable. When `APPSYNC_TYPED_ERRORS === 'true'` the handler returns the envelope so the invocation stays off the Lambda Errors metric. Otherwise it rethrows the typed error, logging at `error`, so the invocation fails. A plain `Error` always fails the invocation regardless of the flag.
 
 ```typescript
