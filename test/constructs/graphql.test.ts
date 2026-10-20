@@ -429,6 +429,75 @@ type Post {
     });
   });
 
+  describe('maxBatchSize (BatchInvoke)', () => {
+    test('addLambdaResolver with maxBatchSize produces a UNIT BatchInvoke resolver', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+      });
+
+      api.addLambdaResolver('Query', 'getUser', { maxBatchSize: 10 });
+
+      const template = Template.fromStack(stack);
+
+      // The resolver stays a direct-Lambda UNIT resolver but carries MaxBatchSize
+      // and the BatchInvoke request / lambdaResult response templates so AppSync
+      // groups field invocations into a single Lambda call.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Kind: 'UNIT',
+        MaxBatchSize: 10,
+        RequestMappingTemplate: Match.stringLikeRegexp('BatchInvoke'),
+        ResponseMappingTemplate: '$util.toJson($ctx.result)',
+        Code: Match.absent(),
+        PipelineConfig: Match.absent(),
+      });
+
+      // No APPSYNC_JS pipeline function on the default path.
+      template.resourceCountIs('AWS::AppSync::FunctionConfiguration', 0);
+    });
+
+    test('addLambdaResolver without options stays single-invoke: no MaxBatchSize and no mapping templates', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+      });
+
+      api.addLambdaResolver('Query', 'listUsers');
+
+      const template = Template.fromStack(stack);
+
+      // Backward compatible: the no-options path keeps the exact prior shape with
+      // neither MaxBatchSize nor the BatchInvoke mapping templates.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'listUsers',
+        Kind: 'UNIT',
+        MaxBatchSize: Match.absent(),
+        RequestMappingTemplate: Match.absent(),
+        ResponseMappingTemplate: Match.absent(),
+      });
+    });
+
+    test('maxBatchSize together with typedErrors throws', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+        typedErrors: true,
+      });
+
+      expect(() => api.addLambdaResolver('Query', 'getUser', { maxBatchSize: 10 }))
+        .toThrow('maxBatchSize is not supported together with typedErrors');
+    });
+  });
+
   describe('useNestedStacks defaults to false', () => {
     test('does not create nested stacks when useNestedStacks is not specified', () => {
       const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
