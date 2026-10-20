@@ -30,6 +30,24 @@ export interface GraphQlApiProps extends BaseApiProps {
    * @default false
    */
   useNestedStacks?: boolean;
+
+  /**
+   * If true, addLambdaResolver synthesizes an APPSYNC_JS pipeline resolver whose
+   * response handler converts the errors.appsync.* envelope returned by
+   * createAppSyncHandler into a typed GraphQL error.
+   *
+   * When false (the default), addLambdaResolver synthesizes a plain UNIT
+   * direct-Lambda resolver (the pre-#385 behavior) with no response handler. On
+   * that path, if a handler throws an AppSyncError the sentinel envelope is
+   * returned as field data instead of becoming a GraphQL error.
+   *
+   * This flag applies to ALL Lambda resolvers on the API. Enabling it changes
+   * the resolver topology from UNIT to PIPELINE, which produces a cdk diff for
+   * every Lambda resolver, so opt in deliberately.
+   *
+   * @default false
+   */
+  typedErrors?: boolean;
 }
 
 export interface VtlResolverOptions {
@@ -336,11 +354,90 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       lambdaFunction: fn,
     });
 
+    if (!this.props.typedErrors) {
+      // Default (pre-#385) shape: a plain UNIT resolver with the Lambda data
+      // source set directly. No response handler, so the error envelope from
+      // createAppSyncHandler would be surfaced as field data rather than a
+      // GraphQL error. Opt in via `typedErrors: true` to get the pipeline below.
+      new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
+        api: this.api,
+        typeName: typeName as string,
+        fieldName: fieldName as string,
+        dataSource,
+      });
+      return fn;
+    }
+
+    // Couple the handler to this pipeline. createAppSyncHandler returns the
+    // error envelope only when APPSYNC_TYPED_ERRORS === 'true'; otherwise it
+    // rethrows the typed error. Inject the flag here (and only here) so the
+    // envelope behavior is active exactly on the path that has the response
+    // handler to interpret it. The default UNIT path above leaves the env var
+    // unset, so a handler that throws an AppSyncError there fails loudly.
+    fn.addEnvironment('APPSYNC_TYPED_ERRORS', 'true');
+
+    // The Lambda invoke runs as a pipeline function (a single Invoke passthrough),
+    // and the resolver's response handler interprets the error envelope that
+    // createAppSyncHandler returns. A direct-Lambda resolver without a response
+    // handler would surface the { data, errorType, errorMessage, errorInfo }
+    // envelope as plain field data, so the typed errors.appsync.* errors only
+    // become GraphQL errors because of the response handler attached below.
+    const invokeFunction = new aws_appsync.AppsyncFunction(scope, `LambdaFn${operationId}`, {
+      api: this.api,
+      name: `Lambda_${(typeName as string).replace(/[^A-Za-z0-9]/g, '')}_${(fieldName as String).replace(/[^A-Za-z0-9]/g, '')}`,
+      dataSource,
+      runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
+      code: aws_appsync.Code.fromInline(`import { util } from '@aws-appsync/utils';
+
+// Invoke the Lambda data source with the full resolver context as the payload.
+export function request(ctx) {
+  return {
+    operation: 'Invoke',
+    payload: ctx,
+  };
+}
+
+// Pass the Lambda result through unchanged; the resolver response handler
+// converts the error envelope into a GraphQL error.
+export function response(ctx) {
+  return ctx.result;
+}
+`),
+    });
+
     new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
       api: this.api,
       typeName: typeName as string,
       fieldName: fieldName as string,
-      dataSource,
+      runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
+      pipelineConfig: [invokeFunction],
+      code: aws_appsync.Code.fromInline(`import { util } from '@aws-appsync/utils';
+
+export function request(ctx) {
+  return {};
+}
+
+// Convert the error envelope returned by createAppSyncHandler into a GraphQL error.
+// util.error / util.appendError take (message, errorType, data, errorInfo), so
+// errorType and errorInfo reach the client. Without this, AppSync would surface
+// the envelope object as the field result instead of as a GraphQL error.
+//
+// The envelope is recognised by its reserved __appSyncError sentinel key, which
+// createAppSyncHandler stamps. Branching on the sentinel (not on a bare
+// errorMessage) means a legitimate result that merely has an errorMessage field
+// is returned unchanged instead of being misread as a typed error.
+export function response(ctx) {
+  if (ctx.error) {
+    util.appendError(ctx.error.message, ctx.error.type, ctx.result);
+    return ctx.result;
+  }
+  const result = ctx.prev.result;
+  if (result && result.__appSyncError) {
+    util.error(result.errorMessage, result.errorType, null, result.errorInfo);
+  }
+  return result;
+}
+`),
     });
     return fn;
   }
