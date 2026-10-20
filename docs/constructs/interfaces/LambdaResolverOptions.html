@@ -33,9 +33,13 @@ value, a BatchInvoke request template
 a MappingTemplate.lambdaResult() response template, so AppSync groups up to
 this many field invocations into one Lambda call. Pair this with
 createAppSyncBatchHandler, whose handler receives the batched events.</p>
-<p>This option applies only to the default direct-Lambda UNIT path. It is not
-compatible with <code>typedErrors</code> (the APPSYNC_JS pipeline resolver), which does
-not use these BatchInvoke mapping templates.</p>
+<p>When both maxBatchSize and <code>typedErrors</code> are set, maxBatchSize wins for this
+field. The field gets the UNIT BatchInvoke resolver rather than the
+typedErrors APPSYNC_JS pipeline, because the BatchInvoke mapping templates
+have no equivalent on that pipeline. Typed errors thrown by a batch handler
+are not converted to GraphQL errors. They rethrow and fail the invocation,
+so a batch handler should not rely on the typed-error-to-GraphQL-error
+conversion.</p>
 </div>
 <div class="tsd-comment tsd-typography">
 <div class="tsd-tag-default">
