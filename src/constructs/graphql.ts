@@ -50,6 +50,29 @@ export interface GraphQlApiProps extends BaseApiProps {
   typedErrors?: boolean;
 }
 
+export interface LambdaResolverOptions {
+  /**
+   * If set, addLambdaResolver wires an AppSync BatchInvoke resolver instead of a
+   * single invoke. The generated UNIT resolver gets MaxBatchSize set to this
+   * value, a BatchInvoke request template
+   * (MappingTemplate.lambdaRequest('$utils.toJson($context)', 'BatchInvoke')) and
+   * a MappingTemplate.lambdaResult() response template, so AppSync groups up to
+   * this many field invocations into one Lambda call. Pair this with
+   * createAppSyncBatchHandler, whose handler receives the batched events.
+   *
+   * When both maxBatchSize and `typedErrors` are set, maxBatchSize wins for this
+   * field. The field gets the UNIT BatchInvoke resolver rather than the
+   * typedErrors APPSYNC_JS pipeline, because the BatchInvoke mapping templates
+   * have no equivalent on that pipeline. Typed errors thrown by a batch handler
+   * are not converted to GraphQL errors. They rethrow and fail the invocation,
+   * so a batch handler should not rely on the typed-error-to-GraphQL-error
+   * conversion.
+   *
+   * @default - undefined (single invoke, the pre-batch behaviour; no MaxBatchSize and no mapping templates)
+   */
+  readonly maxBatchSize?: number;
+}
+
 export interface VtlResolverOptions {
   /**
    * The datasource the VTL resolver targets
@@ -307,7 +330,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   public addLambdaResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
     typeName: TYPE,
     fieldName: keyof FIELDTYPE,
+    options?: LambdaResolverOptions,
   ): LambdaFunction {
+    const isBatch = options?.maxBatchSize !== undefined;
+
     const operationId = `${typeName as string}.${fieldName as String}`;
     const description = `Type ${typeName as string} Field ${fieldName as String} Resolver`;
 
@@ -353,6 +379,30 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       name: `Lambda_${typeName as string}_${fieldName as String}`,
       lambdaFunction: fn,
     });
+
+    if (isBatch) {
+      // A batch field always takes the UNIT BatchInvoke path, even when the API
+      // has typedErrors enabled. maxBatchSize wins over typedErrors for this
+      // field because the BatchInvoke mapping templates have no equivalent on
+      // the APPSYNC_JS pipeline resolver. AppSync batches up to maxBatchSize
+      // field invocations into a single Lambda call handled by
+      // createAppSyncBatchHandler. The L2 BaseResolverProps.maxBatchSize sets
+      // MaxBatchSize directly, so no escape hatch is needed.
+      //
+      // APPSYNC_TYPED_ERRORS is intentionally not set here. A batch handler that
+      // throws a typed error rethrows and fails the invocation loudly instead of
+      // having the error envelope returned as field data.
+      new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
+        api: this.api,
+        typeName: typeName as string,
+        fieldName: fieldName as string,
+        dataSource,
+        maxBatchSize: options!.maxBatchSize,
+        requestMappingTemplate: aws_appsync.MappingTemplate.lambdaRequest('$utils.toJson($context)', 'BatchInvoke'),
+        responseMappingTemplate: aws_appsync.MappingTemplate.lambdaResult(),
+      });
+      return fn;
+    }
 
     if (!this.props.typedErrors) {
       // Default (pre-#385) shape: a plain UNIT resolver with the Lambda data

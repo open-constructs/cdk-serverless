@@ -429,6 +429,102 @@ type Post {
     });
   });
 
+  describe('maxBatchSize (BatchInvoke)', () => {
+    test('addLambdaResolver with maxBatchSize produces a UNIT BatchInvoke resolver', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+      });
+
+      api.addLambdaResolver('Query', 'getUser', { maxBatchSize: 10 });
+
+      const template = Template.fromStack(stack);
+
+      // The resolver stays a direct-Lambda UNIT resolver but carries MaxBatchSize
+      // and the BatchInvoke request / lambdaResult response templates so AppSync
+      // groups field invocations into a single Lambda call.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Kind: 'UNIT',
+        MaxBatchSize: 10,
+        RequestMappingTemplate: Match.stringLikeRegexp('BatchInvoke'),
+        ResponseMappingTemplate: '$util.toJson($ctx.result)',
+        Code: Match.absent(),
+        PipelineConfig: Match.absent(),
+      });
+
+      // No APPSYNC_JS pipeline function on the default path.
+      template.resourceCountIs('AWS::AppSync::FunctionConfiguration', 0);
+    });
+
+    test('addLambdaResolver without options stays single-invoke: no MaxBatchSize and no mapping templates', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+      });
+
+      api.addLambdaResolver('Query', 'listUsers');
+
+      const template = Template.fromStack(stack);
+
+      // Backward compatible: the no-options path keeps the exact prior shape with
+      // neither MaxBatchSize nor the BatchInvoke mapping templates.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'listUsers',
+        Kind: 'UNIT',
+        MaxBatchSize: Match.absent(),
+        RequestMappingTemplate: Match.absent(),
+        ResponseMappingTemplate: Match.absent(),
+      });
+    });
+
+    test('maxBatchSize wins over typedErrors: UNIT BatchInvoke resolver, no pipeline, no env var', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+        typedErrors: true,
+      });
+
+      api.addLambdaResolver('Query', 'getUser', { maxBatchSize: 10 });
+
+      const template = Template.fromStack(stack);
+
+      // A batch field takes the UNIT BatchInvoke path even when the API enables
+      // typedErrors, so it synthesizes identically to a batch field on a
+      // non-typedErrors API: a direct-Lambda UNIT resolver with MaxBatchSize and
+      // the BatchInvoke mapping templates, no inline Code and no PipelineConfig.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Kind: 'UNIT',
+        MaxBatchSize: 10,
+        RequestMappingTemplate: Match.stringLikeRegexp('BatchInvoke'),
+        ResponseMappingTemplate: '$util.toJson($ctx.result)',
+        Code: Match.absent(),
+        PipelineConfig: Match.absent(),
+      });
+
+      // No APPSYNC_JS pipeline function on the batch path.
+      template.resourceCountIs('AWS::AppSync::FunctionConfiguration', 0);
+
+      // The batch Lambda carries no APPSYNC_TYPED_ERRORS env var, so a batch
+      // handler that throws a typed error rethrows and fails the invocation
+      // instead of returning the envelope as field data.
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+        Environment: Match.absent(),
+      });
+    });
+  });
+
   describe('useNestedStacks defaults to false', () => {
     test('does not create nested stacks when useNestedStacks is not specified', () => {
       const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {

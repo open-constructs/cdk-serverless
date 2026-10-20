@@ -182,6 +182,16 @@ export const handler = createAppSyncHandler<GetItemsQuery, GetItemsResult>(async
 });
 ```
 
+For AppSync BatchInvoke, use `createAppSyncBatchHandler`. It takes an array of resolver events and returns an array of results in the same order (array in, array out, order preserved). It uses the same context as `createAppSyncHandler`, with the logger and the Cognito authorizer resolved once per batch off the first event. The context exposes both the first event as `ctx.event` (so handler code that reads `ctx.event.arguments` / `ctx.event.identity` keeps working) and the full batch as `ctx.events`. The typed-error model is identical to `createAppSyncHandler`: with `APPSYNC_TYPED_ERRORS === 'true'` a thrown `errors.appsync.*` or `errors.HttpError` returns an array of error envelopes aligned to the batch length, and otherwise rethrows. A plain `Error` always fails the invocation.
+
+```typescript
+import { createAppSyncBatchHandler } from 'cdk-serverless/lambda';
+
+export const handler = createAppSyncBatchHandler<GetItemQuery, Item>(async (ctx) => {
+  return Promise.all(ctx.events.map((event) => getItem(event.arguments.id)));
+});
+```
+
 AppSync resolvers can throw typed errors from the `errors.appsync` namespace. `createAppSyncHandler` catches them and logs at `warn`. Whether it returns a `{ data, errorType, errorMessage, errorInfo }` envelope or rethrows is gated on the `APPSYNC_TYPED_ERRORS` environment variable. When `APPSYNC_TYPED_ERRORS === 'true'` the handler returns the envelope so the invocation stays off the Lambda Errors metric. Otherwise it rethrows the typed error, logging at `error`, so the invocation fails. A plain `Error` always fails the invocation regardless of the flag.
 
 ```typescript
@@ -205,6 +215,8 @@ The envelope only becomes a GraphQL error when the resolver is wired via `GraphQ
 The response handler recognises the envelope by a reserved `__appSyncError` sentinel key that `createAppSyncHandler` stamps, not by the presence of an `errorMessage` field. A resolver whose real return type happens to include an `errorMessage` field is therefore passed through unchanged.
 
 Opting in with `typedErrors`: by default `addLambdaResolver` synthesizes a plain direct-Lambda UNIT resolver (the pre-#385 shape), so upgrading consumers who do not opt in see no resolver topology change and no `cdk diff` surprise. Set `typedErrors: true` on the `GraphQlApi` to get the typed `errors.appsync.*` behavior. With the flag enabled, each Lambda-backed field gains a new `AWS::AppSync::FunctionConfiguration` (`LambdaFn${type}.${field}`), and the resolver flips from a `dataSource` UNIT resolver to a `pipelineConfig` + `code` PIPELINE resolver with the response handler described above. The data source and resolver logical IDs are unchanged, so the resolver updates in place rather than being replaced, while the new per-field function resource is additive. The flag applies to all Lambda resolvers on the API, so run `cdk diff` after enabling it to review the topology change.
+
+`maxBatchSize` wins over `typedErrors` per field. When a field passes `maxBatchSize` to `addLambdaResolver`, that field always gets the UNIT BatchInvoke resolver (MaxBatchSize plus the BatchInvoke request template and the `lambdaResult` response template), even when the API has `typedErrors: true`. The batch field gets no APPSYNC_JS pipeline, no `AWS::AppSync::FunctionConfiguration`, and no `APPSYNC_TYPED_ERRORS` env var on its Lambda, so it synthesizes identically whether or not the API enables `typedErrors`. The trade-off is that typed errors thrown by a batch handler are not converted to GraphQL errors. They rethrow and fail the invocation, so do not rely on the typed-error-to-GraphQL-error conversion in a batch handler. Non-batch fields on the same API keep the `typedErrors` pipeline behavior described above.
 
 `APPSYNC_TYPED_ERRORS` is the coupling mechanism between the handler and the pipeline. `createAppSyncHandler` returns the `{ __appSyncError: true, ... }` sentinel envelope only when `APPSYNC_TYPED_ERRORS === 'true'` is set in the Lambda environment, and rethrows the `errors.appsync.*` error otherwise. `GraphQlApi.addLambdaResolver` injects `APPSYNC_TYPED_ERRORS=true` automatically on the `typedErrors: true` path, the same path that carries the response handler to translate the envelope. On the default UNIT path the flag is left unset, so a handler that throws an `errors.appsync.*` error fails the invocation loudly (rethrow) instead of returning a broken envelope as field data. If you wire `createAppSyncHandler` yourself without `GraphQlApi`, set `APPSYNC_TYPED_ERRORS=true` on the Lambda yourself to get envelope behavior and replicate the response handler. Without it, typed errors rethrow.
 
