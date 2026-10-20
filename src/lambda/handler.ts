@@ -1,5 +1,6 @@
 import { env } from 'process';
 import logger, { LambdaLog } from 'lambda-log';
+import * as appsyncErrors from './appsync-errors';
 import {
   ApiGatewayv1CognitoAuthorizer,
   ApiGatewayv1JwtAuthorizer,
@@ -260,6 +261,81 @@ export type AppSyncHandler<T, R> = (
 ) => Promise<R>;
 
 /**
+ * Maps an HTTP status code to the GraphQL errorType reported to AppSync.
+ *
+ * Local (non-exported) helper used only by createAppSyncHandler when it
+ * translates an errors.HttpError into a typed AppSync error. The explicit
+ * default keeps any unmapped status (for example a 418 or a 5xx) reported as
+ * the generic 'Error' errorType rather than leaking the raw status code.
+ */
+function httpStatusToErrorType(statusCode: number): string {
+  switch (statusCode) {
+    case 400:
+      return 'BadRequest';
+    case 401:
+      return 'Unauthorized';
+    case 403:
+      return 'Forbidden';
+    case 404:
+      return 'NotFound';
+    default:
+      return 'Error';
+  }
+}
+
+/**
+ * The typed-error shape shared by createAppSyncHandler and createAppSyncBatchHandler.
+ */
+interface TypedAppSyncError {
+  errorType: string;
+  message: string;
+  errorInfo?: Record<string, any>;
+}
+
+/**
+ * Normalises the two recognised typed-error shapes to a common
+ * { errorType, message, errorInfo } so the gate, envelope and rethrow are a
+ * single code path across the single and batch handlers. Returns undefined for
+ * anything that is neither (plain Error, Boom), which the callers rethrow.
+ *
+ * - appsyncErrors.AppSyncError carries its own GraphQL errorType and an optional
+ *   errorInfo, which flow through unchanged.
+ * - errors.HttpError (the HTTP base thrown by the shared JwtAuthorizer via
+ *   assertAuthenticated/assertGroup/assertAdmin, and by resolver code directly)
+ *   has no GraphQL errorType, so map its statusCode with httpStatusToErrorType.
+ *   HttpError carries no errorInfo, so errorInfo is undefined.
+ *
+ * The two instanceof checks are disjoint: HttpError and AppSyncError share no
+ * ancestry, so an appsync.ForbiddenError takes the AppSyncError branch and an
+ * errors.ForbiddenError the HttpError branch.
+ */
+function toTypedError(error: any): TypedAppSyncError | undefined {
+  if (error instanceof appsyncErrors.AppSyncError) {
+    return { errorType: error.errorType, message: error.message, errorInfo: error.errorInfo };
+  } else if (error instanceof errors.HttpError) {
+    return { errorType: httpStatusToErrorType(error.statusCode), message: error.message, errorInfo: undefined };
+  }
+  return undefined;
+}
+
+/**
+ * Builds the direct-Lambda error envelope AppSync surfaces as a typed GraphQL
+ * error. __appSyncError is a reserved sentinel key the resolver response handler
+ * keys on to recognise this envelope. Branching on the sentinel (rather than on
+ * a bare errorMessage) means a legitimate resolver result that merely contains
+ * an errorMessage field is not misclassified as a typed error.
+ */
+function buildErrorEnvelope<R>(typed: TypedAppSyncError): R {
+  return {
+    __appSyncError: true,
+    data: null,
+    errorType: typed.errorType,
+    errorMessage: typed.message,
+    errorInfo: typed.errorInfo,
+  } as unknown as R;
+}
+
+/**
  * Creates an AppSync resolver handler from the given AppSyncHandler.
  * Returns a function that can be used as an AppSync resolver.
  *
@@ -289,6 +365,107 @@ export const createAppSyncHandler =
         // invoke the handler function with the context
         return await handler(ctx);
       } catch (error: any) {
+        const typed = toTypedError(error);
+
+        if (typed && process.env.APPSYNC_TYPED_ERRORS === 'true') {
+          // The envelope-return is gated on APPSYNC_TYPED_ERRORS === 'true'.
+          // GraphQlApi.addLambdaResolver injects that env var only on its
+          // typedErrors: true path, whose APPSYNC_JS resolver has a response
+          // handler that reads this envelope and calls
+          // util.error(errorMessage, errorType, null, errorInfo), turning it into
+          // a GraphQL error on a successful invocation. Returning (not throwing)
+          // keeps the invocation off the Lambda Errors metric.
+          //
+          // When the env var is absent (the default UNIT resolver path, or a
+          // hand-wired handler used without GraphQlApi) the typed error falls
+          // through to the rethrow below, so the invocation fails loudly instead
+          // of surfacing the envelope as field data. Any value other than the
+          // exact string 'true' means rethrow. This is why a default UNIT
+          // resolver whose handler hits an auth assertion (an HttpError) still
+          // fails loudly unless typedErrors is active.
+          ctx.logger.warn(typed.message, { errorType: typed.errorType, errorInfo: typed.errorInfo });
+          return buildErrorEnvelope<R>(typed);
+        }
+        // log the error and throw it again
+        ctx.logger.error(error);
+        throw error;
+      }
+    };
+  };
+
+/**
+ * The context for a batched AppSync resolver function.
+ * Extends AppSyncHandlerContext so handler code that reads ctx.event.arguments /
+ * ctx.event.identity keeps working against the first event, and additionally
+ * exposes the full batch of events so the handler can map over it.
+ */
+export interface AppSyncBatchHandlerContext<T, S extends Record<string, any> | null = Record<string, any> | null> extends AppSyncHandlerContext<T> {
+  event: AWSLambda.AppSyncResolverEvent<T, S>;
+  events: AWSLambda.AppSyncResolverEvent<T, S>[];
+}
+
+/**
+ * A function that handles an AppSync BatchInvoke event.
+ * Receives the batch context and returns the responses in source order.
+ */
+export type AppSyncBatchHandler<T, R, S extends Record<string, any> | null = Record<string, any> | null> = (
+  context: AppSyncBatchHandlerContext<T, S>,
+) => Promise<R[]>;
+
+/**
+ * Creates a batched AppSync resolver handler from the given AppSyncBatchHandler.
+ * Returns a function that can be used as an AppSync BatchInvoke resolver: array
+ * in, array out, order preserved.
+ *
+ * It mirrors createAppSyncHandler's context and auth plumbing but operates on an
+ * array of events. Authentication runs once per batch off the first event, and
+ * the context carries both the first event (ctx.event = events[0]) and the full
+ * ctx.events array. The handler returns R[] in the same order as the input events.
+ *
+ * @param handler The AppSyncBatchHandler to use as the resolver.
+ */
+export const createAppSyncBatchHandler =
+  <T, R, S extends Record<string, any> | null = Record<string, any> | null>(
+    handler: AppSyncBatchHandler<T, R, S>,
+  ): AWSLambda.AppSyncBatchResolverHandler<T, R, S> => {
+    return async (events, context) => {
+      // BatchInvoke always delivers a non-empty array; authenticate and build
+      // the context off the first event, exactly like createAppSyncHandler.
+      const first = events[0];
+      const ctx: AppSyncBatchHandlerContext<T, S> = {
+        event: first,
+        events,
+        lambdaContext: context,
+        logger: logger as unknown as logger.LambdaLog,
+        cognitoAuth: new AppSyncCognitoAuthorizer(first),
+      };
+
+      // set the meta information in logger
+      ctx.logger.options.meta.requestId = context.awsRequestId;
+      // set the debug flag for logger
+      ctx.logger.options.debug = process.env.DEBUG === 'true';
+
+      // log the received batch of events
+      ctx.logger.debug(JSON.stringify(events));
+
+      try {
+        // authenticate once per batch off the first event
+        await ctx.cognitoAuth.authenticate();
+        // invoke the handler function with the batch context; it returns R[] in source order
+        return await handler(ctx);
+      } catch (error: any) {
+        const typed = toTypedError(error);
+
+        if (typed && process.env.APPSYNC_TYPED_ERRORS === 'true') {
+          // Same gate and envelope as createAppSyncHandler. AppSync expects one
+          // result per event in a BatchInvoke response, so a batch-level typed
+          // error returns an array of envelopes aligned to the batch length;
+          // each item surfaces the same typed error. Returning (not throwing)
+          // keeps the invocation off the Lambda Errors metric. Without the flag
+          // the typed error falls through to the rethrow below.
+          ctx.logger.warn(typed.message, { errorType: typed.errorType, errorInfo: typed.errorInfo });
+          return events.map(() => buildErrorEnvelope<R>(typed));
+        }
         // log the error and throw it again
         ctx.logger.error(error);
         throw error;

@@ -1,7 +1,7 @@
 import * as fs from 'node:fs';
 import * as path from 'node:path';
 import { App, Stack } from 'aws-cdk-lib';
-import { Template } from 'aws-cdk-lib/assertions';
+import { Match, Template } from 'aws-cdk-lib/assertions';
 import { CognitoAuthentication, GraphQlApi } from '../../src/constructs';
 
 // Define a resolver type for testing
@@ -163,15 +163,109 @@ type Post {
 
       const template = Template.fromStack(stack);
 
-      // Verify resolver is created in the main stack
+      // Without typedErrors (the default), the resolver is a plain UNIT
+      // direct-Lambda resolver (the pre-#385 shape): no APPSYNC_JS pipeline, no
+      // inline Code and no PipelineConfig.
       template.hasResourceProperties('AWS::AppSync::Resolver', {
         TypeName: 'Query',
         FieldName: 'getUser',
+        Code: Match.absent(),
+        PipelineConfig: Match.absent(),
+      });
+
+      // The default path creates no APPSYNC_JS pipeline function.
+      template.resourceCountIs('AWS::AppSync::FunctionConfiguration', 0);
+
+      // Verify Lambda function is created
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+      });
+
+      // On the default UNIT path the resolver Lambda carries no
+      // APPSYNC_TYPED_ERRORS env var, so createAppSyncHandler rethrows typed
+      // errors instead of returning the envelope as field data.
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+        Environment: Match.absent(),
+      });
+
+      // Verify no nested stacks
+      template.resourceCountIs('AWS::CloudFormation::Stack', 0);
+    });
+
+    test('creates APPSYNC_JS pipeline Lambda resolver when typedErrors is enabled', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+        typedErrors: true,
+      });
+
+      api.addLambdaResolver('Query', 'getUser');
+
+      const template = Template.fromStack(stack);
+
+      // With typedErrors enabled, the resolver is an APPSYNC_JS pipeline resolver
+      // whose response handler converts the error envelope into a GraphQL error
+      // via util.error / util.appendError.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Kind: 'PIPELINE',
+        Runtime: {
+          Name: 'APPSYNC_JS',
+          RuntimeVersion: '1.0.0',
+        },
+        Code: Match.stringLikeRegexp('if \\(result && result\\.__appSyncError\\)'),
+      });
+
+      // The error branch keys on the __appSyncError sentinel and raises the
+      // typed error via util.error, so a legitimate result that merely has an
+      // errorMessage field is not misclassified.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Code: Match.stringLikeRegexp('util\\.error\\(result\\.errorMessage, result\\.errorType, null, result\\.errorInfo\\)'),
+      });
+
+      // The success path returns the resolver result unchanged. A result without
+      // the sentinel falls through the error branch and is passed through as-is.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Code: Match.stringLikeRegexp('return result;'),
+      });
+
+      // The response handler also appends invoke-level errors.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Code: Match.stringLikeRegexp('util\\.appendError\\(ctx\\.error\\.message, ctx\\.error\\.type, ctx\\.result\\)'),
+      });
+
+      // The Lambda invoke runs as an APPSYNC_JS pipeline function.
+      template.hasResourceProperties('AWS::AppSync::FunctionConfiguration', {
+        Runtime: {
+          Name: 'APPSYNC_JS',
+          RuntimeVersion: '1.0.0',
+        },
       });
 
       // Verify Lambda function is created
       template.hasResourceProperties('AWS::Lambda::Function', {
         Description: '[test] Type Query Field getUser Resolver',
+      });
+
+      // On the typedErrors path addLambdaResolver injects APPSYNC_TYPED_ERRORS=true
+      // so createAppSyncHandler returns the envelope the response handler expects.
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+        Environment: {
+          Variables: {
+            APPSYNC_TYPED_ERRORS: 'true',
+          },
+        },
       });
 
       // Verify no nested stacks
@@ -331,6 +425,102 @@ type Post {
       // GraphQL API should be in the main stack, not nested
       template.hasResourceProperties('AWS::AppSync::GraphQLApi', {
         Name: 'TestAPI [test]',
+      });
+    });
+  });
+
+  describe('maxBatchSize (BatchInvoke)', () => {
+    test('addLambdaResolver with maxBatchSize produces a UNIT BatchInvoke resolver', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+      });
+
+      api.addLambdaResolver('Query', 'getUser', { maxBatchSize: 10 });
+
+      const template = Template.fromStack(stack);
+
+      // The resolver stays a direct-Lambda UNIT resolver but carries MaxBatchSize
+      // and the BatchInvoke request / lambdaResult response templates so AppSync
+      // groups field invocations into a single Lambda call.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Kind: 'UNIT',
+        MaxBatchSize: 10,
+        RequestMappingTemplate: Match.stringLikeRegexp('BatchInvoke'),
+        ResponseMappingTemplate: '$util.toJson($ctx.result)',
+        Code: Match.absent(),
+        PipelineConfig: Match.absent(),
+      });
+
+      // No APPSYNC_JS pipeline function on the default path.
+      template.resourceCountIs('AWS::AppSync::FunctionConfiguration', 0);
+    });
+
+    test('addLambdaResolver without options stays single-invoke: no MaxBatchSize and no mapping templates', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+      });
+
+      api.addLambdaResolver('Query', 'listUsers');
+
+      const template = Template.fromStack(stack);
+
+      // Backward compatible: the no-options path keeps the exact prior shape with
+      // neither MaxBatchSize nor the BatchInvoke mapping templates.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'listUsers',
+        Kind: 'UNIT',
+        MaxBatchSize: Match.absent(),
+        RequestMappingTemplate: Match.absent(),
+        ResponseMappingTemplate: Match.absent(),
+      });
+    });
+
+    test('maxBatchSize wins over typedErrors: UNIT BatchInvoke resolver, no pipeline, no env var', () => {
+      const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+        apiName: 'TestAPI',
+        stageName: 'test',
+        definitionFileName: schemaPath,
+        authentication,
+        typedErrors: true,
+      });
+
+      api.addLambdaResolver('Query', 'getUser', { maxBatchSize: 10 });
+
+      const template = Template.fromStack(stack);
+
+      // A batch field takes the UNIT BatchInvoke path even when the API enables
+      // typedErrors, so it synthesizes identically to a batch field on a
+      // non-typedErrors API: a direct-Lambda UNIT resolver with MaxBatchSize and
+      // the BatchInvoke mapping templates, no inline Code and no PipelineConfig.
+      template.hasResourceProperties('AWS::AppSync::Resolver', {
+        TypeName: 'Query',
+        FieldName: 'getUser',
+        Kind: 'UNIT',
+        MaxBatchSize: 10,
+        RequestMappingTemplate: Match.stringLikeRegexp('BatchInvoke'),
+        ResponseMappingTemplate: '$util.toJson($ctx.result)',
+        Code: Match.absent(),
+        PipelineConfig: Match.absent(),
+      });
+
+      // No APPSYNC_JS pipeline function on the batch path.
+      template.resourceCountIs('AWS::AppSync::FunctionConfiguration', 0);
+
+      // The batch Lambda carries no APPSYNC_TYPED_ERRORS env var, so a batch
+      // handler that throws a typed error rethrows and fails the invocation
+      // instead of returning the envelope as field data.
+      template.hasResourceProperties('AWS::Lambda::Function', {
+        Description: '[test] Type Query Field getUser Resolver',
+        Environment: Match.absent(),
       });
     });
   });

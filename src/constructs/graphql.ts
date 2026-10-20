@@ -30,6 +30,47 @@ export interface GraphQlApiProps extends BaseApiProps {
    * @default false
    */
   useNestedStacks?: boolean;
+
+  /**
+   * If true, addLambdaResolver synthesizes an APPSYNC_JS pipeline resolver whose
+   * response handler converts the errors.appsync.* envelope returned by
+   * createAppSyncHandler into a typed GraphQL error.
+   *
+   * When false (the default), addLambdaResolver synthesizes a plain UNIT
+   * direct-Lambda resolver (the pre-#385 behavior) with no response handler. On
+   * that path, if a handler throws an AppSyncError the sentinel envelope is
+   * returned as field data instead of becoming a GraphQL error.
+   *
+   * This flag applies to ALL Lambda resolvers on the API. Enabling it changes
+   * the resolver topology from UNIT to PIPELINE, which produces a cdk diff for
+   * every Lambda resolver, so opt in deliberately.
+   *
+   * @default false
+   */
+  typedErrors?: boolean;
+}
+
+export interface LambdaResolverOptions {
+  /**
+   * If set, addLambdaResolver wires an AppSync BatchInvoke resolver instead of a
+   * single invoke. The generated UNIT resolver gets MaxBatchSize set to this
+   * value, a BatchInvoke request template
+   * (MappingTemplate.lambdaRequest('$utils.toJson($context)', 'BatchInvoke')) and
+   * a MappingTemplate.lambdaResult() response template, so AppSync groups up to
+   * this many field invocations into one Lambda call. Pair this with
+   * createAppSyncBatchHandler, whose handler receives the batched events.
+   *
+   * When both maxBatchSize and `typedErrors` are set, maxBatchSize wins for this
+   * field. The field gets the UNIT BatchInvoke resolver rather than the
+   * typedErrors APPSYNC_JS pipeline, because the BatchInvoke mapping templates
+   * have no equivalent on that pipeline. Typed errors thrown by a batch handler
+   * are not converted to GraphQL errors. They rethrow and fail the invocation,
+   * so a batch handler should not rely on the typed-error-to-GraphQL-error
+   * conversion.
+   *
+   * @default - undefined (single invoke, the pre-batch behaviour; no MaxBatchSize and no mapping templates)
+   */
+  readonly maxBatchSize?: number;
 }
 
 export interface VtlResolverOptions {
@@ -289,7 +330,10 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
   public addLambdaResolver<TYPE extends keyof RESOLVERS, FIELDTYPE extends NonNullable<RESOLVERS[TYPE]>>(
     typeName: TYPE,
     fieldName: keyof FIELDTYPE,
+    options?: LambdaResolverOptions,
   ): LambdaFunction {
+    const isBatch = options?.maxBatchSize !== undefined;
+
     const operationId = `${typeName as string}.${fieldName as String}`;
     const description = `Type ${typeName as string} Field ${fieldName as String} Resolver`;
 
@@ -336,11 +380,114 @@ export class GraphQlApi<RESOLVERS> extends BaseApi {
       lambdaFunction: fn,
     });
 
+    if (isBatch) {
+      // A batch field always takes the UNIT BatchInvoke path, even when the API
+      // has typedErrors enabled. maxBatchSize wins over typedErrors for this
+      // field because the BatchInvoke mapping templates have no equivalent on
+      // the APPSYNC_JS pipeline resolver. AppSync batches up to maxBatchSize
+      // field invocations into a single Lambda call handled by
+      // createAppSyncBatchHandler. The L2 BaseResolverProps.maxBatchSize sets
+      // MaxBatchSize directly, so no escape hatch is needed.
+      //
+      // APPSYNC_TYPED_ERRORS is intentionally not set here. A batch handler that
+      // throws a typed error rethrows and fails the invocation loudly instead of
+      // having the error envelope returned as field data.
+      new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
+        api: this.api,
+        typeName: typeName as string,
+        fieldName: fieldName as string,
+        dataSource,
+        maxBatchSize: options!.maxBatchSize,
+        requestMappingTemplate: aws_appsync.MappingTemplate.lambdaRequest('$utils.toJson($context)', 'BatchInvoke'),
+        responseMappingTemplate: aws_appsync.MappingTemplate.lambdaResult(),
+      });
+      return fn;
+    }
+
+    if (!this.props.typedErrors) {
+      // Default (pre-#385) shape: a plain UNIT resolver with the Lambda data
+      // source set directly. No response handler, so the error envelope from
+      // createAppSyncHandler would be surfaced as field data rather than a
+      // GraphQL error. Opt in via `typedErrors: true` to get the pipeline below.
+      new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
+        api: this.api,
+        typeName: typeName as string,
+        fieldName: fieldName as string,
+        dataSource,
+      });
+      return fn;
+    }
+
+    // Couple the handler to this pipeline. createAppSyncHandler returns the
+    // error envelope only when APPSYNC_TYPED_ERRORS === 'true'; otherwise it
+    // rethrows the typed error. Inject the flag here (and only here) so the
+    // envelope behavior is active exactly on the path that has the response
+    // handler to interpret it. The default UNIT path above leaves the env var
+    // unset, so a handler that throws an AppSyncError there fails loudly.
+    fn.addEnvironment('APPSYNC_TYPED_ERRORS', 'true');
+
+    // The Lambda invoke runs as a pipeline function (a single Invoke passthrough),
+    // and the resolver's response handler interprets the error envelope that
+    // createAppSyncHandler returns. A direct-Lambda resolver without a response
+    // handler would surface the { data, errorType, errorMessage, errorInfo }
+    // envelope as plain field data, so the typed errors.appsync.* errors only
+    // become GraphQL errors because of the response handler attached below.
+    const invokeFunction = new aws_appsync.AppsyncFunction(scope, `LambdaFn${operationId}`, {
+      api: this.api,
+      name: `Lambda_${(typeName as string).replace(/[^A-Za-z0-9]/g, '')}_${(fieldName as String).replace(/[^A-Za-z0-9]/g, '')}`,
+      dataSource,
+      runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
+      code: aws_appsync.Code.fromInline(`import { util } from '@aws-appsync/utils';
+
+// Invoke the Lambda data source with the full resolver context as the payload.
+export function request(ctx) {
+  return {
+    operation: 'Invoke',
+    payload: ctx,
+  };
+}
+
+// Pass the Lambda result through unchanged; the resolver response handler
+// converts the error envelope into a GraphQL error.
+export function response(ctx) {
+  return ctx.result;
+}
+`),
+    });
+
     new aws_appsync.Resolver(scope, `Resolver${operationId}`, {
       api: this.api,
       typeName: typeName as string,
       fieldName: fieldName as string,
-      dataSource,
+      runtime: aws_appsync.FunctionRuntime.JS_1_0_0,
+      pipelineConfig: [invokeFunction],
+      code: aws_appsync.Code.fromInline(`import { util } from '@aws-appsync/utils';
+
+export function request(ctx) {
+  return {};
+}
+
+// Convert the error envelope returned by createAppSyncHandler into a GraphQL error.
+// util.error / util.appendError take (message, errorType, data, errorInfo), so
+// errorType and errorInfo reach the client. Without this, AppSync would surface
+// the envelope object as the field result instead of as a GraphQL error.
+//
+// The envelope is recognised by its reserved __appSyncError sentinel key, which
+// createAppSyncHandler stamps. Branching on the sentinel (not on a bare
+// errorMessage) means a legitimate result that merely has an errorMessage field
+// is returned unchanged instead of being misread as a typed error.
+export function response(ctx) {
+  if (ctx.error) {
+    util.appendError(ctx.error.message, ctx.error.type, ctx.result);
+    return ctx.result;
+  }
+  const result = ctx.prev.result;
+  if (result && result.__appSyncError) {
+    util.error(result.errorMessage, result.errorType, null, result.errorInfo);
+  }
+  return result;
+}
+`),
     });
     return fn;
   }
