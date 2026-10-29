@@ -237,19 +237,15 @@ type Post {
         Code: Match.stringLikeRegexp('return result;'),
       });
 
-      // The response handler also appends invoke-level errors.
-      template.hasResourceProperties('AWS::AppSync::Resolver', {
-        TypeName: 'Query',
-        FieldName: 'getUser',
-        Code: Match.stringLikeRegexp('util\\.appendError\\(ctx\\.error\\.message, ctx\\.error\\.type, ctx\\.result\\)'),
-      });
-
-      // The Lambda invoke runs as an APPSYNC_JS pipeline function.
+      // The Lambda invoke runs as an APPSYNC_JS pipeline function, which raises
+      // invoke-level errors itself: AppSync drops an error left in a pipeline
+      // function's ctx.error, so the resolver handler could never see it.
       template.hasResourceProperties('AWS::AppSync::FunctionConfiguration', {
         Runtime: {
           Name: 'APPSYNC_JS',
           RuntimeVersion: '1.0.0',
         },
+        Code: Match.stringLikeRegexp('util\\.error\\(ctx\\.error\\.message, ctx\\.error\\.type\\)'),
       });
 
       // Verify Lambda function is created
@@ -270,6 +266,90 @@ type Post {
 
       // Verify no nested stacks
       template.resourceCountIs('AWS::CloudFormation::Stack', 0);
+    });
+
+    describe('typedErrors handler behavior', () => {
+      /**
+       * Loads an inline APPSYNC_JS module with a fake `util` whose error() throws
+       * like the AppSync runtime does, so the handlers can be exercised in Jest.
+       */
+      const loadHandlers = (code: string, util: any): { request: Function; response: Function } => {
+        const body = code
+          .replace(/^import .*$/m, '')
+          .replace(/export function/g, 'function');
+        return new Function('util', `${body}\nreturn { request, response };`)(util);
+      };
+
+      class FakeAppSyncError extends Error {
+        constructor(message: string, public readonly errorType?: string, public readonly errorInfo?: unknown) {
+          super(message);
+        }
+      }
+      const fakeUtil = {
+        error: (message: string, errorType?: string, _data?: unknown, errorInfo?: unknown) => {
+          throw new FakeAppSyncError(message, errorType, errorInfo);
+        },
+      };
+
+      let functionResponse: Function;
+      let resolverResponse: Function;
+
+      beforeEach(() => {
+        const api = new GraphQlApi<TestResolvers>(stack, 'TestApi', {
+          apiName: 'TestAPI',
+          stageName: 'test',
+          definitionFileName: schemaPath,
+          authentication,
+          typedErrors: true,
+        });
+        api.addLambdaResolver('Query', 'getUser');
+        const template = Template.fromStack(stack);
+
+        const [fnConfig] = Object.values(template.findResources('AWS::AppSync::FunctionConfiguration'));
+        const [resolver] = Object.values(template.findResources('AWS::AppSync::Resolver'));
+        functionResponse = loadHandlers(fnConfig.Properties.Code, fakeUtil).response;
+        resolverResponse = loadHandlers(resolver.Properties.Code, fakeUtil).response;
+      });
+
+      test('pipeline function raises an invoke error instead of resolving to null', () => {
+        // What AppSync hands the function when the handler rethrows an untyped error.
+        const ctx = {
+          result: null,
+          error: { message: 'Team "X" not found', type: 'Lambda:Unhandled' },
+        };
+
+        expect(() => functionResponse(ctx)).toThrow(
+          expect.objectContaining({ message: 'Team "X" not found', errorType: 'Lambda:Unhandled' }),
+        );
+      });
+
+      test('pipeline function passes a successful result through', () => {
+        const result = { id: '1' };
+        expect(functionResponse({ result })).toBe(result);
+      });
+
+      test('resolver raises the typed error envelope with errorType and errorInfo', () => {
+        const ctx = {
+          prev: {
+            result: {
+              __appSyncError: true,
+              data: null,
+              errorType: 'NotFound',
+              errorMessage: 'User not found',
+              errorInfo: { id: '1' },
+            },
+          },
+        };
+
+        expect(() => resolverResponse(ctx)).toThrow(
+          expect.objectContaining({ message: 'User not found', errorType: 'NotFound', errorInfo: { id: '1' } }),
+        );
+      });
+
+      test('resolver passes a result without the sentinel through', () => {
+        const result = { id: '1', errorMessage: 'a legitimate field' };
+        expect(resolverResponse({ prev: { result } })).toBe(result);
+      });
     });
 
     test('creates multiple resolvers in the main stack', () => {

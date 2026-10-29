@@ -36,10 +36,15 @@ export interface GraphQlApiProps extends BaseApiProps {
    * response handler converts the errors.appsync.* envelope returned by
    * createAppSyncHandler into a typed GraphQL error.
    *
+   * Untyped errors still fail the invocation, and the pipeline function raises
+   * them as GraphQL errors with AppSync's invoke error type (e.g.
+   * `Lambda:Unhandled`), as a UNIT direct-Lambda resolver does.
+   *
    * When false (the default), addLambdaResolver synthesizes a plain UNIT
-   * direct-Lambda resolver (the pre-#385 behavior) with no response handler. On
-   * that path, if a handler throws an AppSyncError the sentinel envelope is
-   * returned as field data instead of becoming a GraphQL error.
+   * direct-Lambda resolver (the pre-#385 behavior) with no response handler.
+   * The Lambda gets no APPSYNC_TYPED_ERRORS flag, so createAppSyncHandler
+   * rethrows an AppSyncError and AppSync reports it as `Lambda:Unhandled`
+   * without the typed errorType and errorInfo.
    *
    * This flag applies to ALL Lambda resolvers on the API. Enabling it changes
    * the resolver topology from UNIT to PIPELINE, which produces a cdk diff for
@@ -447,9 +452,16 @@ export function request(ctx) {
   };
 }
 
-// Pass the Lambda result through unchanged; the resolver response handler
-// converts the error envelope into a GraphQL error.
+// A failed invoke (an untyped error rethrown by createAppSyncHandler, a timeout,
+// a missing permission) lands in this function's ctx.error. AppSync drops it
+// unless this handler raises it, and the field would resolve to null with no
+// GraphQL error. Raise it with the same message and type a UNIT direct-Lambda
+// resolver reports. Otherwise pass the result through; the resolver response
+// handler converts the typed error envelope into a GraphQL error.
 export function response(ctx) {
+  if (ctx.error) {
+    util.error(ctx.error.message, ctx.error.type);
+  }
   return ctx.result;
 }
 `),
@@ -476,11 +488,10 @@ export function request(ctx) {
 // createAppSyncHandler stamps. Branching on the sentinel (not on a bare
 // errorMessage) means a legitimate result that merely has an errorMessage field
 // is returned unchanged instead of being misread as a typed error.
+//
+// Invoke-level errors are raised by the pipeline function itself: an error left
+// in a function's ctx.error never reaches this handler's ctx.error.
 export function response(ctx) {
-  if (ctx.error) {
-    util.appendError(ctx.error.message, ctx.error.type, ctx.result);
-    return ctx.result;
-  }
   const result = ctx.prev.result;
   if (result && result.__appSyncError) {
     util.error(result.errorMessage, result.errorType, null, result.errorInfo);
