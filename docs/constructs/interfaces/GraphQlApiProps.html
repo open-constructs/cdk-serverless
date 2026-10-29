@@ -168,10 +168,14 @@ to use any other JWT-based authorization service.</p>
 <div class="tsd-comment tsd-typography"><p>If true, addLambdaResolver synthesizes an APPSYNC_JS pipeline resolver whose
 response handler converts the errors.appsync.* envelope returned by
 createAppSyncHandler into a typed GraphQL error.</p>
+<p>Untyped errors still fail the invocation, and the pipeline function raises
+them as GraphQL errors with AppSync's invoke error type (e.g.
+<code>Lambda:Unhandled</code>), as a UNIT direct-Lambda resolver does.</p>
 <p>When false (the default), addLambdaResolver synthesizes a plain UNIT
-direct-Lambda resolver (the pre-#385 behavior) with no response handler. On
-that path, if a handler throws an AppSyncError the sentinel envelope is
-returned as field data instead of becoming a GraphQL error.</p>
+direct-Lambda resolver (the pre-#385 behavior) with no response handler.
+The Lambda gets no APPSYNC_TYPED_ERRORS flag, so createAppSyncHandler
+rethrows an AppSyncError and AppSync reports it as <code>Lambda:Unhandled</code>
+without the typed errorType and errorInfo.</p>
 <p>This flag applies to ALL Lambda resolvers on the API. Enabling it changes
 the resolver topology from UNIT to PIPELINE, which produces a cdk diff for
 every Lambda resolver, so opt in deliberately.</p>
