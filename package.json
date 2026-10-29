@@ -33,10 +33,10 @@
     "organization": true
   },
   "devDependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "3.1150.0",
-    "@aws-sdk/client-dynamodb": "3.1150.0",
-    "@aws-sdk/client-s3": "3.1150.0",
-    "@aws-sdk/lib-dynamodb": "3.1150.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1159.0",
+    "@aws-sdk/client-dynamodb": "^3.1159.0",
+    "@aws-sdk/client-s3": "^3.1159.0",
+    "@aws-sdk/lib-dynamodb": "^3.1159.0",
     "@hapi/boom": "^10.0.1",
     "@stylistic/eslint-plugin": "^2",
     "@types/jest": "^30",
@@ -57,21 +57,21 @@
     "jest": "^30",
     "jest-junit": "^17",
     "openapi-typescript": "7.13.0",
-    "projen": "0.104.5",
+    "projen": "0.104.19",
     "ts-jest": "^29",
     "ts-node": "^10.9.2",
     "typedoc": "0.28.20",
     "typescript": "^5.9.3"
   },
   "peerDependencies": {
-    "@aws-sdk/client-cognito-identity-provider": "^3.1150.0",
-    "@aws-sdk/client-dynamodb": "^3.1150.0",
-    "@aws-sdk/client-s3": "^3.1150.0",
-    "@aws-sdk/lib-dynamodb": "^3.1150.0",
+    "@aws-sdk/client-cognito-identity-provider": "^3.1159.0",
+    "@aws-sdk/client-dynamodb": "^3.1159.0",
+    "@aws-sdk/client-s3": "^3.1159.0",
+    "@aws-sdk/lib-dynamodb": "^3.1159.0",
     "aws-cdk-lib": ">=2.273.0 <3.0.0",
     "dynamodb-onetable": "2.7.7",
     "openapi-typescript": "^7.13.0",
-    "projen": ">=0.104.5 <1.0.0"
+    "projen": ">=0.104.19 <1.0.0"
   },
   "dependencies": {
     "@types/aws-lambda": "^8.10.164",
